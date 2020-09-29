@@ -1,6 +1,7 @@
-from auth import *
+import auth
 from other import clear
 from error import InputError
+import pytest
 
 ''' Tests:
         register:
