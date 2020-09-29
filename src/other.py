@@ -1,3 +1,11 @@
+from data import users, channels
+def clear():
+    for user in users:
+        users.remove(user)
+    for channel in channels:
+        channels.remove(channel)
+    pass
+
 def users_all(token):
     return {
         'users': [
