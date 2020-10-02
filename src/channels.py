@@ -1,3 +1,6 @@
+# Yicheng (Mike) Zhu
+# Last updated 2/10/2020
+
 from data import users, channels
 from error import InputError
 
@@ -5,6 +8,7 @@ from error import InputError
 HELPER FUNCTIONS
     1. is_channel_name_valid(name): checks if channel name more than 20 characters,
     in which case it is invalid
+    2. is_token_valid(token): checks if token is a logged-in user
 """
 
 ########### GLOBAL VARIABLES ###############
@@ -34,7 +38,8 @@ def channels_create(token, name, is_public):
         raise InputError()
 
     # check token validity
-     is not in 
+    if is_token_valid(token) is False:
+        raise InputError()
 
     # create new channel
     new_channel = {}
@@ -71,3 +76,11 @@ def is_name_valid(name):
         return False
     else:
         return True
+        
+# checks if token is a logged-in user
+# returns True if token is found in users list, otherwise False
+def is_token_valid(token): 
+    for user in users:
+        if user['u_id'] is token:
+            return True
+    return False

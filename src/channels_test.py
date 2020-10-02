@@ -1,3 +1,6 @@
+# Yicheng (Mike) Zhu
+# Last updated 2/10/2020
+
 from channels import channels_list, channels_listall, channels_create
 from other import clear
 from error import InputError
