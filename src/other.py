@@ -1,4 +1,10 @@
+from data import users, channels
+
 def clear():
+    while len(users) != 0:
+        del users[0]
+    while len(channels) != 0:
+        del channels[0]
     pass
 
 def users_all(token):
