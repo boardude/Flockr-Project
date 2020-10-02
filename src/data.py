@@ -5,7 +5,12 @@
     this file will be updated if we need to edit attributions of users and channels
     this file contains standard data for reference (see below)
 '''
-# last edit 10/01/2020
+# 2nd edition 10/01/2020 daoting
+#   add commends and a sample
+
+# 3rd edition 10/02/2020 daoting
+#   redefine owner_members and all_members of channels
+#   a list of dict --> a list of int(u_id)
 
 users = [
 
@@ -27,7 +32,7 @@ users = [
         'email' : 'test@test.com',
         'password' : 'test123',
         'token' : '1', # for iteration 1 
-        'channels' : [ ], # a list to store this user's channel(c_id)
+        'channels' : [ ], # a list to store this user's channel(channel_id)
     },
     {
         'u_id': 2,
@@ -37,29 +42,17 @@ users = [
         'email' : 'test2@test.com',
         'password' : 'test123',
         'token' : '2', # for iteration 1
-        'channels' : [ ], # a list to store this user's channel(c_id)
+        'channels' : [ ], # a list to store this user's channel(channel_id)
     },
 ]
 
 channels = [
     {
-        'c_id' : 1,
+        'channel_id' : 1,
         'public' : True,
         'name' : 'test channel',
-        'owner_members': [
-            {
-                'u_id': 1,
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-            }
-        ],
-        'all_members': [
-            {
-                'u_id': 1,
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-            }
-        ],
+        'owner_members': [1, 2], # a list of u_id
+        'all_members': [1, 2], # a list of u_id
         'messages' : [
             {
                 'message_id': 1,
@@ -70,23 +63,11 @@ channels = [
         ],
     },
     {
-        'c_id' : 2,
+        'channel_id' : 2,
         'public' : False,
         'name' : 'test channel2',
-        'owner_members': [
-            {
-                'u_id': 1,
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-            }
-        ],
-        'all_members': [
-            {
-                'u_id': 1,
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-            }
-        ],
+        'owner_members': [1, 2], # a list of u_id
+        'all_members': [1, 2], # a list of u_id
         'messages' : [
             {
                 'message_id': 1,
