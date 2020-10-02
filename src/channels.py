@@ -33,6 +33,9 @@ def channels_create(token, name, is_public):
     if is_name_valid(name) is False:
         raise InputError()
 
+    # check token validity
+     is not in 
+
     # create new channel
     new_channel = {}
     new_channel['channel_id'] = channels_total 
