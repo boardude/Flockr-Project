@@ -6,14 +6,14 @@ import auth.py
 
 ''' Tests:
         list:
-            1. Stage 1 test: whether a list is returned
+            1. Prelim test: whether a list is returned
             2. Standard test: correct list returned
         listall:
-            1. Stage 1 test: whether a list is returned
+            1. Prelim test: whether a list is returned
             2. Standard test: correct list returned
         create:
-            1. Stage 1 test: Invalid name (longer than 20 characters)
-            2. Stage 1 test: whether a dictionary is returned
+            1. Prelim test: Invalid name (longer than 20 characters)
+            2. Prelim test: whether a dictionary is returned
             3. Standard test: correct ID returned + correct channel details registered
 '''
 
