@@ -2,12 +2,23 @@ from channels import channels_list, channels_listall, channels_create
 from other import clear
 from error import InputError
 
-def test_list():
+''' Tests:
+        list:
+            1. whether a list is returned
+        listall:
+            1. whether a list is returned
+        logout:
+            1. correct return
+        create:
+
+'''
+
+def test_list_return_type():
     clear()
     temp = channels_list('TdsfGWL')
     assert isinstance(temp['channels'], list) is True
 
-def test_listall():
+def test_listall_return_type():
     clear()
     temp = channels_listall('TdsfGWL')
     assert isinstance(temp['channels'], list) is True
