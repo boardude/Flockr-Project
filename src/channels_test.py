@@ -2,7 +2,7 @@ from channels import channels_list, channels_listall, channels_create
 from other import clear
 from error import InputError
 import pytest
-import auth.py
+import auth
 
 """
 Tests:
@@ -121,7 +121,7 @@ def test_create_standard():
     # create channels
     channel_00 = channels_create(token, 'Channel Zero', True)
     channel_01 = channels_create(token, 'Channel One', True)
-    channel_02 = channels_create(token， 'Channel Two', False)
+    channel_02 = channels_create(token, 'Channel Two', False)
     
     # test if channels have been created with correct details
     temp = channels_list(token)

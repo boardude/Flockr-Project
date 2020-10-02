@@ -51,8 +51,8 @@ def channels_create(token, name, is_public):
             user['channels'].append(new_channel)
 
     # increment total number of channels created
-    global channels_total
-    channels_total += 1
+    global channels_created
+    channels_created += 1
 
     # return channel_id    
     return {
