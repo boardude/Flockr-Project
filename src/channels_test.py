@@ -4,7 +4,8 @@ from error import InputError
 import pytest
 import auth.py
 
-''' Tests:
+"""
+Tests:
         list:
             1. Prelim test: whether a list is returned
             2. Standard test: correct list returned
@@ -15,7 +16,7 @@ import auth.py
             1. Prelim test: Invalid name (longer than 20 characters)
             2. Prelim test: whether a dictionary is returned
             3. Standard test: correct ID returned + correct channel details registered
-'''
+"""
 
 def test_list_return_type():
     clear()
