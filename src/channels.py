@@ -45,6 +45,11 @@ def channels_create(token, name, is_public):
     # add new channel to channels list in data.py
     channels.append(new_channel)
 
+    # add new channel to user's channels list
+    for user in users:
+        if user['u_id'] is token:
+            user['channels'].append(new_channel)
+
     # increment total number of channels created
     global channels_total
     channels_total += 1
