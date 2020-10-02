@@ -1,9 +1,9 @@
 from data import users, channels
 def clear():
-    for user in users:
-        users.remove(user)
-    for channel in channels:
-        channels.remove(channel)
+    while len(users) != 0:
+        del users[0]
+    while len(channels) != 0:
+        del channels[0]
     pass
 
 def users_all(token):
