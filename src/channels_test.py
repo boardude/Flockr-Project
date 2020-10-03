@@ -116,15 +116,22 @@ def test_create_return_type():
     temp = channels_create(token, 'Channel 01', True)
     assert isinstance(temp, dict) is True
 
-def test_create_invalid_name():
-
+def test_create_invalid():
+    # InputError upon entering name longer than 20 characters
     clear()
-    with pytest.raises(InputError) as e:  # InputError test
-        channels_create('longnameusertoken', 'Channel NameThatHasMoreThanTwentyCharacters', True) # long character name exception 
+    auth.auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    login = auth.auth_login('validuseremail@gmail.com', 'validpass')
+    token = login['token']
+    with pytest.raises(InputError) as e:
+        channels_create(token, 'Channel NameThatHasMoreThanTwentyCharacters', True) # long character name exception 
 
+    # InputError upon entering unrecognised token
     clear()
-    with pytest.raises(InputError) as e:  # InputError test no token
-        channels_create('', 'Channel NameThatHasMoreThanTwentyCharacters', True)
+    auth.auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    login = auth.auth_login('validuseremail@gmail.com', 'validpass')
+    token = login['token']
+    with pytest.raises(InputError) as e:
+        channels_create('invalidtoken', 'Channel 01', True)
 
 def test_create_standard():
     clear()
