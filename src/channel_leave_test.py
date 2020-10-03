@@ -10,8 +10,8 @@ from other import clear
     chennel_leave_test:
         1. channel_leave() works well (no error) (member leave)
         2. channel_leave() works well (no error) (owner leave)
-        2. input error, Channel ID is not a valid channel
-        3. access error, Authorised user is not a member of channel with channel_id
+        3. input error, Channel ID is not a valid channel
+        4. access error, Authorised user is not a member of channel with channel_id
 
     3 help functions:
         1. is_user_in_channel(channel_id, u_id)

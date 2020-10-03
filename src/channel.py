@@ -46,22 +46,26 @@ def channel_invite(token, channel_id, u_id):
     }
 
 def channel_details(token, channel_id):
+    channel = channelId_to_channel(channel_id)
+    # inputerror when Channel ID is not a valid channel
+    if channel is False:
+        raise InputError()
+
+    # access error when Authorised user is not 
+    # a member of channel with channel_id
+    if is_user_in_channel(token, channel_id) is False:
+        raise AccessError()
+
+    owner_details = []
+    all_details = []
+    for owner in channel['owner_members']:
+        owner_details.append(uid_to_member(owner))
+    for member in channel['all_members']:
+        all_details.append(uid_to_member(member))
     return {
-        'name': 'Hayden',
-        'owner_members': [
-            {
-                'u_id': 1,
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-            }
-        ],
-        'all_members': [
-            {
-                'u_id': 1,
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-            }
-        ],
+        'name': channel['name'],
+        'owner_members': owner_details,
+        'all_members': all_details,
     }
 
 def channel_messages(token, channel_id, start):
@@ -140,10 +144,65 @@ def channel_join(token, channel_id):
     }
 
 def channel_addowner(token, channel_id, u_id):
+    inviter = token_to_user(token)
+    channel = channelId_to_channel(channel_id)
+    # input error when Channel ID is not a valid channel
+    if channel is False:
+        raise InputError()
+
+    # input error when When user with user id u_id 
+    # is already an owner of the channel
+    for owner in channel['owner_members']:
+        if owner == u_id:
+            raise InputError()
+
+    # access error when the authorised user is not 
+    # an owner of the flockr, or an owner of this channel
+    permitted = False
+    if inviter is False:
+        raise AccessError()
+    for owner in channel['owner_members']:
+        if owner == inviter['u_id']:
+            permitted = True
+            break
+    if permitted is not True:
+        raise AccessError()
+
+    channel['owner_members'].append(u_id)
     return {
     }
 
 def channel_removeowner(token, channel_id, u_id):
+    remover = token_to_user(token)
+    channel = channelId_to_channel(channel_id)
+    # input error when Channel ID is not a valid channel
+    if channel is False:
+        raise InputError()
+
+    # input error when user with user id u_id is not 
+    # an owner of the channel
+    is_owner = False
+    for owner in channel['owner_members']:
+        if owner == u_id:
+            is_owner = True
+            break
+    if is_owner is False:
+        raise InputError()
+
+    # accesss error when the authorised user is not 
+    # an owner of the flockr, or an owner of this channel
+    permitted = False
+    if remover is False:
+        raise AccessError()
+    for owner in channel['owner_members']:
+        if owner == remover['u_id']:
+            permitted = True
+            break
+    if permitted is not True:
+        raise AccessError()
+
+    if u_id != users[0]['u_id']:
+        channel['owner_members'].remove(u_id)
     return {
     }
 
