@@ -1,5 +1,5 @@
 # Yicheng (Mike) Zhu
-# Last updated 2/10/2020
+# Last updated 3/10/2020
 
 from data import users, channels
 from error import InputError
@@ -8,29 +8,36 @@ from error import InputError
 HELPER FUNCTIONS
     1. is_channel_name_valid(name): checks if channel name more than 20 characters,
     in which case it is invalid
-    2. is_token_valid(token): checks if token is a logged-in user
+    2. get_uid_from_token(token): returns corresponding u_id given a token
 """
 
 ########### GLOBAL VARIABLES ###############
 # total number of channels created at any given time
 # is the channel_id of a newly created channel
-channels_created = 0
+channels_created = 1
 
 #### INTERFACE FUNCTION IMPLEMENTATIONS ####
 def channels_list(token):
-    """channels_user = []
-    for channel in channels:
-        if token is in channel['all_members']:
-            channels_user.append(channel) """
-
     for user in users:
         if user['token'] is token:
-            return user['channels']
+            user_channel_ids = user['channels']
+            break
+
+    user_channels = []
     
-    return []   # user not found
+    for user_channel_id in user_channel_ids:
+        for channel in channels:
+            if channel['channel_id'] == user_channel_id:
+                user_channels.append(channel)
+    
+    return {
+        'channels': user_channels,
+    }
 
 def channels_listall(token):
-    return channels
+    return {
+        'channels': channels,
+    }
 
 def channels_create(token, name, is_public):
     global channels_created
@@ -39,26 +46,23 @@ def channels_create(token, name, is_public):
     if is_name_valid(name) is False:
         raise InputError()
 
-    # check token validity
-    if is_token_valid(token) is False:
-        raise InputError()
-
     # create new channel
     new_channel = {}
     new_channel['channel_id'] = channels_created 
     new_channel['public'] = is_public
     new_channel['name'] = name
-    new_channel['owner_members'] = [token]
-    new_channel['all_members'] = [token]
+    new_user_id = get_uid_from_token(token)
+    new_channel['owner_members'] = [new_user_id]
+    new_channel['all_members'] = [new_user_id]
     new_channel['messages'] = []
     
     # add new channel to channels list in data.py
     channels.append(new_channel)
 
-    # add new channel to user's channels list
+    # add new channel_id to user's channels list
     for user in users:
         if user['token'] is token:
-            user['channels'].append(new_channel)
+            user['channels'].append(new_channel['channel_id'])
 
     # increment total number of channels created
     channels_created += 1
@@ -77,11 +81,11 @@ def is_name_valid(name):
         return False
     else:
         return True
-        
-# checks if token is a logged-in user
-# returns True if token is found in users list, otherwise False
-def is_token_valid(token): 
+
+# returns corresponding u_id given a token
+def get_uid_from_token(token):
     for user in users:
-        if user['token'] is token:
-            return True
-    return False
+        if user['token'] == token:
+            return user['u_id']
+
+    assert False
