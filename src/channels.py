@@ -24,7 +24,7 @@ def channels_list(token):
             channels_user.append(channel) """
 
     for user in users:
-        if user['u_id'] is token:
+        if user['token'] is token:
             return user['channels']
     
     return []   # user not found
@@ -33,6 +33,8 @@ def channels_listall(token):
     return channels
 
 def channels_create(token, name, is_public):
+    global channels_created
+
     # check name validity
     if is_name_valid(name) is False:
         raise InputError()
@@ -43,7 +45,7 @@ def channels_create(token, name, is_public):
 
     # create new channel
     new_channel = {}
-    new_channel['channel_id'] = channels_total 
+    new_channel['channel_id'] = channels_created 
     new_channel['public'] = is_public
     new_channel['name'] = name
     new_channel['owner_members'] = [token]
@@ -55,11 +57,10 @@ def channels_create(token, name, is_public):
 
     # add new channel to user's channels list
     for user in users:
-        if user['u_id'] is token:
+        if user['token'] is token:
             user['channels'].append(new_channel)
 
     # increment total number of channels created
-    global channels_created
     channels_created += 1
 
     # return channel_id    
@@ -81,6 +82,6 @@ def is_name_valid(name):
 # returns True if token is found in users list, otherwise False
 def is_token_valid(token): 
     for user in users:
-        if user['u_id'] is token:
+        if user['token'] is token:
             return True
     return False

@@ -23,7 +23,11 @@ Tests:
 
 def test_list_return_type():
     clear()
-    temp = channels_list('validusertoken')
+    auth.auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    login = auth.auth_login('validuseremail@gmail.com', 'validpass')
+    token = login['token']
+
+    temp = channels_list(token)
     assert isinstance(temp, list) is True
 
 def test_list_standard():
@@ -39,7 +43,7 @@ def test_list_standard():
     channel_02 = channels_create(token, 'Channel 02', True)
 
     # test channels_list
-    temp = channels_list('validusertoken')
+    temp = channels_list(token)
     assert len(temp) == 3
     assert temp[0]['channel_id'] == channel_00['channel_id']
     assert temp[0]['name'] == 'Channel 00'
@@ -53,7 +57,11 @@ def test_list_standard():
 
 def test_listall_return_type():
     clear()
-    temp = channels_listall('validusertoken')
+    auth.auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    login = auth.auth_login('validuseremail@gmail.com', 'validpass')
+    token = login['token']
+
+    temp = channels_listall(token)
     assert isinstance(temp, list) is True
 
 def test_listall_standard():
@@ -74,10 +82,10 @@ def test_listall_standard():
     channel_02 = channels_create(token, 'Channel 02', True)
     channel_03 = channels_create(token_2, 'Channel 03 User 2', True)
     channel_04 = channels_create(token_2, 'Channel 04 User 2', False)
-    channel_05 = channels_create(token_2, 'Channel 05 user 2', False)
+    channel_05 = channels_create(token_2, 'Channel 05 User 2', False)
 
     # test channels_listall
-    temp = channels_listall('validusertoken')
+    temp = channels_listall(token)
     assert len(temp) == 6
     assert temp[0]['channel_id'] == channel_00['channel_id']
     assert temp[0]['name'] == 'Channel 00'
@@ -101,7 +109,11 @@ def test_listall_standard():
 
 def test_create_return_type():
     clear()
-    temp = channels_create('validusertoken', 'Channel 01', True)
+    auth.auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    login = auth.auth_login('validuseremail@gmail.com', 'validpass')
+    token = login['token']
+
+    temp = channels_create(token, 'Channel 01', True)
     assert isinstance(temp, dict) is True
 
 def test_create_invalid_name():
