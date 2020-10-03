@@ -70,13 +70,10 @@ def test_list_standard():
     channel_03_listed = temp['channels'][2]
     assert channel_01_listed['channel_id'] == channel_01['channel_id']
     assert channel_01_listed['name'] == 'Channel 01'
-    assert channel_01_listed['public'] == True
     assert channel_02_listed['channel_id'] == channel_02['channel_id']
     assert channel_02_listed['name'] == 'Channel 02'
-    assert channel_02_listed['public'] == False
     assert channel_03_listed['channel_id'] == channel_03['channel_id']
     assert channel_03_listed['name'] == 'Channel 03'
-    assert channel_03_listed['public'] == True
 
 def test_listall_return_type():
     clear()
@@ -115,22 +112,16 @@ def test_listall_standard():
     channel_06_listed = temp['channels'][5]
     assert channel_01_listed['channel_id'] == channel_01['channel_id']
     assert channel_01_listed['name'] == 'Channel 01'
-    assert channel_01_listed['public'] == True
     assert channel_02_listed['channel_id'] == channel_02['channel_id']
     assert channel_02_listed['name'] == 'Channel 02'
-    assert channel_02_listed['public'] == False
     assert channel_03_listed['channel_id'] == channel_03['channel_id']
     assert channel_03_listed['name'] == 'Channel 03'
-    assert channel_03_listed['public'] == True
     assert channel_04_listed['channel_id'] == channel_04['channel_id']
     assert channel_04_listed['name'] == 'Channel 04 User 2'
-    assert channel_04_listed['public'] == True
     assert channel_05_listed['channel_id'] == channel_05['channel_id']
     assert channel_05_listed['name'] == 'Channel 05 User 2'
-    assert channel_05_listed['public'] == False
     assert channel_06_listed['channel_id'] == channel_06['channel_id']
     assert channel_06_listed['name'] == 'Channel 06 User 2'
-    assert channel_06_listed['public'] == False
 
 
 def test_create_return_type():

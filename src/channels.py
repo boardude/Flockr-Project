@@ -28,15 +28,25 @@ def channels_list(token):
     for user_channel_id in user_channel_ids:
         for channel in channels:
             if channel['channel_id'] == user_channel_id:
-                user_channels.append(channel)
+                new_channel_entry = {}
+                new_channel_entry['channel_id'] = channel['channel_id']
+                new_channel_entry['name'] = channel['name']
+                user_channels.append(new_channel_entry)
     
     return {
         'channels': user_channels,
     }
 
 def channels_listall(token):
+    all_channels = []
+    for channel in channels:
+        new_channel_entry = {}
+        new_channel_entry['channel_id'] = channel['channel_id']
+        new_channel_entry['name'] = channel['name']
+        all_channels.append(new_channel_entry)
+
     return {
-        'channels': channels,
+        'channels': all_channels,
     }
 
 def channels_create(token, name, is_public):
@@ -87,5 +97,3 @@ def get_uid_from_token(token):
     for user in users:
         if user['token'] == token:
             return user['u_id']
-
-    assert False
