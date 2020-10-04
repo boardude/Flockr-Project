@@ -1,5 +1,5 @@
 # Yicheng (Mike) Zhu
-# Last updated 3/10/2020
+# Last updated 4/10/2020
 
 from channels import channels_list, channels_listall, channels_create, get_uid_from_token
 from data import users, channels
@@ -37,6 +37,8 @@ channel_05 = None
 channel_06 = None
 
 ##### TEST IMPLEMENTATIONS #####
+# Test that a dict containing an list of dictionaries, i.e. { channels }, 
+# is the output
 def test_list_return_type():
     clear()
     # register & log in user
@@ -48,7 +50,10 @@ def test_list_return_type():
 
     # test whether a list is embedded within the dictionary appropriately
     assert isinstance(temp['channels'], list) is True
+    for x in range(len(temp['channels'])):
+        assert isinstance(temp['channels'][x], dict) is True
 
+# Test for standard functionality of channels_list() according to spec
 def test_list_standard():
     clear()
     # register & log in first user
@@ -76,6 +81,8 @@ def test_list_standard():
     assert channel_03_listed['channel_id'] == channel_03['channel_id']
     assert channel_03_listed['name'] == 'Channel 03'
 
+# Test that a dict containing an list of dictionaries, i.e. { channels }, 
+# is the output
 def test_listall_return_type():
     clear()
     # register & log in user
@@ -85,9 +92,12 @@ def test_listall_return_type():
     temp = channels_listall(token)
     assert isinstance(temp, dict) is True
 
-    # test whether a list is embedded within the dictionary appropriately
+    # test whether a list of dictionaries is embedded within the output appropriately
     assert isinstance(temp['channels'], list) is True
+    for x in range(len(temp['channels'])):
+        assert isinstance(temp['channels'][x], dict) is True
 
+# Test for standard functionality of channels_listall() according to spec
 def test_listall_standard():
     clear()
     # register & log in first user
@@ -124,7 +134,8 @@ def test_listall_standard():
     assert channel_06_listed['channel_id'] == channel_06['channel_id']
     assert channel_06_listed['name'] == 'Channel 06 User 2'
 
-
+# Test that a dict containing an int for channel_id, i.e. { channel_id }, 
+# is the output
 def test_create_return_type():
     clear()
     # register & log in user
@@ -137,13 +148,14 @@ def test_create_return_type():
     # test whether an int is embedded appropriately within the returned dict
     assert isinstance(temp['channel_id'], int) is True
 
+# InputError by channels_create() when name is longer than 20 characters
 def test_create_invalid():
-    # InputError upon entering name longer than 20 characters
     clear()
     token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
     with pytest.raises(InputError) as e:
         channels_create(token, 'Channel NameThatHasMoreThanTwentyCharacters', True) # long character name exception 
 
+# Test for standard functionality of channels_create() according to spec
 def test_create_standard():
     clear()
     # register & log in first user
