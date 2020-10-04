@@ -1,5 +1,4 @@
 from data import users, channels
-
 def clear():
     while len(users) != 0:
         del users[0]
