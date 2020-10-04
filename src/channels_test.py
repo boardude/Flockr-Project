@@ -20,6 +20,7 @@ TESTS
             1. Prelim test: Invalid name (longer than 20 characters)
             2. Prelim test: whether a dictionary is returned
             3. Standard test: correct ID returned + correct channel details registered
+            4. Edge test: Duplicate details
 
 HELPER FUNCTIONS
     1. register_and_login(email, password, first_name, last_name):
@@ -204,6 +205,40 @@ def test_create_standard():
             if owner == uid_2:
                 is_owner = True
     assert is_owner is True
+
+# When two channels with duplicate details are created
+# Ensure both are created as they differ by channel_id
+def test_create_duplicate():
+    clear()
+    # register & log in user
+    token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+
+    # create test channels
+    global channel_01, channel_02
+    channel_01 = channels_create(token, 'Channel Same Name', True)
+    channel_02 = channels_create(token, 'Channel Same Name', True)
+
+    # test for accuracy of details in channels
+    assert len(channels) == 2
+    assert channels[0]['channel_id'] == channel_01['channel_id']
+    assert channels[0]['name'] == 'Channel Same Name'
+    assert channels[0]['public'] == True
+    assert channels[1]['channel_id'] == channel_02['channel_id']
+    assert channels[1]['name'] == 'Channel Same Name'
+    assert channels[1]['public'] == True
+
+    # check for channel ownership
+    uid = get_uid_from_token(token)
+    is_owner = False
+    for channel in channels:
+        for owner in channel['owner_members']:
+            if owner == uid:
+                is_owner = True
+    assert is_owner is True
+
+    # ensure the two "duplicate" channels differ by channel_id
+    assert channel_01['channel_id'] != channel_02['channel_id']
+
 
 ##### HELPER FUNCTIONS #####
 # registers and logs in user with provided details, returning the token
