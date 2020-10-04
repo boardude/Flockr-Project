@@ -200,23 +200,39 @@ def test_create_standard():
     assert user_2_channels[1] == channel_05['channel_id']
     assert user_2_channels[2] == channel_06['channel_id']
 
-    # check for channel ownership of first user
+    # check for channel ownership and membership of first user
     uid_1 = get_uid_from_token(token_1)
     is_owner = False
+    is_member = False
     for x in range(0, 3):
         for owner in channels[x]['owner_members']:
             if owner == uid_1:
                 is_owner = True
+                break
+        for member in channels[x]['all_members']:
+            if member == uid_1:
+                is_member = True
+                break
+    
     assert is_owner is True
+    assert is_member is True
 
     # check for channel ownership of second user
     uid_2 = get_uid_from_token(token_2)
     is_owner = False
+    is_member = False
     for x in range(3, 6):
         for owner in channels[x]['owner_members']:
             if owner == uid_2:
                 is_owner = True
+                break
+        for member in channels[x]['all_members']:
+            if member == uid_2:
+                is_member = True
+                break
+    
     assert is_owner is True
+    assert is_member is True
 
 # When two channels with duplicate details are created
 # Ensure both are created as they differ by channel_id
@@ -239,14 +255,28 @@ def test_create_duplicate():
     assert channels[1]['name'] == 'Channel Same Name'
     assert channels[1]['public'] == True
 
-    # check for channel ownership
+    # check for channel ownership and membership
     uid = get_uid_from_token(token)
     is_owner = False
+    is_member = False
     for channel in channels:
         for owner in channel['owner_members']:
             if owner == uid:
                 is_owner = True
+                break
+        for member in channel['all_members']:
+            if member == uid:
+                is_member = True
+                break
+
     assert is_owner is True
+    assert is_member is True
+
+    # test for accuracy of details in users' channels list
+    user_channels = users[0]['channels']
+    assert len(user_channels) == 2
+    assert user_channels[0] == channel_01['channel_id']
+    assert user_channels[1] == channel_02['channel_id']
 
     # ensure the two "duplicate" channels differ by channel_id
     assert channel_01['channel_id'] != channel_02['channel_id']
