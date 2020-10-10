@@ -56,12 +56,9 @@ def channels_create(token, name, is_public):
     if is_name_valid(name) is False:
         raise InputError()
 
-    # create new channel
+    # create new channel in data.py
     new_user_id = get_uid_from_token(token)
     new_channel = create_new_channel(channels_created, is_public, name, new_user_id)
-    
-    # add new channel to channels list in data.py
-    channels.append(new_channel)
 
     # add new channel_id to user's channels list
     for user in users:

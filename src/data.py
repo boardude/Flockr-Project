@@ -22,7 +22,12 @@ def create_new_channel(channel_id, is_public, name, uid):
     new_channel['all_members'] = [uid]
     new_channel['messages'] = []
 
+    # add new channel to channels list
+    channels.append(new_channel)
+
     return new_channel
+
+
 ################################
 
 users = [
