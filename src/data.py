@@ -12,6 +12,19 @@
 #   redefine owner_members and all_members of channels
 #   a list of dict --> a list of int(u_id)
 
+######## DATA FUNCTIONS ########
+def create_new_channel(channel_id, is_public, name, uid):
+    new_channel = {}
+    new_channel['channel_id'] = channel_id
+    new_channel['public'] = is_public
+    new_channel['name'] = name
+    new_channel['owner_members'] = [uid]
+    new_channel['all_members'] = [uid]
+    new_channel['messages'] = []
+
+    return new_channel
+################################
+
 users = [
 
 ]
