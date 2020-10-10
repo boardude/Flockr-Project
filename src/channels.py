@@ -1,7 +1,7 @@
 # Yicheng (Mike) Zhu
 # Last updated 4/10/2020
 
-from data import users, channels
+from data import users, channels, create_new_channel
 from error import InputError
 
 """
@@ -57,14 +57,8 @@ def channels_create(token, name, is_public):
         raise InputError()
 
     # create new channel
-    new_channel = {}
-    new_channel['channel_id'] = channels_created 
-    new_channel['public'] = is_public
-    new_channel['name'] = name
     new_user_id = get_uid_from_token(token)
-    new_channel['owner_members'] = [new_user_id]
-    new_channel['all_members'] = [new_user_id]
-    new_channel['messages'] = []
+    new_channel = create_new_channel(channels_created, is_public, name, new_user_id)
     
     # add new channel to channels list in data.py
     channels.append(new_channel)
