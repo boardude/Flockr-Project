@@ -1,6 +1,6 @@
 import auth
 from other import clear
-from error import InputError
+from error import InputError, AccessError
 import pytest
 from data import *
 
@@ -110,7 +110,8 @@ def test_logout_success():
     #logout bad token
     clear()
     auth.auth_register('validemail@gmail.com', 'valid123', 'valid', 'valid')
-    auth.auth_logout('nonexistingtoken') == False
+    with pytest.raises(AccessError) as e:
+        auth.auth_logout('nonexistingtoken') == False
 
 def test_data_changes():
     # elements stored correctly
@@ -166,16 +167,3 @@ def test_data_changes():
     auth.auth_register('bighandle2@gmail.com', 'valid123', 'Yothisisgonna', 'Bemassive')
     
     assert users[9]['handle'] == '10yothisisgonnabemas'
-    
-    
-    
-    
-     
-    
-    
-    
-        
-    
-    
-    
-    
