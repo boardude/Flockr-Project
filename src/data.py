@@ -73,6 +73,11 @@ channels = [
 #   create a function called create_user for creating user
 #   delete relevant part in auth.py
 
+# 5th edition 19/10/2020 Yicheng (Mike) Zhu
+#   Created a function called create_new_channel for creating
+#   a new channel to replace a code block previously in
+#   channels.py.
+
 users = [
 
 ]
@@ -110,3 +115,30 @@ def create_user(email, password, name_first, name_last, handle):
     new_user['handle'] = handle
     users.append(new_user)
     return new_user
+
+def create_new_channel(channel_id, is_public, name, uid):
+    '''
+    This is a simple helper function to create a new channel with given its
+    channel_id, is_public attribute, name, and the user id of the creator of
+    the channel. It will also append the new channel to the channels list in
+    this module.
+
+    Returns:
+        This will return a dictionary which contains the new channel's details.
+
+    Raises:
+        This will not raise any error.
+    '''
+
+    new_channel = {}
+    new_channel['channel_id'] = channel_id
+    new_channel['public'] = is_public
+    new_channel['name'] = name
+    new_channel['owner_members'] = [uid]
+    new_channel['all_members'] = [uid]
+    new_channel['messages'] = []
+
+    # add new channel to channels list
+    channels.append(new_channel)
+
+    return new_channel

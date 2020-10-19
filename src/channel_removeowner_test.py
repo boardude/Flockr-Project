@@ -15,7 +15,7 @@ from data import channels
 from error import InputError, AccessError
 from other import clear
 
-def test_channel_removeowne
+def test_channel_removeowner():
     '''
     # valid test, it would work well
     # register user1, user2 and user3
@@ -47,7 +47,7 @@ def test_channel_removeowne
     channel.channel_removeowner(token_2, channel_id, u1_id)
     assert is_user_an_owner(channel_id, u1_id) is True
 
-def test_removeowner_inputerror_invalid_channal():
+def test_removeowner_inputerror_invalid_channel():
     '''
     # input error when Channel ID is not a valid channel
     # register user1 and user2
