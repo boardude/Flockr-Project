@@ -1,14 +1,11 @@
 # Yicheng (Mike) Zhu
-# Last updated 4/10/2020
+# Last updated 20/10/2020
 
 """
     random and string modules allow for random string generation
     for test_*_invalid_token tests
 
     pytest module allows us to test if exceptions are thrown at appropriate times
-
-    auth module allows us to use auth_register() and auth_login() to register
-    and log in test users
 
     channels module contains functions that need to be tested
 
@@ -21,16 +18,14 @@
     error module contains custom exceptions, including InputError
     and AccessError
 
-
 """
 import random
 import string
 import pytest
 from channels import channels_list, channels_listall, channels_create, get_uid_from_token
 from data import users, channels
-from other import clear
+from other import clear, register_and_login
 from error import InputError, AccessError
-from auth import auth_register, auth_login
 
 ########### PYLINT INFORMATION #############
 # pylint errors involving global variables are disabled intentionally
@@ -325,17 +320,6 @@ def test_create_duplicate():
 
 
 ##### HELPER FUNCTIONS #####
-
-def register_and_login(email, password, first_name, last_name):
-    """
-        Registers and logs in user with provided details,
-        returning the token
-
-    """
-    auth_register(email, password, first_name, last_name)
-    login = auth_login(email, password)
-    return login['token']
-
 
 def create_channels(token_1, token_2):
     """

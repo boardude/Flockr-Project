@@ -1,5 +1,5 @@
 # Yicheng (Mike) Zhu
-# Last updated 4/10/2020
+# Last updated 20/10/2020
 
 """
     data module contains users and channels list structures to store data
@@ -10,6 +10,7 @@
 """
 from data import users, channels, create_new_channel
 from error import InputError, AccessError
+from other import is_token_valid, get_uid_from_token
 
 ########### PYLINT INFORMATION #############
 # pylint errors involving global variables are disabled intentionally
@@ -115,23 +116,3 @@ def is_name_valid(name):
         return False
 
     return True
-
-def get_uid_from_token(token):
-    """
-        Return the corresponding u_id when given the token of an authorised
-        user
-    """
-    for user in users:
-        if user['token'] == token:
-            return user['u_id']
-
-    return None
-
-def is_token_valid(token):
-    """
-        Returns True if token is valid (token is found in users list), otherwise False
-    """
-    for user in users:
-        if user['token'] is token:
-            return True
-    return False
