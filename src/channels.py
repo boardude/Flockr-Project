@@ -9,12 +9,16 @@
     and AccessError
 """
 from data import users, channels, create_new_channel
-from error import InputError
+from error import InputError, AccessError
+
+########### PYLINT INFORMATION #############
+# pylint errors involving global variables are disabled intentionally
+# in line with what instructors have suggested on Piazza
 
 ########### GLOBAL VARIABLES ###############
 # total number of channels created at any given time
 # is the channel_id of a newly created channel
-channels_created = 1
+channels_created = 1  # pylint: disable=invalid-name
 
 #### INTERFACE FUNCTION IMPLEMENTATIONS ####
 def channels_list(token):
@@ -22,6 +26,10 @@ def channels_list(token):
         Returns a list of all channels (with channel name & channel id)
         that the authorised user is part of when given the user's token
     """
+
+    # check token validity
+    if not is_token_valid(token):
+        raise AccessError
 
     for user in users:
         if user['token'] is token:
@@ -48,6 +56,10 @@ def channels_listall(token):
         given the token of any authenticated user
     """
 
+    # check token validity
+    if not is_token_valid(token):
+        raise AccessError
+
     all_channels = []
     for channel in channels:
         new_channel_entry = {}
@@ -65,11 +77,15 @@ def channels_create(token, name, is_public):
         new channel's name, and its is_public property. Channel ID of new channel is returned.
     """
 
-    global channels_created
+    global channels_created  # pylint: disable=invalid-name,global-statement
 
     # check name validity
-    if is_name_valid(name) is False:
+    if not is_name_valid(name):
         raise InputError()
+
+    # check token validity
+    if not is_token_valid(token):
+        raise AccessError
 
     # create new channel in data.py
     new_user_id = get_uid_from_token(token)
@@ -110,3 +126,12 @@ def get_uid_from_token(token):
             return user['u_id']
 
     return None
+
+def is_token_valid(token):
+    """
+        Returns True if token is valid (token is found in users list), otherwise False
+    """
+    for user in users:
+        if user['token'] is token:
+            return True
+    return False

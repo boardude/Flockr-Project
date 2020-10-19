@@ -25,14 +25,17 @@ from other import clear
 from error import InputError
 from auth import auth_register, auth_login
 
+########### PYLINT INFORMATION #############
+# pylint errors involving global variables are disabled intentionally
+# in line with what instructors have suggested on Piazza
 
 ##### GLOBAL VARIABLES #####
-channel_01 = None
-channel_02 = None
-channel_03 = None
-channel_04 = None
-channel_05 = None
-channel_06 = None
+channel_01 = None  # pylint: disable=invalid-name
+channel_02 = None  # pylint: disable=invalid-name
+channel_03 = None  # pylint: disable=invalid-name
+channel_04 = None  # pylint: disable=invalid-name
+channel_05 = None  # pylint: disable=invalid-name
+channel_06 = None  # pylint: disable=invalid-name
 
 ##### TEST IMPLEMENTATIONS #####
 def test_list_return_type():
@@ -241,7 +244,7 @@ def test_create_duplicate():
     token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
 
     # create test channels
-    global channel_01, channel_02
+    global channel_01, channel_02  # pylint: disable=global-statement,invalid-name
     channel_01 = channels_create(token, 'Channel Same Name', True)
     channel_02 = channels_create(token, 'Channel Same Name', True)
 
@@ -299,7 +302,7 @@ def create_channels(token_1, token_2):
         Creates 6 test channels with tokens from two users
         returned channel_id's are stored in global variables
     """
-    global channel_01, channel_02, channel_03, channel_04, channel_05, channel_06
+    global channel_01, channel_02, channel_03, channel_04, channel_05, channel_06 # pylint: disable=global-statement,invalid-name
 
     channel_01 = channels_create(token_1, 'Channel 01', True)
     channel_02 = channels_create(token_1, 'Channel 02', False)
