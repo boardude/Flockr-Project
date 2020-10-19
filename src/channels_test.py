@@ -2,6 +2,9 @@
 # Last updated 4/10/2020
 
 """
+    random and string modules allow for random string generation
+    for test_*_invalid_token tests
+
     pytest module allows us to test if exceptions are thrown at appropriate times
 
     auth module allows us to use auth_register() and auth_login() to register
@@ -17,12 +20,16 @@
 
     error module contains custom exceptions, including InputError
     and AccessError
+
+
 """
+import random
+import string
 import pytest
 from channels import channels_list, channels_listall, channels_create, get_uid_from_token
 from data import users, channels
 from other import clear
-from error import InputError
+from error import InputError, AccessError
 from auth import auth_register, auth_login
 
 ########### PYLINT INFORMATION #############
@@ -38,24 +45,35 @@ channel_05 = None  # pylint: disable=invalid-name
 channel_06 = None  # pylint: disable=invalid-name
 
 ##### TEST IMPLEMENTATIONS #####
-def test_list_return_type():
+def test_list_invalid_token():
     """
-        Test that a dict containing an list of dictionaries, i.e. { channels },
-        is the output
+        Test for AccessError exception thrown by channels_create() when token
+        passed in is not a valid token
     """
-
     clear()
-    # register & log in user
-    token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    # register two users
+    token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    token_2 = register_and_login('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
 
-    # test whether a dict is returned
-    temp = channels_list(token)
-    assert isinstance(temp, dict) is True
+    # empty
+    with pytest.raises(AccessError):
+        channels_list('')
 
-    # test whether a list is embedded within the dictionary appropriately
-    assert isinstance(temp['channels'], list) is True
-    for i in range(len(temp['channels'])):
-        assert isinstance(temp['channels'][i], dict) is True
+    # None
+    with pytest.raises(AccessError):
+        channels_list(None)
+
+    # Not the correct data type
+    with pytest.raises(AccessError):
+        channels_list(123)
+
+    # Not an authorised user
+    bad_token = get_random_string(6)
+    while bad_token is token_1 or bad_token is token_2:
+        bad_token = get_random_string(6)
+
+    with pytest.raises(AccessError):
+        channels_list(bad_token)
 
 def test_list_standard():
     """
@@ -88,24 +106,35 @@ def test_list_standard():
     assert channel_03_listed['channel_id'] == channel_03['channel_id']
     assert channel_03_listed['name'] == 'Channel 03'
 
-def test_listall_return_type():
+def test_listall_invalid_token():
     """
-        Test that a dict containing an list of dictionaries, i.e. { channels },
-        is the output
+        Test for AccessError exception thrown by channels_create() when token
+        passed in is not a valid token
     """
-
     clear()
-    # register & log in user
-    token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    # register two users
+    token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    token_2 = register_and_login('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
 
-    # test whether a dict is returned
-    temp = channels_listall(token)
-    assert isinstance(temp, dict) is True
+    # empty
+    with pytest.raises(AccessError):
+        channels_listall('')
 
-    # test whether a list of dictionaries is embedded within the output appropriately
-    assert isinstance(temp['channels'], list) is True
-    for i in range(len(temp['channels'])):
-        assert isinstance(temp['channels'][i], dict) is True
+    # None
+    with pytest.raises(AccessError):
+        channels_listall(None)
+
+    # Not the correct data type
+    with pytest.raises(AccessError):
+        channels_listall(123)
+
+    # Not an authorised user
+    bad_token = get_random_string(6)
+    while bad_token is token_1 or bad_token is token_2:
+        bad_token = get_random_string(6)
+
+    with pytest.raises(AccessError):
+        channels_listall(bad_token)
 
 def test_listall_standard():
     """
@@ -146,26 +175,7 @@ def test_listall_standard():
     assert channel_06_listed['channel_id'] == channel_06['channel_id']
     assert channel_06_listed['name'] == 'Channel 06 User 2'
 
-
-def test_create_return_type():
-    """
-        Test that a dict containing an int for channel_id, i.e. { channel_id },
-        is the output
-    """
-
-    clear()
-    # register & log in user
-    token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
-
-    # test whether a dict is returned
-    temp = channels_create(token, 'Channel 01', True)
-    assert isinstance(temp, dict) is True
-
-    # test whether an int is embedded appropriately within the returned dict
-    assert isinstance(temp['channel_id'], int) is True
-
-
-def test_create_invalid():
+def test_create_invalid_name():
     """
         Test for InputError exception thrown by channels_create() when name
         is longer than 20 characters
@@ -175,6 +185,36 @@ def test_create_invalid():
     token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
     with pytest.raises(InputError):
         channels_create(token, 'Channel NameThatHasMoreThanTwentyCharacters', True)
+
+def test_create_invalid_token():
+    """
+        Test for AccessError exception thrown by channels_create() when token
+        passed in is not a valid token
+    """
+    clear()
+    # register two users
+    token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    token_2 = register_and_login('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
+
+    # empty
+    with pytest.raises(AccessError):
+        channels_create('', 'Channel_01', True)
+
+    # None
+    with pytest.raises(AccessError):
+        channels_create(None, 'Channel_01', True)
+
+    # Not the correct data type
+    with pytest.raises(AccessError):
+        channels_create(123, 'Channel_01', True)
+
+    # Not an authorised user
+    bad_token = get_random_string(6)
+    while bad_token is token_1 or bad_token is token_2:
+        bad_token = get_random_string(6)
+
+    with pytest.raises(AccessError):
+        channels_create(bad_token, 'Channel_01', True)
 
 def test_create_standard():
     """
@@ -335,3 +375,13 @@ def check_ownership(uid, start, end):
         return True
 
     return False
+
+def get_random_string(length):
+    """
+        Generates random string with the combination of lower-
+        and upper-case letters
+    """
+    letters = string.ascii_letters
+    random_str = ''.join(random.choice(letters) for i in range(length))
+
+    return random_str
