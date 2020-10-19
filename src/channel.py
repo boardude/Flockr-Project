@@ -131,6 +131,10 @@ def channel_messages(token, channel_id, start):
             1. Authorised user is not a member of channel with channel_id.
             2. given token does not refer to a valid token
     '''
+    # raise accesserror if given token does not refer to a valid user
+    if token_to_user(token) is False:
+        raise AccessError()
+
     channel = channelid_to_channel(channel_id)
     # input error when Channel ID is not a valid channel
     if channel is False:
