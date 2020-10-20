@@ -52,6 +52,11 @@ def admin_userpermission_change(token, u_id, permission_id):
     pass
 
 def search(token, query_str):
+    # check token validity
+    if not is_token_valid(token):
+        raise AccessError
+    
+    
     return {
         'messages': [
             {

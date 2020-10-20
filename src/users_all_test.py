@@ -1,6 +1,4 @@
 """
-    
-
     pytest module allows us to test if exceptions are thrown at appropriate times
 
     other module contains user_all function that we need to test, as well as useful
@@ -13,7 +11,8 @@
 """
 
 import pytest
-from other import users_all, register_and_login, clear, get_random_str
+from other import users_all, register_and_login, clear, get_random_str, get_uid_from_token
+from user import user_profile_sethandle
 from data import users
 from error import AccessError
 
@@ -47,25 +46,31 @@ def test_all_standard():
     clear()
     # register and change profile details of three users
     token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    user_profile_sethandle(token_1, 'validuser1')
     token_2 = register_and_login('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
+    user_profile_sethandle(token_2, 'validuser2')
     token_3 = register_and_login('validuser3email@gmail.com', 'validpass3', 'User', 'Three')
+    user_profile_sethandle(token_3, 'validuser3')
 
     # ensure all three tokens work
-    users_return_1 = users_all(token_1)
-    users_return_2 = users_all(token_2)
-    users_return_3 = users_all(token_3)
+    users_return = users_all(token_2)
 
     # check correct details have been returned
-    check_user_profiles(users_return_1['users'], 3)
-    check_user_profiles(users_return_2['users'], 3)
-    check_user_profiles(users_return_3['users'], 3)
+    assert users_return['users'][0]['u_id'] == get_uid_from_token(token_1)
+    assert users_return['users'][0]['email'] == 'validuseremail@gmail.com'
+    assert users_return['users'][0]['name_first'] == 'User'
+    assert users_return['users'][0]['name_last'] == 'One'
+    assert users_return['users'][0]['handle_str'] == 'validuser1'
 
+    assert users_return['users'][1]['u_id'] == get_uid_from_token(token_2)
+    assert users_return['users'][1]['u_id'] == get_uid_from_token(token_2)
+    assert users_return['users'][1]['email'] == 'validuser2email@gmail.com'
+    assert users_return['users'][1]['name_first'] == 'User'
+    assert users_return['users'][1]['name_last'] == 'Two'
+    assert users_return['users'][1]['handle_str'] == 'validuser2'
 
-############### HELPER FUNCTIONS ################
-def check_user_profiles(profiles, num_users):
-    for i in range(num_users):
-        assert profiles[i]['u_id'] == users[i]['u_id']
-        assert profiles[i]['email'] == users[i]['email']
-        assert profiles[i]['name_first'] == users[i]['name_first']
-        assert profiles[i]['name_last'] == users[i]['name_last']
-        assert profiles[i]['handle_str'] == users[i]['handle']
+    assert users_return['users'][2]['u_id'] == get_uid_from_token(token_3)
+    assert users_return['users'][2]['email'] == 'validuser3email@gmail.com'
+    assert users_return['users'][2]['name_first'] == 'User'
+    assert users_return['users'][2]['name_last'] == 'Three'
+    assert users_return['users'][2]['handle_str'] == 'validuser3'

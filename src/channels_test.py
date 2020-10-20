@@ -211,7 +211,6 @@ def test_create_standard():
     """
         Test for standard functionality of channels_create() according to spec
     """
-
     clear()
     # register & log in first user
     token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
