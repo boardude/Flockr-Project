@@ -12,14 +12,10 @@ from data import users, channels, create_new_channel
 from error import InputError, AccessError
 from other import is_token_valid, get_uid_from_token
 
-########### PYLINT INFORMATION #############
-# pylint errors involving global variables are disabled intentionally
-# in line with what instructors have suggested on Piazza
-
 ########### GLOBAL VARIABLES ###############
 # total number of channels created at any given time
 # is the channel_id of a newly created channel
-channels_created = 1  # pylint: disable=invalid-name
+channels_created = 1
 
 #### INTERFACE FUNCTION IMPLEMENTATIONS ####
 def channels_list(token):
@@ -78,7 +74,7 @@ def channels_create(token, name, is_public):
         new channel's name, and its is_public property. Channel ID of new channel is returned.
     """
 
-    global channels_created  # pylint: disable=invalid-name,global-statement
+    global channels_created
 
     # check name validity
     if not is_name_valid(name):

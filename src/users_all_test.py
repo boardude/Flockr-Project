@@ -1,6 +1,5 @@
 """
-    random and string modules allow for random string generation
-    for test_*_invalid_token tests
+    
 
     pytest module allows us to test if exceptions are thrown at appropriate times
 
@@ -13,10 +12,8 @@
     an invalid token is passed
 """
 
-import random
-import string
 import pytest
-from other import users_all, register_and_login, clear
+from other import users_all, register_and_login, clear, get_random_str
 from data import users
 from error import AccessError
 
@@ -39,9 +36,9 @@ def test_all_invalid_token():
         users_all(123)
 
     # Not an authorised user
-    bad_token = get_random_string(6)
+    bad_token = get_random_str(6)
     while bad_token is token_1 or bad_token is token_2:
-        bad_token = get_random_string(6)
+        bad_token = get_random_str(6)
 
     with pytest.raises(AccessError):
         users_all(bad_token)
@@ -59,9 +56,9 @@ def test_all_standard():
     users_return_3 = users_all(token_3)
 
     # check correct details have been returned
-    check_user_profiles(users_return_1, 3)
-    check_user_profiles(users_return_2, 3)
-    check_users_profile(users_return_3, 3)
+    check_user_profiles(users_return_1['users'], 3)
+    check_user_profiles(users_return_2['users'], 3)
+    check_user_profiles(users_return_3['users'], 3)
 
 
 ############### HELPER FUNCTIONS ################

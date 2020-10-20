@@ -2,15 +2,20 @@
 # Last updated 20/10/2020
 
 """
+    random and string modules allow for random string generation
+    for invalid token tests
+
     data module contains users and channels list structures to store associated
     data
 
     auth module allows us to use auth_register() and auth_login() to register
     and log in test users
 """
-
+import random
+import string
 from data import users, channels
 from auth import auth_register, auth_login
+from error import AccessError
 
 def clear():
     """
@@ -25,16 +30,22 @@ def clear():
     pass
 
 def users_all(token):
+    # check token validity
+    if not is_token_valid(token):
+        raise AccessError
+
+    all_users = []
+    for user in users:
+        user_details = {}
+        user_details['u_id'] = user['u_id']
+        user_details['email'] = user['email']
+        user_details['name_first'] = user['name_first']
+        user_details['name_last'] = user['name_last']
+        user_details['handle_str'] = user['handle']
+        all_users.append(user_details)
+    
     return {
-        'users': [
-            {
-                'u_id': 1,
-                'email': 'cs1531@cse.unsw.edu.au',
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-                'handle_str': 'hjacobs',
-            },
-        ],
+        'users': all_users,
     }
 
 def admin_userpermission_change(token, u_id, permission_id):
@@ -82,3 +93,13 @@ def get_uid_from_token(token):
             return user['u_id']
 
     return None
+
+def get_random_str(length):
+    """
+        Generates random string with the combination of lower-
+        and upper-case letters
+    """
+    letters = string.ascii_letters
+    random_str = ''.join(random.choice(letters) for i in range(length))
+
+    return random_str
