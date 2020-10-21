@@ -2,6 +2,7 @@
 
 from data import users, channels
 from error import InputError, AccessError
+from datetime import datetime
 
 def message_send(token, channel_id, message):
     '''Send a message from authorised_user to the channel specified
@@ -20,6 +21,7 @@ def message_send(token, channel_id, message):
     new_msg = {}
     new_msg_id = 0
     new_msg['u_id'] = token
+    new_msg['time_created'] = datetime.today()
     new_msg['message'] = message
     for chan in channels:
         if chan.get('channel_id') == channel_id:
@@ -87,7 +89,7 @@ def message_edit(token, message_id, message):
                 if msg.get('u_id') != token:
                     raise AccessError
                 if message == '':
-                    msg.pop()
+                    message_remove(token, message_id)
                 else:
                     msg['message'] = message
 
