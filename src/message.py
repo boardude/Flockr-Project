@@ -1,23 +1,22 @@
-import data
-from error import InputError
-import re
+'''functions for flock messaging, including sending, removing, and editing messages'''
 
-'''Send a message from authorised_user to the channel specified by channel_id'''
+from data import users, channels
+from error import InputError, AccessError
+
 def message_send(token, channel_id, message):
-    
-    '''InputError when message > 1000 characters'''
+    '''Send a message from authorised_user to the channel specified
+    by channel_id'''
+    #InputError when message > 1000 characters
     if len(message) > 1000:
         raise InputError
-        
-    '''AccessError when user hasn't joined the channel'''
+
+    #AccessError when user hasn't joined the channel
     for token_ in users:
         if token_.get('u_id') == token:
-            if token_.get('channels').index(channel_id):
-                break
-            else:
+            if token_.get('channels').index(channel_id) == ValueError:
                 raise AccessError
-    
-    '''Send message'''
+
+    #Send message
     new_msg = {}
     new_msg_id = 0
     new_msg['u_id'] = token
@@ -30,68 +29,67 @@ def message_send(token, channel_id, message):
     return {
         'message_id': new_msg_id
     }
-    
-    
-'''Given a message_id for a message, this message is removed from the channel'''
+
+
 def message_remove(token, message_id):
+    '''Given a message_id for a message, this message is removed from the channel'''
 
     is_message = False
     is_from_user = True
-    
-    '''AccessError if user not an owner'''
+
+    #AccessError if user not an owner
     for user in users:
         if user.get('token') == token:
             for chan in user.get('channels'):
                 if chan != message_id - 1000:
                     raise AccessError
 
-    '''Remove message'''
+    #Remove message
     for chan in channels:
         for msg in chan.get('messages'):
             if msg.get('message_id') == message_id:
                 is_message = True
-                if msg.get('u_id'):
-                    pop(msg)
+                if msg.get('u_id') == token:
+                    msg.pop()
                 else:
-                    is_from_user = False         
-    
-    '''InputError if message from message_id doesn't exist'''
-    if is_message == False:
+                    is_from_user = False
+
+    #InputError if message from message_id doesn't exist
+    if not is_message:
         raise InputError
-    
-    '''AccessError if message not sent from auth user'''
-    if is_from_user == False:
+
+    #AccessError if message not sent from auth user
+    if not is_from_user:
         raise AccessError
 
     return {
     }
 
-'''Given a message, update it's text with new text. If the new message is an empty string, the message is deleted'''
 def message_edit(token, message_id, message):
-    
-    is_from_user = False
-    is_owner = False
-    
-    '''AccessError if user not an owner'''
+    '''Given a message, update it's text with new text. If the new
+    message is an empty string, the message is deleted'''
+
+    #AccessError if user not an owner
     for user in users:
         if user.get('token') == token:
             for chan in user.get('channels'):
                 if chan != message_id - 1000:
                     raise AccessError
-    
-    '''InputError when message > 1000 characters'''
+
+    #InputError when message > 1000 characters
     if len(message) > 1000:
         raise InputError
-        
+
+    #edit message
     for chan in channels:
         for msg in chan.get('messages'):
             if msg.get('message_id') == message_id:
                 if msg.get('u_id') != token:
                     raise AccessError
-                elif message == '':
-                    pop(msg)
-                else: 
+                if message == '':
+                    msg.pop()
+                else:
                     msg['message'] = message
-    
+
     return {
     }
