@@ -4,98 +4,145 @@ import pytest
 import auth
 from other import clear
 from error import InputError, AccessError
-import message
-from data import channels
+from message import message_send, message_edit, message_remove
+from data import channels, users
 from channels import channels_create
-import channel
+from channel import channel_join
 
-channels_create(1, 'Channel 1', True)
-msg_dict = channels[0].get('messages')
+@pytest.fixture
+def initial_data():
+    '''
+    it is a fixture for tests.
+    create user 1, user 2 and user 3
+    user 1 creates channel_1 and users3 creates channel_2
+    user 2 join channel_1
+    '''
+    clear()
+    auth.auth_register('test1@test.com', 'password', 'name_first', 'name_last')
+    auth.auth_register('test2@test.com', 'password', 'name_first', 'name_last')
+    auth.auth_register('test3@test.com', 'password', 'name_first', 'name_last')
+    auth.auth_login('test1@test.com', 'password')
+    auth.auth_login('test2@test.com', 'password')
+    auth.auth_login('test3@test.com', 'password')
+    channels_create(users[0]['token'], 'channel_1', True)
+    channel_join(users[1]['token'], channels[0]['channel_id'])
+    channels_create(users[2]['token'], 'channel_2', True)
 
-def test_msg_send():
+@pytest.fixture
+def initial_msgs():
+    '''
+    it is a fixture for tests.
+    user 1 send 'msg_1' to channel_1 with msg_id 10001
+    user 2 send 'msg_2' to channel_1 with msg_id 10002
+    user 3 send 'msg_3' to channel_1 with msg_id 20001
+    '''
+    message_send(users[0]['token'], channels[0]['channel_id'], 'msg_1')
+    message_send(users[1]['token'], channels[0]['channel_id'], 'msg_2')
+    message_send(users[2]['token'], channels[1]['channel_id'], 'msg_3')
+
+def test_msg_send(initial_data):
     '''test for message_send'''
-    #returns message_id
-    auth.auth_register("validemail@gmail.com", 'V@l1dPa55w0rd', 'Hayden', 'Smith')
-    channel.channel_join(1, 1)
+    # 1. msg_send works well
+    message_send(users[0]['token'], channels[0]['channel_id'], 'msg_1')
+    message_send(users[1]['token'], channels[0]['channel_id'], 'a' * 1000)
+    message_send(users[2]['token'], channels[1]['channel_id'], '')
 
-    assert message.message_send(1, 1, '1st message') == {'message_id': 1}
-    assert message.message_send(1, 1, '2nd message') == {'message_id': 2}
+    all_messages = channels[0]['messages']
+    assert len(all_messages) == 2
+    assert all_messages[0]['u_id'] == users[0]['u_id']
+    assert all_messages[0]['message'] == 'msg_1'
+    assert all_messages[0]['message_id'] == 10001
+    assert all_messages[1]['u_id'] == users[1]['u_id']
+    assert all_messages[1]['message'] == 'a' * 1000
+    assert all_messages[1]['message_id'] == 10002
 
-    #data stored correctly
-    message.message_send(1, 1, '1st message')
-    message.message_send(1, 1, '2nd message')
+    all_messages = channels[1]['messages']
+    assert len(all_messages) == 1
+    assert all_messages[0]['u_id'] == users[2]['u_id']
+    assert all_messages[0]['message'] == ''
+    assert all_messages[0]['message_id'] == 20001
 
-    assert msg_dict.get('message') == ['1st message', '2nd message']
-
-    #inputError when message > 1000 characters
+    # 2. input error when message is more than 1000 characters
     with pytest.raises(InputError):
-        message.message_send(1, 1, 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Na')
+        message_send(users[0]['token'], channels[0]['channel_id'], 'a' * 1001)
 
-    #accessError when the authorised user has not joined the channel they
-    #are trying to post to
+    # 3. access error 1 when given token does not refer to a valid user
     with pytest.raises(AccessError):
-        message.message_send(1, 1, 'This should fail!')
+        message_send('invalid_token', channels[0]['channel_id'], 'msg')
 
-def test_msg_remove():
-    '''test for message_remove'''
-    clear()
-    #removes message from data
-    auth.auth_register("validemail@gmail.com", 'V@l1dPa55w0rd', 'Hayden', 'Smith')
-    channel.channel_join(1, 1)
+    # 4. access error 2 when the authorised user has not joined the channel they are trying to post to
+    with pytest.raises(AccessError):
+        message_send(users[0]['token'], channels[1]['channel_id'], 'msg')
+    with pytest.raises(AccessError):
+        message_send(users[1]['token'], channels[1]['channel_id'], 'msg')
+    with pytest.raises(AccessError):
+        message_send(users[2]['token'], channels[0]['channel_id'], 'msg')
 
-    message.message_send(1, 1, 'I will delete this message!')
-    message.message_remove(1, 1)
+def test_msg_remove(initial_data, initial_msgs):
+    ''' test for msg_remove'''
 
-    assert msg_dict == []
+    # 1. msg_remove works well
+    message_remove(users[1]['token'], 10002)    # removed by sender
+    message_send(users[0]['token'], channels[0]['channel_id'], 'msg_4')
+    all_messages = channels[0]['messages']
+    assert len(all_messages) == 2
+    assert all_messages[0]['u_id'] == users[0]['u_id']
+    assert all_messages[0]['message'] == 'msg_1'
+    assert all_messages[0]['message_id'] == 10001
+    assert all_messages[1]['u_id'] == users[0]['u_id']
+    assert all_messages[1]['message'] == 'msg_4'
+    assert all_messages[1]['message_id'] == 10003
 
-    #InputError when message (based on ID) no longer exists
+    message_remove(users[2]['token'], 20001) # removed by owner
+    message_send(users[2]['token'], channels[1]['channel_id'], 'msg_5')
+    message_send(users[2]['token'], channels[1]['channel_id'], 'msg_6')
+    all_messages = channels[1]['messages']
+    assert len(all_messages) == 2
+    assert all_messages[0]['u_id'] == users[2]['u_id']
+    assert all_messages[0]['message'] == 'msg_5'
+    assert all_messages[0]['message_id'] == 20002
+    assert all_messages[1]['u_id'] == users[2]['u_id']
+    assert all_messages[1]['message'] == 'msg_6'
+    assert all_messages[1]['message_id'] == 20003
+
+    # 2. input error when message (based on ID) no longer exists
     with pytest.raises(InputError):
-        message.message_remove(1, 1)
+        message_remove(users[1]['token'], 10002)
 
-    #AccessError when message not sent by user making the request
-    message.message_send(1, 1, 'This message is by user 1')
-    auth.auth_logout(1)
-    auth.auth_register("validEmail@gmail.com", 'V@l1dPa55w0rd', 'User', '2')
-
+    # 3. access error 1 when given token does not refer to a valid user
     with pytest.raises(AccessError):
-        message.message_remove(2, 1)
-
-    #AccessError when user is not an owner of the channel
-    message.message_send(2, 1, 'Ill try to delete this')
-
+        message_remove('invalid_token', 10003)
+    
+    # 4. access error 2 when Message with message_id was sent by
+    #   the authorised user making this request
+    #   or The authorised user is an owner of this channel or the flockr
     with pytest.raises(AccessError):
-        message.message_remove(2, 2)
+        message_remove(users[1]['token'], 10003)
 
-def test_msg_edit():
-    '''test for message_edit'''
-    clear()
-    #message updated with new text
-    auth.auth_register("validemail@gmail.com", 'V@l1dPa55w0rd', 'Hayden', 'Smith')
-    channel.channel_join(1, 1)
+def test_msg_edit(initial_data, initial_msgs):
+    '''test for msg_edit'''
+    # 1. msg_edit works well
+    message_edit(users[0]['token'], 10001, 'msg_new')
+    message_edit(users[1]['token'], 10002, '')
+    all_messages = channels[0]['messages']
+    assert len(all_messages) == 1
+    assert all_messages[0]['u_id'] == users[0]['u_id']
+    assert all_messages[0]['message'] == 'msg_new'
+    assert all_messages[0]['message_id'] == 10001
 
-    message.message_send(1, 1, 'This message is not edited')
-    message.message_edit(1, 1, 'This message is edited')
+    message_edit(users[2]['token'], 20001, 'msg_new_2')
+    all_messages = channels[1]['messages']
+    assert len(all_messages) == 1
+    assert all_messages[0]['u_id'] == users[2]['u_id']
+    assert all_messages[0]['message'] == 'msg_new_2'
+    assert all_messages[0]['message_id'] == 20001
 
-    assert msg_dict.get('message') == ['This message is edited']
-
-    #delete message if new message is an empty string
-    message.message_edit(1, 1, '')
-    assert msg_dict.get('message') == []
-
-    #AccessError when message not sent by user
-    message.message_send(1, 1, 'User 1 sent this!')
-    auth.auth_logout(1)
-    auth.auth_register("validEmail@gmail.com", 'V@l1dPa55w0rd', 'User', '2')
-    channel.channel_join(2, 1)
-    channel.channel_addowner(2, 1, 2)
-
+    # 2. access error when given token does not refer to a valid user
     with pytest.raises(AccessError):
-        message.message_edit(2, 1, 'This isnt changed by user 2!')
+        message_edit('invalid_token', 20001, 'msg')
 
-    #AccessError when user is not an owner of the channel
-    message.message_send(2, 1, 'This is a message')
-
-    channel.channel_removeowner(2, 1, 2)
-
+    # 3. access error when Message with message_id was sent by
+    #   the authorised user making this request
+    #   or The authorised user is an owner of this channel or the flockr
     with pytest.raises(AccessError):
-        message.message_edit(2, 1, 'This cant be edited!')
+        message_edit(users[1]['token'], 10001, 'msg')
