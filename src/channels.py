@@ -12,6 +12,11 @@ from data import users, channels, create_new_channel
 from error import InputError, AccessError
 from helper import is_token_valid, get_uid_from_token
 
+########### GLOBAL VARIABLES ###############
+# total number of channels created at any given time
+# is the channel_id of a newly created channel
+channels_created = 1
+
 #### INTERFACE FUNCTION IMPLEMENTATIONS ####
 def channels_list(token):
     """
@@ -68,6 +73,7 @@ def channels_create(token, name, is_public):
         Creates a new channel with that when given the token of an authorised user, the
         new channel's name, and its is_public property. Channel ID of new channel is returned.
     """
+    global channels_created
 
     # check name validity
     if not is_name_valid(name):
@@ -79,12 +85,14 @@ def channels_create(token, name, is_public):
 
     # create new channel in data.py
     new_user_id = get_uid_from_token(token)
-    new_channel = create_new_channel(len(channels), is_public, name, new_user_id)
+    new_channel = create_new_channel(channels_created, is_public, name, new_user_id)
 
     # add new channel_id to user's channels list
     for user in users:
         if user['token'] is token:
             user['channels'].append(new_channel['channel_id'])
+
+    channels_created += 1
 
     # return channel_id
     return {
@@ -102,3 +110,8 @@ def is_name_valid(name):
         return False
 
     return True
+
+def reset_channel_id():
+    global channels_created
+
+    channels_created = 1

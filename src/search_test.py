@@ -65,12 +65,12 @@ def test_search_standard():
     # invoke and test search()
     messages = search(token_1, 'Hello')
     assert len(messages['messages']) == 2
-    assert messages['messages'][0]['message_id'] == msg12['message_id']
+    assert messages['messages'][0]['message_id'] == msg11['message_id']
     assert messages['messages'][0]['u_id'] == uid_1
-    assert messages['messages'][0]['message'] == 'Hello, channel two?'
-    assert messages['messages'][1]['message_id'] == msg11['message_id']
+    assert messages['messages'][0]['message'] == 'Hello, channel one'
+    assert messages['messages'][1]['message_id'] == msg12['message_id']
     assert messages['messages'][1]['u_id'] == uid_1
-    assert messages['messages'][1]['message'] == 'Hello, channel one'
+    assert messages['messages'][1]['message'] == 'Hello, channel two?'
 
     messages = search(token_1, 'Hola')
     assert len(messages['messages']) == 1
@@ -80,15 +80,15 @@ def test_search_standard():
 
     messages = search(token_1, '?')
     assert len(messages['messages']) == 3
-    assert messages['messages'][0]['message_id'] == msg12['message_id']
+    assert messages['messages'][0]['message_id'] == msg13['message_id']
     assert messages['messages'][0]['u_id'] == uid_1
-    assert messages['messages'][0]['message'] == 'Hello, channel two?'
-    assert messages['messages'][1]['message_id'] == msg13['message_id']
+    assert messages['messages'][0]['message'] == 'Wait is this really channel one?'
+    assert messages['messages'][1]['message_id'] == msg14['message_id']
     assert messages['messages'][1]['u_id'] == uid_1
-    assert messages['messages'][1]['message'] == 'Wait is this really channel one?'
-    assert messages['messages'][2]['message_id'] == msg14['message_id']
+    assert messages['messages'][1]['message'] == 'Yep it is?'
+    assert messages['messages'][2]['message_id'] == msg12['message_id']
     assert messages['messages'][2]['u_id'] == uid_1
-    assert messages['messages'][2]['message'] == 'Yep it is?'
+    assert messages['messages'][2]['message'] == 'Hello, channel two?'
 
 
     messages = search(token_2, 'What')
