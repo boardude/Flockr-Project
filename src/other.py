@@ -14,7 +14,6 @@
 
 from data import users, channels
 from error import AccessError
-from message import reset_message_id
 from channels import reset_channel_id
 from helper import is_token_valid, get_uid_from_token
 
@@ -29,8 +28,7 @@ def clear():
         del users[0]
     while len(channels) != 0:
         del channels[0]
-    
-    reset_message_id()
+
     reset_channel_id()
 
 def users_all(token):
