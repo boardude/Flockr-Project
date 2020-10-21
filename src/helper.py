@@ -41,3 +41,5 @@ def get_random_str(length):
     """
     letters = string.ascii_letters
     random_str = ''.join(random.choice(letters) for i in range(length))
+
+    return random_str

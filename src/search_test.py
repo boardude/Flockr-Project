@@ -52,7 +52,7 @@ def test_search_standard():
     msg11 = message_send(token_1, user01_channel01['channel_id'], 'Hello, channel one')
     msg12 = message_send(token_1, user01_channel02['channel_id'], 'Hello, channel two?')
     msg13 = message_send(token_1, user01_channel01['channel_id'], 'Wait is this really channel one?')
-    msg14 = message_send(token_1, user01_channel01['channel_id'], 'Yep it is!')
+    msg14 = message_send(token_1, user01_channel01['channel_id'], 'Yep it is?')
     msg15 = message_send(token_1, user01_channel02['channel_id'], 'Hola amigos!')
 
     # send messages for the second user
@@ -79,13 +79,16 @@ def test_search_standard():
     assert messages['messages'][0]['message'] == 'Hola amigos!'
 
     messages = search(token_1, '?')
-    assert len(messages['messages']) == 2
+    assert len(messages['messages']) == 3
     assert messages['messages'][0]['message_id'] == msg12['message_id']
     assert messages['messages'][0]['u_id'] == uid_1
     assert messages['messages'][0]['message'] == 'Hello, channel two?'
     assert messages['messages'][1]['message_id'] == msg13['message_id']
     assert messages['messages'][1]['u_id'] == uid_1
     assert messages['messages'][1]['message'] == 'Wait is this really channel one?'
+    assert messages['messages'][2]['message_id'] == msg14['message_id']
+    assert messages['messages'][2]['u_id'] == uid_1
+    assert messages['messages'][2]['message'] == 'Yep it is?'
 
 
     messages = search(token_2, 'What')
@@ -105,4 +108,3 @@ def test_search_standard():
     assert messages['messages'][4]['message_id'] == msg25['message_id']
     assert messages['messages'][4]['u_id'] == uid_2
     assert messages['messages'][4]['message'] == 'What?'
-

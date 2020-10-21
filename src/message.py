@@ -1,5 +1,5 @@
 from data import users, channels
-from error import InputError
+from error import InputError, AccessError
 from helper import is_token_valid, get_uid_from_token
 from datetime import datetime
 import re
@@ -104,3 +104,9 @@ def message_edit(token, message_id, message):
     
     return {
     }
+
+############ HELPER FUNCTIONS ##############
+def reset_message_id():
+    global messages_sent
+
+    messages_sent = 1

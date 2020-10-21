@@ -14,13 +14,14 @@
 
 from data import users, channels
 from error import AccessError
-from message import messages_sent
+from message import reset_message_id
 from helper import is_token_valid, get_uid_from_token
 
 def clear():
     """
         Resets flockr data by removing all elements of "users" and "channels"
-        lists in data module
+        lists in data module and resetting the global variable determining
+        message_id in messages.py
     """
 
     while len(users) != 0:
@@ -28,7 +29,7 @@ def clear():
     while len(channels) != 0:
         del channels[0]
     
-    messages_sent = 1
+    reset_message_id()
 
 def users_all(token):
     # check token validity
@@ -70,5 +71,3 @@ def search(token, query_str):
     return {
         'messages': result
     }
-
-    return random_str
