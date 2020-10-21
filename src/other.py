@@ -55,17 +55,18 @@ def search(token, query_str):
     # check token validity
     if not is_token_valid(token):
         raise AccessError
-    
+
+    result = []
+
+    # search for messages with query string
+    for channel in channels:
+        if is_user_channel(token, channel):
+            for message in channel['messages']:
+                if query_str in message['message']:
+                    result.append(message)
     
     return {
-        'messages': [
-            {
-                'message_id': 1,
-                'u_id': 1,
-                'message': 'Hello world',
-                'time_created': 1582426789,
-            }
-        ],
+        'messages': result
     }
 
 ############ UNIVERSAL HELPER FUNCTIONS #########
@@ -108,3 +109,11 @@ def get_random_str(length):
     random_str = ''.join(random.choice(letters) for i in range(length))
 
     return random_str
+
+def is_user_channel(token, channel):
+    for user in users:
+        if user['token'] is token:
+            if channel['channel_id'] in user['channels']:
+                return True
+
+    return False

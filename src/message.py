@@ -1,4 +1,4 @@
-import data
+from data import users, channels
 from error import InputError
 import re
 
@@ -11,8 +11,8 @@ def message_send(token, channel_id, message):
         
     '''AccessError when user hasn't joined the channel'''
     for token_ in users:
-        if token_.get('u_id') == token:
-            if token_.get('channels').index(channel_id):
+        if token_['u_id'] == token:
+            if token_['channels'].index(channel_id):
                 break
             else:
                 raise AccessError
@@ -23,10 +23,10 @@ def message_send(token, channel_id, message):
     new_msg['u_id'] = token
     new_msg['message'] = message
     for chan in channels:
-        if chan.get('channel_id') == channel_id:
+        if chan['channel_id'] == channel_id:
             new_msg_id = (1000 * channel_id) + len(chan.get('messages'))
             new_msg['message_id'] = new_msg_id
-            chan.get('messages').append(new_msg)
+            chan['messages'].append(new_msg)
     return {
         'message_id': new_msg_id
     }
