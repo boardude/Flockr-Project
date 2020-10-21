@@ -4,43 +4,8 @@
     this file will be imported by other files for stroing
     this file will be updated if we need to edit attributions of users and channels
     this file contains standard data for reference (see below)
-'''
-# 2nd edition 10/01/2020 daoting
-#   add commends and a sample
-
-# 3rd edition 10/02/2020 daoting
-#   redefine owner_members and all_members of channels
-#   a list of dict --> a list of int(u_id)
-
-######## DATA FUNCTIONS ########
-def create_new_channel(channel_id, is_public, name, uid):
-    new_channel = {}
-    new_channel['channel_id'] = channel_id
-    new_channel['public'] = is_public
-    new_channel['name'] = name
-    new_channel['owner_members'] = [uid]
-    new_channel['all_members'] = [uid]
-    new_channel['messages'] = []
-
-    # add new channel to channels list
-    channels.append(new_channel)
-
-    return new_channel
-
-
-################################
-
-users = [
-
-]
-
-channels = [
-    
-]
-
-'''
-# here are sample data
-# seperate users and channels
+#here are sample data
+#seperate users and channels
 users = [
     {
         'u_id': 1,
@@ -49,7 +14,7 @@ users = [
         'handle' : 'user1last',
         'email' : 'test@test.com',
         'password' : 'test123',
-        'token' : '1', # for iteration 1 
+        'token' : '1', # for iteration 1
         'channels' : [ ], # a list to store this user's channel(channel_id)
     },
     {
@@ -97,3 +62,83 @@ channels = [
     },
 ]
 '''
+# 2nd edition 10/01/2020 daoting
+#   add commends and a sample
+
+# 3rd edition 10/02/2020 daoting
+#   redefine owner_members and all_members of channels
+#   a list of dict --> a list of int(u_id)
+
+# 4th edition 10/14/2020 daoting
+#   create a function called create_user for creating user
+#   delete relevant part in auth.py
+
+# 5th edition 19/10/2020 Yicheng (Mike) Zhu
+#   Created a function called create_new_channel for creating
+#   a new channel to replace a code block previously in
+#   channels.py.
+
+users = [
+
+]
+
+channels = [
+
+]
+
+def create_user(email, password, name_first, name_last, handle):
+    '''
+    This is a simple helper function to create a new user with given information.
+    This will append new user to the list of users.
+
+    Args:
+        param1: email
+        param2: password
+        param3: first name
+        param4: last name
+        param5: handle
+
+    Returns:
+        This will return a dictionary which contains user's information.
+
+    Raises:
+        This will not raise any error.
+    '''
+    new_user = {}
+    new_user['u_id'] = len(users) + 1
+    new_user['name_first'] = name_first
+    new_user['name_last'] = name_last
+    new_user['email'] = email
+    new_user['password'] = password
+    new_user['channels'] = []
+    new_user['token'] = str(len(users) + 1)
+    new_user['handle'] = handle
+    users.append(new_user)
+    return new_user
+
+def create_new_channel(channel_id, is_public, name, uid):
+    '''
+    This is a simple helper function to create a new channel with given its
+    channel_id, is_public attribute, name, and the user id of the creator of
+    the channel. It will also append the new channel to the channels list in
+    this module.
+
+    Returns:
+        This will return a dictionary which contains the new channel's details.
+
+    Raises:
+        This will not raise any error.
+    '''
+
+    new_channel = {}
+    new_channel['channel_id'] = channel_id
+    new_channel['public'] = is_public
+    new_channel['name'] = name
+    new_channel['owner_members'] = [uid]
+    new_channel['all_members'] = [uid]
+    new_channel['messages'] = []
+
+    # add new channel to channels list
+    channels.append(new_channel)
+
+    return new_channel
