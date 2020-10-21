@@ -16,6 +16,7 @@ users = [
         'password' : 'test123',
         'token' : '1', # for iteration 1
         'channels' : [ ], # a list to store this user's channel(channel_id)
+        'permission_id' : 1 or 2 (1 means flockr user, 2 means flockr member)
     },
     {
         'u_id': 2,
@@ -26,6 +27,7 @@ users = [
         'password' : 'test123',
         'token' : '2', # for iteration 1
         'channels' : [ ], # a list to store this user's channel(channel_id)
+        'permission_id' : 1 or 2 (1 means flockr user, 2 means flockr member)
     },
 ]
 
@@ -113,6 +115,10 @@ def create_user(email, password, name_first, name_last, handle):
     new_user['channels'] = []
     new_user['token'] = str(len(users) + 1)
     new_user['handle'] = handle
+    if len(users) == 0:
+        new_user['permission_id'] = 1
+    else:
+        new_user['permission_id'] = 2
     users.append(new_user)
     return new_user
 
