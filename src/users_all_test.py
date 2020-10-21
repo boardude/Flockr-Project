@@ -11,7 +11,8 @@
 """
 
 import pytest
-from other import users_all, register_and_login, clear, get_random_str, get_uid_from_token
+from other import users_all, clear
+from helper import get_random_str, get_uid_from_token, register_and_login
 from user import user_profile_sethandle
 from data import users
 from error import AccessError

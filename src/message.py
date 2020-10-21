@@ -1,34 +1,43 @@
 from data import users, channels
 from error import InputError
+from helper import is_token_valid, get_uid_from_token
+from datetime import datetime
 import re
+
+########### GLOBAL VARIABLES ###############
+# total number of messages sent at any given time is the message_id of a new message
+# messages_sent is reset by clear() in other.py
+# global variable used as messages are not persistent (i.e. messages can be removed), 
+# which makes it unreliable to use total number of messages at any given time
+# as message_id
+messages_sent = 1
 
 '''Send a message from authorised_user to the channel specified by channel_id'''
 def message_send(token, channel_id, message):
-    
+    global messages_sent
+
     '''InputError when message > 1000 characters'''
     if len(message) > 1000:
         raise InputError
         
     '''AccessError when user hasn't joined the channel'''
-    for token_ in users:
-        if token_['u_id'] == token:
-            if token_['channels'].index(channel_id):
-                break
-            else:
-                raise AccessError
+    if not is_token_valid(token):
+        raise AccessError
     
     '''Send message'''
     new_msg = {}
-    new_msg_id = 0
-    new_msg['u_id'] = token
+    new_msg['message_id'] = messages_sent
+    new_msg['u_id'] = get_uid_from_token(token)
     new_msg['message'] = message
-    for chan in channels:
-        if chan['channel_id'] == channel_id:
-            new_msg_id = (1000 * channel_id) + len(chan.get('messages'))
-            new_msg['message_id'] = new_msg_id
-            chan['messages'].append(new_msg)
+    new_msg['time_created'] = datetime.now()
+
+    ''' Append message to appropriate channel '''
+    channels[channel_id-1]['messages'].append(new_msg)
+
+    messages_sent += 1
+
     return {
-        'message_id': new_msg_id
+        'message_id': new_msg['message_id']
     }
     
     

@@ -11,11 +11,11 @@
     auth module allows us to use auth_register() and auth_login() to register
     and log in test users
 """
-import random
-import string
+
 from data import users, channels
-from auth import auth_register, auth_login
 from error import AccessError
+from message import messages_sent
+from helper import is_token_valid, get_uid_from_token
 
 def clear():
     """
@@ -27,7 +27,8 @@ def clear():
         del users[0]
     while len(channels) != 0:
         del channels[0]
-    pass
+    
+    messages_sent = 1
 
 def users_all(token):
     # check token validity
@@ -57,11 +58,12 @@ def search(token, query_str):
         raise AccessError
 
     result = []
+    u_id = get_uid_from_token(token)
 
     # search for messages with query string
     for channel in channels:
-        if is_user_channel(token, channel):
-            for message in channel['messages']:
+        for message in channel['messages']:
+            if message['u_id'] == u_id:
                 if query_str in message['message']:
                     result.append(message)
     
@@ -69,51 +71,4 @@ def search(token, query_str):
         'messages': result
     }
 
-############ UNIVERSAL HELPER FUNCTIONS #########
-def register_and_login(email, password, first_name, last_name):
-    """
-        Registers and logs in user with provided details,
-        returning the token
-
-    """
-    auth_register(email, password, first_name, last_name)
-    login = auth_login(email, password)
-    return login['token']
-
-def is_token_valid(token):
-    """
-        Returns True if token is valid (token is found in users list), otherwise False
-    """
-    for user in users:
-        if user['token'] is token:
-            return True
-    return False
-
-def get_uid_from_token(token):
-    """
-        Return the corresponding u_id when given the token of an authorised
-        user
-    """
-    for user in users:
-        if user['token'] == token:
-            return user['u_id']
-
-    return None
-
-def get_random_str(length):
-    """
-        Generates random string with the combination of lower-
-        and upper-case letters
-    """
-    letters = string.ascii_letters
-    random_str = ''.join(random.choice(letters) for i in range(length))
-
     return random_str
-
-def is_user_channel(token, channel):
-    for user in users:
-        if user['token'] is token:
-            if channel['channel_id'] in user['channels']:
-                return True
-
-    return False

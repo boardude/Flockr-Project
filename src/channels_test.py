@@ -24,7 +24,8 @@ import string
 import pytest
 from channels import channels_list, channels_listall, channels_create, get_uid_from_token
 from data import users, channels
-from other import clear, register_and_login, get_random_str
+from other import clear
+from helper import register_and_login, get_random_str
 from error import InputError, AccessError
 
 ##### GLOBAL VARIABLES #####
