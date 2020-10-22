@@ -14,7 +14,7 @@
 
 from data import users, channels
 from error import InputError, AccessError
-from helper import is_token_valid, get_user_from_token_naive, get_user_from_id
+from helper import is_token_valid, get_user_from_token_naive, get_user_from_id, get_channel_from_id
 
 def clear():
     """
@@ -76,7 +76,8 @@ def search(token, query_str):
 
     # search for messages with query string
     for channel_id in user['channels']:
-        for message in channels[channel_id-1]['messages']:
+        channel = get_channel_from_id(channel_id)
+        for message in channel['messages']:
             if query_str in message['message']:
                 result.append(message)
     

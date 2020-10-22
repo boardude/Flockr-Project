@@ -7,6 +7,7 @@ from helper import register_and_login, get_random_str, get_uid_from_token
 from data import users
 from error import AccessError
 from channels import channels_create
+from channel import channel_join
 from message import message_send
 
 def test_search_invalid_token():
@@ -35,7 +36,7 @@ def test_search_invalid_token():
     with pytest.raises(AccessError):
         search(bad_token, 'query')
 
-def test_search_standard():
+def test_search_no_cross_join_channel():
     clear()
     # register two users
     token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
@@ -93,7 +94,6 @@ def test_search_standard():
     assert messages['messages'][2]['u_id'] == uid_1
     assert messages['messages'][2]['message'] == 'Hello, channel two?'
 
-
     messages = search(token_2, 'What')
     assert len(messages['messages']) == 5
     assert messages['messages'][0]['message_id'] == msg21['message_id']
@@ -109,5 +109,47 @@ def test_search_standard():
     assert messages['messages'][3]['u_id'] == uid_2
     assert messages['messages'][3]['message'] == 'What\'s up channel two'
     assert messages['messages'][4]['message_id'] == msg25['message_id']
+    assert messages['messages'][4]['u_id'] == uid_2
+    assert messages['messages'][4]['message'] == 'What?'
+
+def test_search_cross_join_channel():
+    clear()
+    # register two users
+    token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    uid_1 = get_uid_from_token(token_1)
+    token_2 = register_and_login('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
+    uid_2 = get_uid_from_token(token_2)
+
+    # create a channel from user 1
+    channel = channels_create(token_1, 'Channel 01 User 01', True)
+
+    # user 2 joins user 1's channel
+    channel_join(token_2, channel['channel_id'])
+
+    # send messages from both users
+    msg1 = message_send(token_1, channel['channel_id'], 'What\'s up channel one')
+    msg2 = message_send(token_2, channel['channel_id'], 'What\'s up channel two')
+    msg3 = message_send(token_2, channel['channel_id'], 'You channel one or What?')
+    msg4 = message_send(token_1, channel['channel_id'], 'What? Yeah bro I am')
+    msg5 = message_send(token_2, channel['channel_id'], 'What?')
+
+    # search from first user
+    messages = search(token_1, 'What')
+
+    # make sure messages from both users appear
+    assert len(messages['messages']) == 5
+    assert messages['messages'][0]['message_id'] == msg1['message_id']
+    assert messages['messages'][0]['u_id'] == uid_1
+    assert messages['messages'][0]['message'] == 'What\'s up channel one'
+    assert messages['messages'][1]['message_id'] == msg2['message_id']
+    assert messages['messages'][1]['u_id'] == uid_2
+    assert messages['messages'][1]['message'] == 'What\'s up channel two'
+    assert messages['messages'][2]['message_id'] == msg3['message_id']
+    assert messages['messages'][2]['u_id'] == uid_2
+    assert messages['messages'][2]['message'] == 'You channel one or What?'
+    assert messages['messages'][3]['message_id'] == msg4['message_id']
+    assert messages['messages'][3]['u_id'] == uid_1
+    assert messages['messages'][3]['message'] == 'What? Yeah bro I am'
+    assert messages['messages'][4]['message_id'] == msg5['message_id']
     assert messages['messages'][4]['u_id'] == uid_2
     assert messages['messages'][4]['message'] == 'What?'

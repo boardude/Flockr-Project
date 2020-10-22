@@ -44,27 +44,6 @@ def get_random_str(length):
 
     return random_str
 
-def get_user_from_id(u_id):
-    '''
-    This is a simple helper function.
-    It will return a user with given u_id if it exists in data,
-    else return False
-
-    Args:
-        param1: u_id
-
-    Returns:
-        This will return uesr(dictionary) if u_id refers to a valid user in data,
-        else return False.
-
-    Raises:
-        this will not raise any error
-    '''
-    for user in users:
-        if user['u_id'] == u_id:
-            return user
-    return None
-
 def get_user_from_token_naive(token): # temporary function
     '''
     no decode
@@ -72,3 +51,24 @@ def get_user_from_token_naive(token): # temporary function
     for user in users:
         if user['token'] == token:
             return user
+
+def get_user_from_id(u_id):
+    '''
+        Returns a user with given u_id if it exists in data,
+        else return None
+    '''
+    try:
+        return users[u_id-1]
+    except IndexError:
+        return None
+
+def get_channel_from_id(channel_id):
+    '''
+        Return a channel with given channel_id if it exists in data,
+        else return None
+    '''
+    try:
+        return channels[channel_id-1]
+    except IndexError:
+        return None
+
