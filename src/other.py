@@ -64,7 +64,7 @@ def admin_userpermission_change(token, u_id, permission_id):
         raise AccessError
 
     # change permission of u_id user to permission_id
-    users[u_id-1]['permission_id'] = permission_id
+    user['permission_id'] = permission_id
 
 def search(token, query_str):
     # check token validity
@@ -75,11 +75,10 @@ def search(token, query_str):
     user = get_user_from_token_naive(token)
 
     # search for messages with query string
-    for channel in channels:
-        for message in channel['messages']:
-            if message['u_id'] == user['u_id']:
-                if query_str in message['message']:
-                    result.append(message)
+    for channel_id in user['channels']:
+        for message in channels[channel_id-1]['messages']:
+            if query_str in message['message']:
+                result.append(message)
     
     return {
         'messages': result
