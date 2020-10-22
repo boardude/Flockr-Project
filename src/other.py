@@ -66,9 +66,6 @@ def admin_userpermission_change(token, u_id, permission_id):
     # change permission of u_id user to permission_id
     users[u_id-1]['permission_id'] = permission_id
 
-    return {
-    }
-
 def search(token, query_str):
     # check token validity
     if not is_token_valid(token):
