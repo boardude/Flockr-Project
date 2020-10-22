@@ -51,7 +51,7 @@ def admin_userpermission_change(token, u_id, permission_id):
         raise InputError
 
     # check permission_id validity
-    if permission_id != 1 and permission_id != 2:
+    if permission_id not in [1, 2]:
         raise InputError
     
     # check token validity
