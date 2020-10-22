@@ -12,11 +12,6 @@ from data import users, channels, create_new_channel
 from error import InputError, AccessError
 from helper import is_token_valid, get_uid_from_token
 
-########### GLOBAL VARIABLES ###############
-# total number of channels created at any given time
-# is the channel_id of a newly created channel
-channels_created = 1
-
 #### INTERFACE FUNCTION IMPLEMENTATIONS ####
 def channels_list(token):
     """
@@ -108,8 +103,3 @@ def is_name_valid(name):
         return False
 
     return True
-
-def reset_channel_id():
-    global channels_created
-
-    channels_created = 1
