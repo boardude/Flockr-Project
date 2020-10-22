@@ -22,10 +22,8 @@ def clear():
         lists in data module
     """
 
-    while len(users) != 0:
-        del users[0]
-    while len(channels) != 0:
-        del channels[0]
+    users.clear()
+    channels.clear()
 
 def users_all(token):
     # check token validity
