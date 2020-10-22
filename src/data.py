@@ -46,6 +46,7 @@ channels = [
                 'time_created': 1582426789,
             },
         ],
+        'latest_msg_id' : an int start from 0
     },
     {
         'channel_id' : 2,
@@ -61,6 +62,7 @@ channels = [
                 'time_created': 1582426789,
             },
         ],
+        'latest_msg_id' : an int start from 0
     },
 ]
 '''
@@ -79,6 +81,12 @@ channels = [
 #   Created a function called create_new_channel for creating
 #   a new channel to replace a code block previously in
 #   channels.py.
+
+# 6th edition 10/22/2020 daoting
+#   create a new function called create_new_msg
+#   add a attribute called latest_msg_id to each channel
+
+import time
 
 users = [
 
@@ -143,8 +151,39 @@ def create_new_channel(channel_id, is_public, name, uid):
     new_channel['owner_members'] = [uid]
     new_channel['all_members'] = [uid]
     new_channel['messages'] = []
+    new_channel['latest_msg_id'] = 0
 
     # add new channel to channels list
     channels.append(new_channel)
 
     return new_channel
+
+def create_new_msg(message, channel, u_id):
+    '''
+    This is an helper function to create a new message.
+    It will create a timestamp to represent create time.
+    It will create a unique msg_id combining channel_id and channel's msgs
+
+    Args:
+        param1: message body (str)
+        param2: target channel
+        param3: creater's u_id
+
+    Returns:
+        it will return a dictionary of new_msg
+        {
+            'message_id' : msg_id,
+            'u_id' : u_id,
+            'message' : message,
+            'time_created': timestamp,
+        }
+    '''
+    timestamp = int(time.time())
+    msg_id = channel['channel_id'] * 10000 + channel['latest_msg_id'] + 1
+    new_msg = {
+        'message_id' : msg_id,
+        'u_id' : u_id,
+        'message' : message,
+        'time_created': timestamp,
+    }
+    return new_msg

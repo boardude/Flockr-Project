@@ -73,7 +73,6 @@ def channels_create(token, name, is_public):
         Creates a new channel with that when given the token of an authorised user, the
         new channel's name, and its is_public property. Channel ID of new channel is returned.
     """
-    global channels_created
 
     # check name validity
     if not is_name_valid(name):
@@ -85,14 +84,13 @@ def channels_create(token, name, is_public):
 
     # create new channel in data.py
     new_user_id = get_uid_from_token(token)
-    new_channel = create_new_channel(channels_created, is_public, name, new_user_id)
+    new_channel = create_new_channel(len(channels) + 1, is_public, name, new_user_id)
 
     # add new channel_id to user's channels list
     for user in users:
         if user['token'] is token:
             user['channels'].append(new_channel['channel_id'])
 
-    channels_created += 1
 
     # return channel_id
     return {
