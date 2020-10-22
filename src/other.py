@@ -25,6 +25,9 @@ def clear():
     users.clear()
     channels.clear()
 
+    return {
+    }
+
 def users_all(token):
     # check token validity
     if not is_token_valid(token):
@@ -65,6 +68,9 @@ def admin_userpermission_change(token, u_id, permission_id):
 
     # change permission of u_id user to permission_id
     user['permission_id'] = permission_id
+
+    return {
+    }
 
 def search(token, query_str):
     # check token validity
