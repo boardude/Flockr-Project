@@ -40,8 +40,9 @@ def initial_msgs():
     message_send(users[1]['token'], channels[0]['channel_id'], 'msg_2')
     message_send(users[2]['token'], channels[1]['channel_id'], 'msg_3')
 
-def test_msg_send(initial_data):
+def test_msg_send():
     '''test for message_send'''
+    initial_data()
     # 1. msg_send works well
     message_send(users[0]['token'], channels[0]['channel_id'], 'msg_1')
     message_send(users[1]['token'], channels[0]['channel_id'], 'a' * 1000)
@@ -70,7 +71,8 @@ def test_msg_send(initial_data):
     with pytest.raises(AccessError):
         message_send('invalid_token', channels[0]['channel_id'], 'msg')
 
-    # 4. access error 2 when the authorised user has not joined the channel they are trying to post to
+    # 4. access error 2 when the authorised user has not joined the channel
+    #    they aretrying to post to
     with pytest.raises(AccessError):
         message_send(users[0]['token'], channels[1]['channel_id'], 'msg')
     with pytest.raises(AccessError):
@@ -78,9 +80,10 @@ def test_msg_send(initial_data):
     with pytest.raises(AccessError):
         message_send(users[2]['token'], channels[0]['channel_id'], 'msg')
 
-def test_msg_remove(initial_data, initial_msgs):
+def test_msg_remove():
     ''' test for msg_remove'''
-
+    initial_data()
+    initial_msgs()
     # 1. msg_remove works well
     message_remove(users[1]['token'], 10002)    # removed by sender
     message_send(users[0]['token'], channels[0]['channel_id'], 'msg_4')
@@ -112,15 +115,17 @@ def test_msg_remove(initial_data, initial_msgs):
     # 3. access error 1 when given token does not refer to a valid user
     with pytest.raises(AccessError):
         message_remove('invalid_token', 10003)
-    
+
     # 4. access error 2 when Message with message_id was sent by
     #   the authorised user making this request
     #   or The authorised user is an owner of this channel or the flockr
     with pytest.raises(AccessError):
         message_remove(users[1]['token'], 10003)
 
-def test_msg_edit(initial_data, initial_msgs):
+def test_msg_edit():
     '''test for msg_edit'''
+    initial_data()
+    initial_msgs()
     # 1. msg_edit works well
     message_edit(users[0]['token'], 10001, 'msg_new')
     message_edit(users[1]['token'], 10002, '')
