@@ -1,3 +1,6 @@
+# Yicheng (Mike) Zhu
+# Last updated 21/10/2020
+
 """
     pytest module allows us to test if exceptions are thrown at appropriate times
 

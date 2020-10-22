@@ -1,3 +1,6 @@
+# Yicheng (Mike) Zhu
+# Last updated 21/10/2020
+
 import pytest
 from other import search, clear
 from helper import register_and_login, get_random_str, get_uid_from_token

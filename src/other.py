@@ -1,5 +1,5 @@
 # Yicheng (Mike) Zhu
-# Last updated 20/10/2020
+# Last updated 22/10/2020
 
 """
     random and string modules allow for random string generation
