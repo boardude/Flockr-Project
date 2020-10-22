@@ -19,9 +19,9 @@ def test_clear_standard():
     token_2 = register_and_login('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
 
     # create channels
-    channel_01 = channels_create(token_1, 'Channel 01', True)
-    channel_02 = channels_create(token_1, 'Channel 02', False)
-    channel_03 = channels_create(token_2, 'Channel 03', False)
+    channels_create(token_1, 'Channel 01', True)
+    channels_create(token_1, 'Channel 02', False)
+    channels_create(token_2, 'Channel 03', False)
 
     # intermediate assertions
     assert len(users) == 2
