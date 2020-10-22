@@ -13,8 +13,8 @@
 """
 
 from data import users, channels
-from error import AccessError
-from helper import is_token_valid, get_uid_from_token
+from error import InputError, AccessError
+from helper import is_token_valid, get_user_from_token_naive, get_user_from_id
 
 def clear():
     """
@@ -47,7 +47,29 @@ def users_all(token):
     }
 
 def admin_userpermission_change(token, u_id, permission_id):
-    pass
+    # check u_id validity
+    user = get_user_from_id(u_id)
+    if user == None:
+        raise InputError
+
+    # check permission_id validity
+    if permission_id != 1 and permission_id != 2:
+        raise InputError
+    
+    # check token validity
+    if not is_token_valid(token):
+        raise AccessError
+
+    # check if token refers to an owner
+    admin = get_user_from_token_naive(token)
+    if admin['permission_id'] != 1:
+        raise AccessError
+
+    # change permission of u_id user to permission_id
+    users[u_id-1]['permission_id'] = permission_id
+
+    return {
+    }
 
 def search(token, query_str):
     # check token validity
@@ -55,12 +77,12 @@ def search(token, query_str):
         raise AccessError
 
     result = []
-    u_id = get_uid_from_token(token)
+    user = get_user_from_token_naive(token)
 
     # search for messages with query string
     for channel in channels:
         for message in channel['messages']:
-            if message['u_id'] == u_id:
+            if message['u_id'] == user['u_id']:
                 if query_str in message['message']:
                     result.append(message)
     

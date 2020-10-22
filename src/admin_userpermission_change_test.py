@@ -2,6 +2,7 @@
 # Last updated 22/10/2020
 
 import pytest
+import random
 from other import admin_userpermission_change, clear
 from channels import channels_create
 from helper import register_and_login, get_random_str, get_user_from_token_naive
@@ -16,22 +17,18 @@ def test_userpermission_InputError():
 
     # u_id does not refer to a valid user
     with pytest.raises(InputError):
-        bad_id = randint(0, 999)
-        while bad_id is user_1['u_id'] or user_2['u_id']:
-            bad_id = randint(0, 999)
+        bad_id = random.randint(0, 999)
+        while bad_id is user_1['u_id'] or bad_id is user_2['u_id']:
+            bad_id = random.randint(0, 999)
         admin_userpermission_change(token_1, bad_id, 1)
 
     # permission_id does not refer to a value permission
-    with pytest.raises(InputError)
+    with pytest.raises(InputError):
         admin_userpermission_change(token_1, user_2['u_id'], 3)
 
     # permission_id does not refer to a value permission (wrong data type)
-    with pytest.raises(InputError)
+    with pytest.raises(InputError):
         admin_userpermission_change(token_1, user_2['u_id'], 'str')
-
-    # permission_id does not refer to a value permission (no input)
-    with pytest.raises(InputError)
-        admin_userpermission_change(token_1, user_2['u_id'],)
 
 def test_userpermission_AccessError():
     clear()
@@ -42,7 +39,7 @@ def test_userpermission_AccessError():
     # token is not an authorised user
     with pytest.raises(AccessError):
         bad_token = get_random_str(6)
-        while bad_token is token_1 or token_2:
+        while bad_token is token_1 or bad_token is token_2:
             bad_token = get_random_str(6)
         admin_userpermission_change(bad_token, user_1['u_id'], 2)
 
@@ -54,7 +51,7 @@ def test_userpermission_standard():
     clear()
     token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
     token_2 = register_and_login('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
-    token_3 = register_and_login('validuser2email@gmail.com', 'validpass3', 'User', 'Three')
+    token_3 = register_and_login('validuser3email@gmail.com', 'validpass3', 'User', 'Three')
     user_1 = get_user_from_token_naive(token_1)
     user_2 = get_user_from_token_naive(token_2)
     user_3 = get_user_from_token_naive(token_3)
