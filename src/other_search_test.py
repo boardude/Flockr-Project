@@ -63,7 +63,7 @@ def test_search_no_cross_join_channel():
     msg21 = message_send(token_2, user02_channel01['channel_id'], 'What\'s up channel one')
     msg22 = message_send(token_2, user02_channel02['channel_id'], 'What\'s up channel two')
     msg23 = message_send(token_2, user02_channel01['channel_id'], 'You channel one or What?')
-    msg24 = message_send(token_2, user02_channel01['channel_id'], 'What? Yeah bro I am')
+    msg24 = message_send(token_2, user02_channel01['channel_id'], 'What? Yeah I am')
     msg25 = message_send(token_2, user02_channel02['channel_id'], 'What?')
 
     # invoke and test search()
@@ -104,7 +104,7 @@ def test_search_no_cross_join_channel():
     assert messages['messages'][1]['message'] == 'You channel one or What?'
     assert messages['messages'][2]['message_id'] == msg24['message_id']
     assert messages['messages'][2]['u_id'] == uid_2
-    assert messages['messages'][2]['message'] == 'What? Yeah bro I am'
+    assert messages['messages'][2]['message'] == 'What? Yeah I am'
     assert messages['messages'][3]['message_id'] == msg22['message_id']
     assert messages['messages'][3]['u_id'] == uid_2
     assert messages['messages'][3]['message'] == 'What\'s up channel two'
@@ -127,10 +127,10 @@ def test_search_cross_join_channel():
     channel_join(token_2, channel['channel_id'])
 
     # send messages from both users
-    msg1 = message_send(token_1, channel['channel_id'], 'What\'s up channel one')
-    msg2 = message_send(token_2, channel['channel_id'], 'What\'s up channel two')
-    msg3 = message_send(token_2, channel['channel_id'], 'You channel one or What?')
-    msg4 = message_send(token_1, channel['channel_id'], 'What? Yeah bro I am')
+    msg1 = message_send(token_1, channel['channel_id'], 'What\'s up user two')
+    msg2 = message_send(token_2, channel['channel_id'], 'What\'s up user one')
+    msg3 = message_send(token_2, channel['channel_id'], 'You user one or What?')
+    msg4 = message_send(token_1, channel['channel_id'], 'What? Yeah I am')
     msg5 = message_send(token_2, channel['channel_id'], 'What?')
 
     # search from first user
@@ -140,16 +140,16 @@ def test_search_cross_join_channel():
     assert len(messages['messages']) == 5
     assert messages['messages'][0]['message_id'] == msg1['message_id']
     assert messages['messages'][0]['u_id'] == uid_1
-    assert messages['messages'][0]['message'] == 'What\'s up channel one'
+    assert messages['messages'][0]['message'] == 'What\'s up user two'
     assert messages['messages'][1]['message_id'] == msg2['message_id']
     assert messages['messages'][1]['u_id'] == uid_2
-    assert messages['messages'][1]['message'] == 'What\'s up channel two'
+    assert messages['messages'][1]['message'] == 'What\'s up user one'
     assert messages['messages'][2]['message_id'] == msg3['message_id']
     assert messages['messages'][2]['u_id'] == uid_2
-    assert messages['messages'][2]['message'] == 'You channel one or What?'
+    assert messages['messages'][2]['message'] == 'You user one or What?'
     assert messages['messages'][3]['message_id'] == msg4['message_id']
     assert messages['messages'][3]['u_id'] == uid_1
-    assert messages['messages'][3]['message'] == 'What? Yeah bro I am'
+    assert messages['messages'][3]['message'] == 'What? Yeah I am'
     assert messages['messages'][4]['message_id'] == msg5['message_id']
     assert messages['messages'][4]['u_id'] == uid_2
     assert messages['messages'][4]['message'] == 'What?'
