@@ -40,9 +40,8 @@ def initial_msgs():
     message_send(users[1]['token'], channels[0]['channel_id'], 'msg_2')
     message_send(users[2]['token'], channels[1]['channel_id'], 'msg_3')
 
-def test_msg_send():
+def test_msg_send(initial_data):
     '''test for message_send'''
-    initial_data()
     # 1. msg_send works well
     message_send(users[0]['token'], channels[0]['channel_id'], 'msg_1')
     message_send(users[1]['token'], channels[0]['channel_id'], 'a' * 1000)
@@ -80,10 +79,8 @@ def test_msg_send():
     with pytest.raises(AccessError):
         message_send(users[2]['token'], channels[0]['channel_id'], 'msg')
 
-def test_msg_remove():
+def test_msg_remove(initial_data, initial_msgs):
     ''' test for msg_remove'''
-    initial_data()
-    initial_msgs()
     # 1. msg_remove works well
     message_remove(users[1]['token'], 10002)    # removed by sender
     message_send(users[0]['token'], channels[0]['channel_id'], 'msg_4')
@@ -122,10 +119,8 @@ def test_msg_remove():
     with pytest.raises(AccessError):
         message_remove(users[1]['token'], 10003)
 
-def test_msg_edit():
+def test_msg_edit(initial_data, initial_msgs):
     '''test for msg_edit'''
-    initial_data()
-    initial_msgs()
     # 1. msg_edit works well
     message_edit(users[0]['token'], 10001, 'msg_new')
     message_edit(users[1]['token'], 10002, '')
