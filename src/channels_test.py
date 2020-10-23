@@ -1,32 +1,32 @@
 # Yicheng (Mike) Zhu
-# Last updated 4/10/2020
+# Last updated 20/10/2020
 
+"""
+    random and string modules allow for random string generation
+    for test_*_invalid_token tests
+
+    pytest module allows us to test if exceptions are thrown at appropriate times
+
+    channels module contains functions that need to be tested
+
+    data module contains users and channels list structures to store data
+    and helper functions for creating a new user and a new channel
+
+    other module contains clear() which allows us to reset the data module
+    before each test
+
+    error module contains custom exceptions, including InputError
+    and AccessError
+
+"""
+import random
+import string
+import pytest
 from channels import channels_list, channels_listall, channels_create, get_uid_from_token
 from data import users, channels
 from other import clear
-from error import InputError
-import pytest
-import auth
-
-"""
-TESTS
-        list:
-            1. Prelim test: whether a dict is returned
-            2. Standard functionality test according to spec
-        listall:
-            1. Prelim test: whether a dict is returned
-            2. Standard functionality test according to spec
-        create:
-            1. Prelim test: Invalid name (longer than 20 characters)
-            2. Prelim test: whether a dictionary is returned
-            3. Standard test: correct ID returned + correct channel details registered
-            4. Edge test: Duplicate details
-
-HELPER FUNCTIONS
-    1. register_and_login(email, password, first_name, last_name):
-       registers and logs in user with provided details, returning the token
-    2. create_channels(token_1, token_2): creates 6 test channels with tokens from two users
-"""
+from helper import register_and_login, get_random_str
+from error import InputError, AccessError
 
 ##### GLOBAL VARIABLES #####
 channel_01 = None
@@ -37,24 +37,41 @@ channel_05 = None
 channel_06 = None
 
 ##### TEST IMPLEMENTATIONS #####
-# Test that a dict containing an list of dictionaries, i.e. { channels }, 
-# is the output
-def test_list_return_type():
+def test_list_invalid_token():
+    """
+        Test for AccessError exception thrown by channels_create() when token
+        passed in is not a valid token
+    """
     clear()
-    # register & log in user
-    token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    # register two users
+    token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    token_2 = register_and_login('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
 
-    # test whether a dict is returned
-    temp = channels_list(token)
-    assert isinstance(temp, dict) is True
+    # empty
+    with pytest.raises(AccessError):
+        channels_list('')
 
-    # test whether a list is embedded within the dictionary appropriately
-    assert isinstance(temp['channels'], list) is True
-    for x in range(len(temp['channels'])):
-        assert isinstance(temp['channels'][x], dict) is True
+    # None
+    with pytest.raises(AccessError):
+        channels_list(None)
 
-# Test for standard functionality of channels_list() according to spec
+    # Not the correct data type
+    with pytest.raises(AccessError):
+        channels_list(123)
+
+    # Not an authorised user
+    bad_token = get_random_str(6)
+    while bad_token is token_1 or bad_token is token_2:
+        bad_token = get_random_str(6)
+
+    with pytest.raises(AccessError):
+        channels_list(bad_token)
+
 def test_list_standard():
+    """
+        Test for standard functionality of channels_list() according to spec
+    """
+
     clear()
     # register & log in first user
     token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
@@ -65,7 +82,7 @@ def test_list_standard():
     # create test channels
     create_channels(token_1, token_2)
 
-    # test length of returned channels list, making sure channels of 
+    # test length of returned channels list, making sure channels of
     # User 2 is not listed
     temp = channels_list(token_1)
     assert len(temp['channels']) == 3
@@ -81,24 +98,40 @@ def test_list_standard():
     assert channel_03_listed['channel_id'] == channel_03['channel_id']
     assert channel_03_listed['name'] == 'Channel 03'
 
-# Test that a dict containing an list of dictionaries, i.e. { channels }, 
-# is the output
-def test_listall_return_type():
+def test_listall_invalid_token():
+    """
+        Test for AccessError exception thrown by channels_create() when token
+        passed in is not a valid token
+    """
     clear()
-    # register & log in user
-    token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    # register two users
+    token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    token_2 = register_and_login('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
 
-    # test whether a dict is returned
-    temp = channels_listall(token)
-    assert isinstance(temp, dict) is True
+    # empty
+    with pytest.raises(AccessError):
+        channels_listall('')
 
-    # test whether a list of dictionaries is embedded within the output appropriately
-    assert isinstance(temp['channels'], list) is True
-    for x in range(len(temp['channels'])):
-        assert isinstance(temp['channels'][x], dict) is True
+    # None
+    with pytest.raises(AccessError):
+        channels_listall(None)
 
-# Test for standard functionality of channels_listall() according to spec
+    # Not the correct data type
+    with pytest.raises(AccessError):
+        channels_listall(123)
+
+    # Not an authorised user
+    bad_token = get_random_str(6)
+    while bad_token is token_1 or bad_token is token_2:
+        bad_token = get_random_str(6)
+
+    with pytest.raises(AccessError):
+        channels_listall(bad_token)
+
 def test_listall_standard():
+    """
+        Test for standard functionality of channels_listall() according to spec
+    """
     clear()
     # register & log in first user
     token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
@@ -109,7 +142,7 @@ def test_listall_standard():
     # create test channels
     create_channels(token_1, token_2)
 
-    # test length of returned channels list, making sure both 
+    # test length of returned channels list, making sure both
     # users' channels are listed
     temp = channels_listall(token_1)
     assert len(temp['channels']) == 6
@@ -134,59 +167,81 @@ def test_listall_standard():
     assert channel_06_listed['channel_id'] == channel_06['channel_id']
     assert channel_06_listed['name'] == 'Channel 06 User 2'
 
-# Test that a dict containing an int for channel_id, i.e. { channel_id }, 
-# is the output
-def test_create_return_type():
-    clear()
-    # register & log in user
-    token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+def test_create_invalid_name():
+    """
+        Test for InputError exception thrown by channels_create() when name
+        is longer than 20 characters
+    """
 
-    # test whether a dict is returned
-    temp = channels_create(token, 'Channel 01', True)
-    assert isinstance(temp, dict) is True
-
-    # test whether an int is embedded appropriately within the returned dict
-    assert isinstance(temp['channel_id'], int) is True
-
-# InputError by channels_create() when name is longer than 20 characters
-def test_create_invalid():
     clear()
     token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
-    with pytest.raises(InputError) as e:
-        channels_create(token, 'Channel NameThatHasMoreThanTwentyCharacters', True) # long character name exception 
+    with pytest.raises(InputError):
+        channels_create(token, 'Channel NameThatHasMoreThanTwentyCharacters', True)
 
-# Test for standard functionality of channels_create() according to spec
+def test_create_invalid_token():
+    """
+        Test for AccessError exception thrown by channels_create() when token
+        passed in is not a valid token
+    """
+    clear()
+    # register two users
+    token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    token_2 = register_and_login('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
+
+    # empty
+    with pytest.raises(AccessError):
+        channels_create('', 'Channel_01', True)
+
+    # None
+    with pytest.raises(AccessError):
+        channels_create(None, 'Channel_01', True)
+
+    # Not the correct data type
+    with pytest.raises(AccessError):
+        channels_create(123, 'Channel_01', True)
+
+    # Not an authorised user
+    bad_token = get_random_str(6)
+    while bad_token is token_1 or bad_token is token_2:
+        bad_token = get_random_str(6)
+
+    with pytest.raises(AccessError):
+        channels_create(bad_token, 'Channel_01', True)
+
 def test_create_standard():
+    """
+        Test for standard functionality of channels_create() according to spec
+    """
     clear()
     # register & log in first user
     token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
 
     # register & log in second user
     token_2 = register_and_login('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
-    
+
     # create test channels
     create_channels(token_1, token_2)
-    
+
     # test for accuracy of details in channels
     assert len(channels) == 6
     assert channels[0]['channel_id'] == channel_01['channel_id']
     assert channels[0]['name'] == 'Channel 01'
-    assert channels[0]['public'] == True
+    assert channels[0]['public']
     assert channels[1]['channel_id'] == channel_02['channel_id']
     assert channels[1]['name'] == 'Channel 02'
-    assert channels[1]['public'] == False
+    assert not channels[1]['public']
     assert channels[2]['channel_id'] == channel_03['channel_id']
     assert channels[2]['name'] == 'Channel 03'
-    assert channels[2]['public'] == True
+    assert channels[2]['public']
     assert channels[3]['channel_id'] == channel_04['channel_id']
     assert channels[3]['name'] == 'Channel 04 User 2'
-    assert channels[3]['public'] == True
+    assert channels[3]['public']
     assert channels[4]['channel_id'] == channel_05['channel_id']
     assert channels[4]['name'] == 'Channel 05 User 2'
-    assert channels[4]['public'] == False
+    assert not channels[4]['public']
     assert channels[5]['channel_id'] == channel_06['channel_id']
     assert channels[5]['name'] == 'Channel 06 User 2'
-    assert channels[5]['public'] == False
+    assert not channels[5]['public']
 
     # test for accuracy of details in users' channels list
     user_1_channels = users[0]['channels']
@@ -202,41 +257,19 @@ def test_create_standard():
 
     # check for channel ownership and membership of first user
     uid_1 = get_uid_from_token(token_1)
-    is_owner = False
-    is_member = False
-    for x in range(0, 3):
-        for owner in channels[x]['owner_members']:
-            if owner == uid_1:
-                is_owner = True
-                break
-        for member in channels[x]['all_members']:
-            if member == uid_1:
-                is_member = True
-                break
-    
-    assert is_owner is True
-    assert is_member is True
+    assert check_ownership(uid_1, 0, 3)
 
     # check for channel ownership of second user
     uid_2 = get_uid_from_token(token_2)
-    is_owner = False
-    is_member = False
-    for x in range(3, 6):
-        for owner in channels[x]['owner_members']:
-            if owner == uid_2:
-                is_owner = True
-                break
-        for member in channels[x]['all_members']:
-            if member == uid_2:
-                is_member = True
-                break
-    
-    assert is_owner is True
-    assert is_member is True
+    assert check_ownership(uid_2, 4, 6)
 
-# When two channels with duplicate details are created
-# Ensure both are created as they differ by channel_id
+
 def test_create_duplicate():
+    """
+        When two channels with duplicate details are created
+        Ensure both are created as they differ by channel_id
+    """
+
     clear()
     # register & log in user
     token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
@@ -250,10 +283,10 @@ def test_create_duplicate():
     assert len(channels) == 2
     assert channels[0]['channel_id'] == channel_01['channel_id']
     assert channels[0]['name'] == 'Channel Same Name'
-    assert channels[0]['public'] == True
+    assert channels[0]['public']
     assert channels[1]['channel_id'] == channel_02['channel_id']
     assert channels[1]['name'] == 'Channel Same Name'
-    assert channels[1]['public'] == True
+    assert channels[1]['public']
 
     # check for channel ownership and membership
     uid = get_uid_from_token(token)
@@ -283,14 +316,12 @@ def test_create_duplicate():
 
 
 ##### HELPER FUNCTIONS #####
-# registers and logs in user with provided details, returning the token
-def register_and_login(email, password, first_name, last_name):
-    auth.auth_register(email, password, first_name, last_name)
-    login = auth.auth_login(email, password)
-    return login['token']
 
-# creates 6 test channels with tokens from two users
 def create_channels(token_1, token_2):
+    """
+        Creates 6 test channels with tokens from two users
+        returned channel_id's are stored in global variables
+    """
     global channel_01, channel_02, channel_03, channel_04, channel_05, channel_06
 
     channel_01 = channels_create(token_1, 'Channel 01', True)
@@ -298,4 +329,29 @@ def create_channels(token_1, token_2):
     channel_03 = channels_create(token_1, 'Channel 03', True)
     channel_04 = channels_create(token_2, 'Channel 04 User 2', True)
     channel_05 = channels_create(token_2, 'Channel 05 User 2', False)
-    channel_06 = channels_create(token_2, 'Channel 06 User 2', False) 
+    channel_06 = channels_create(token_2, 'Channel 06 User 2', False)
+
+def check_ownership(uid, start, end):
+    """
+        Checks whether the channels created by the user (given uid) have
+        correct ownership involving the user. The range of channels to search
+        for is denoted by start and end parameters. Returns True if
+        ownership is correct, otherwise False.
+    """
+
+    is_owner = False
+    is_member = False
+    for i in range(start, end):
+        for owner in channels[i]['owner_members']:
+            if owner == uid:
+                is_owner = True
+                break
+        for member in channels[i]['all_members']:
+            if member == uid:
+                is_member = True
+                break
+
+    if is_owner and is_member:
+        return True
+
+    return False
