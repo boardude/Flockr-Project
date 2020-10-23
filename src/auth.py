@@ -1,13 +1,19 @@
 '''
 import data.py for data storing
+import re module to check email validity
 import error.py for error raising
-import re module for checking email address
+import hashlib module for encoding password
+import jwt for token encoding and decoding
+from helper import some helper functions
+global variable SECRET is for token encoding and decoding
 '''
-
-import re
 from data import users, create_user
+import re
+import jwt
+import hashlib
 from error import InputError, AccessError
-
+from helper import get_user_from_id, get_user_from_email, get_user_from_token
+SECRET = 'grape6'
 
 def auth_login(email, password):
     '''
@@ -35,20 +41,19 @@ def auth_login(email, password):
         raise InputError()
 
     # inputerror when Email entered does not belong to a user
-    if email_repeat_check(email) is False:
+    user = get_user_from_email(email)
+    if user is None:
         raise InputError()
-    user = email_repeat_check(email)
 
     # inputerror when Password is not correct
-    if user['password'] != password:
+    if user['password'] != pw_encode(password):
         raise InputError()
 
-    # to do
-    # auth_login will not generate a unique token for user
-    # we will finish it in iteration 2
+    # update token status and get a new token
+    token = token_update(user['u_id'], 'login')
     return {
         'u_id' : user['u_id'],
-        'token' : user['token']
+        'token' : token,
     }
 
 def auth_logout(token):
@@ -69,12 +74,16 @@ def auth_logout(token):
     Raises:
         AccessError: token does not refer to a valid token
     '''
-    for user in users:
-        if user['token'] == token:
-            return {
-                'is_success' : True
-            }
-    raise AccessError()
+    user = get_user_from_token(token)
+    # access error when given token does not refer to a valid user
+    if user is None:
+        raise AccessError()
+
+    # updata token status
+    token_update(user['u_id'], 'logout')
+    return {
+        'is_success' : True
+    }
 
 def auth_register(email, password, name_first, name_last):
     '''
@@ -107,7 +116,7 @@ def auth_register(email, password, name_first, name_last):
         raise InputError()
 
     # inputerror when Email address is already being used by another user
-    if email_repeat_check(email) is not False:
+    if get_user_from_email(email) is not None:
         raise InputError()
 
     # password length check
@@ -119,56 +128,15 @@ def auth_register(email, password, name_first, name_last):
         raise InputError()
 
     # check data.py for more details of data storing
-    handle = handle_generate(name_first, name_last, len(users) + 1)
-    new_user = create_user(email, password, name_first, name_last, handle)
+    handle = handle_initial(name_first, name_last, len(users) + 1)
+    token = token_update(len(users) + 1, 'register')
+    new_user = create_user(email, pw_encode(password), name_first, name_last, handle, token)
     return {
         'u_id' : new_user['u_id'],
         'token' : new_user['token'],
     }
 
-### 3 helper functions
-def is_email_valid(email):
-    '''
-    This is a simple helper function to test email validity.
-    This will return True if email is valid, else return False
-
-    Args:
-        param1: email
-
-    Returns:
-        This will return a boolean value.
-        True for valid, False for invalid.
-
-    Raises:
-        This will not raise any error.
-    '''
-    regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
-    if re.search(regex, email):
-        return True
-    return False
-
-def email_repeat_check(email):
-    '''
-    This is a simple helper function to test email duplication.
-    This will return corresponding user data if email is duplicate, else return False
-
-    Args:
-        param1: email
-
-    Returns:
-        This will return user(a dictionary) if the email is relative to a
-        certain user, else return False.
-
-    Raises:
-        This will not raise any error.
-    '''
-    for user in users:
-        if user['email'] == email:
-            return user
-    return False
-
-
-def handle_generate(name_first, name_last, u_id):
+def handle_initial(name_first, name_last, u_id):
     '''
     This is a simple helper function to generate a handle(string) which combines
     user's first name and last name(all low case).
@@ -194,3 +162,61 @@ def handle_generate(name_first, name_last, u_id):
         if user['handle'] == handle:
             handle = (str(u_id) + handle)[:20]
     return handle
+
+def pw_encode(password):
+    '''
+    this is for password encoding by sha256 from hashlib.
+
+    Args:
+        param1: entered password
+
+    Return:
+        encoded password
+    '''
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def token_update(u_id, action):
+    '''
+    this is a helper functino for token status updating.
+    it will return a brand new token according to action.
+
+    Args:
+        param1: user's id
+        param2: action 'login' / 'logout' / 'register'
+
+    Returns:
+        token should contain u_id and login status
+        it will return a new encoded token by jwt
+    '''
+    info = {
+        'u_id' : u_id,
+        'has_login' : False,
+    }
+    if action == 'login':
+        info['has_login'] = True
+    new_token = jwt.encode(info, SECRET, algorithm='HS256').decode('utf-8')
+    if action != 'register':
+        user = get_user_from_id(u_id)
+        user['token'] = new_token
+    return new_token
+
+
+def is_email_valid(email):
+    '''
+    This is a simple helper function to test email validity.
+    This will return True if email is valid, else return False
+
+    Args:
+        param1: email
+
+    Returns:
+        This will return a boolean value.
+        True for valid, False for invalid.
+
+    Raises:
+        This will not raise any error.
+    '''
+    regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+    if re.search(regex, email):
+        return True
+    return False
