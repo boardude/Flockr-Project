@@ -14,24 +14,22 @@
 
 from data import users, channels
 from error import InputError, AccessError
-from helper import is_token_valid, get_user_from_token_naive, get_user_from_id, get_channel_from_id
+from helper import get_user_from_token, get_user_from_id, get_channel_from_id
 
 def clear():
     """
         Resets flockr data by removing all elements of "users" and "channels"
         lists in data module
     """
-
     users.clear()
     channels.clear()
-
     return {
     }
 
 def users_all(token):
     # check token validity
-    if not is_token_valid(token):
-        raise AccessError
+    if get_user_from_token(token) is None:
+        raise AccessError()
 
     all_users = []
     for user in users:
@@ -42,7 +40,7 @@ def users_all(token):
         user_details['name_last'] = user['name_last']
         user_details['handle_str'] = user['handle']
         all_users.append(user_details)
-    
+
     return {
         'users': all_users,
     }
@@ -50,19 +48,19 @@ def users_all(token):
 def admin_userpermission_change(token, u_id, permission_id):
     # check u_id validity
     user = get_user_from_id(u_id)
-    if user == None:
+    if user is None:
         raise InputError
 
     # check permission_id validity
     if permission_id not in [1, 2]:
         raise InputError
-    
+
     # check token validity
-    if not is_token_valid(token):
+    if get_user_from_token(token) is None:
         raise AccessError
 
     # check if token refers to an owner
-    admin = get_user_from_token_naive(token)
+    admin = get_user_from_token(token)
     if admin['permission_id'] != 1:
         raise AccessError
 
@@ -74,11 +72,11 @@ def admin_userpermission_change(token, u_id, permission_id):
 
 def search(token, query_str):
     # check token validity
-    if not is_token_valid(token):
+    if get_user_from_token(token) is None:
         raise AccessError
 
     result = []
-    user = get_user_from_token_naive(token)
+    user = get_user_from_token(token)
 
     # search for messages with query string
     for channel_id in user['channels']:
