@@ -10,7 +10,7 @@
 """
 from data import users, channels, create_new_channel
 from error import InputError, AccessError
-from helper import is_token_valid, get_uid_from_token
+from helper import get_user_from_token
 
 #### INTERFACE FUNCTION IMPLEMENTATIONS ####
 def channels_list(token):
@@ -20,7 +20,7 @@ def channels_list(token):
     """
 
     # check token validity
-    if not is_token_valid(token):
+    if get_user_from_token(token) is None:
         raise AccessError
 
     for user in users:
@@ -49,7 +49,7 @@ def channels_listall(token):
     """
 
     # check token validity
-    if not is_token_valid(token):
+    if get_user_from_token(token) is None:
         raise AccessError
 
     all_channels = []
@@ -69,16 +69,17 @@ def channels_create(token, name, is_public):
         new channel's name, and its is_public property. Channel ID of new channel is returned.
     """
 
+    user = get_user_from_token(token)
     # check name validity
-    if not is_name_valid(name):
+    if len(name) > 20:
         raise InputError()
 
     # check token validity
-    if not is_token_valid(token):
+    if user is None:
         raise AccessError
 
     # create new channel in data.py
-    new_user_id = get_uid_from_token(token)
+    new_user_id = user['u_id']
     new_channel = create_new_channel(len(channels) + 1, is_public, name, new_user_id)
 
     # add new channel_id to user's channels list
@@ -92,14 +93,3 @@ def channels_create(token, name, is_public):
         'channel_id': new_channel['channel_id'],
     }
 
-
-############### HELPER FUNCTIONS #################
-def is_name_valid(name):
-    """
-        Check if name is valid (less than 20 characters), returning True if valid,
-        otherwise False
-    """
-    if len(name) > 20:
-        return False
-
-    return True
