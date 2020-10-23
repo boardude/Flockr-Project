@@ -1,14 +1,11 @@
 # Yicheng (Mike) Zhu
-# Last updated 4/10/2020
+# Last updated 20/10/2020
 
 """
     random and string modules allow for random string generation
     for test_*_invalid_token tests
 
     pytest module allows us to test if exceptions are thrown at appropriate times
-
-    auth module allows us to use auth_register() and auth_login() to register
-    and log in test users
 
     channels module contains functions that need to be tested
 
@@ -21,7 +18,6 @@
     error module contains custom exceptions, including InputError
     and AccessError
 
-
 """
 import random
 import string
@@ -29,20 +25,16 @@ import pytest
 from channels import channels_list, channels_listall, channels_create, get_uid_from_token
 from data import users, channels
 from other import clear
+from helper import register_and_login, get_random_str
 from error import InputError, AccessError
-from auth import auth_register, auth_login
-
-########### PYLINT INFORMATION #############
-# pylint errors involving global variables are disabled intentionally
-# in line with what instructors have suggested on Piazza
 
 ##### GLOBAL VARIABLES #####
-channel_01 = None  # pylint: disable=invalid-name
-channel_02 = None  # pylint: disable=invalid-name
-channel_03 = None  # pylint: disable=invalid-name
-channel_04 = None  # pylint: disable=invalid-name
-channel_05 = None  # pylint: disable=invalid-name
-channel_06 = None  # pylint: disable=invalid-name
+channel_01 = None
+channel_02 = None
+channel_03 = None
+channel_04 = None
+channel_05 = None
+channel_06 = None
 
 ##### TEST IMPLEMENTATIONS #####
 def test_list_invalid_token():
@@ -68,9 +60,9 @@ def test_list_invalid_token():
         channels_list(123)
 
     # Not an authorised user
-    bad_token = get_random_string(6)
+    bad_token = get_random_str(6)
     while bad_token is token_1 or bad_token is token_2:
-        bad_token = get_random_string(6)
+        bad_token = get_random_str(6)
 
     with pytest.raises(AccessError):
         channels_list(bad_token)
@@ -129,9 +121,9 @@ def test_listall_invalid_token():
         channels_listall(123)
 
     # Not an authorised user
-    bad_token = get_random_string(6)
+    bad_token = get_random_str(6)
     while bad_token is token_1 or bad_token is token_2:
-        bad_token = get_random_string(6)
+        bad_token = get_random_str(6)
 
     with pytest.raises(AccessError):
         channels_listall(bad_token)
@@ -209,9 +201,9 @@ def test_create_invalid_token():
         channels_create(123, 'Channel_01', True)
 
     # Not an authorised user
-    bad_token = get_random_string(6)
+    bad_token = get_random_str(6)
     while bad_token is token_1 or bad_token is token_2:
-        bad_token = get_random_string(6)
+        bad_token = get_random_str(6)
 
     with pytest.raises(AccessError):
         channels_create(bad_token, 'Channel_01', True)
@@ -220,7 +212,6 @@ def test_create_standard():
     """
         Test for standard functionality of channels_create() according to spec
     """
-
     clear()
     # register & log in first user
     token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
@@ -284,7 +275,7 @@ def test_create_duplicate():
     token = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
 
     # create test channels
-    global channel_01, channel_02  # pylint: disable=global-statement,invalid-name
+    global channel_01, channel_02
     channel_01 = channels_create(token, 'Channel Same Name', True)
     channel_02 = channels_create(token, 'Channel Same Name', True)
 
@@ -326,23 +317,12 @@ def test_create_duplicate():
 
 ##### HELPER FUNCTIONS #####
 
-def register_and_login(email, password, first_name, last_name):
-    """
-        Registers and logs in user with provided details,
-        returning the token
-
-    """
-    auth_register(email, password, first_name, last_name)
-    login = auth_login(email, password)
-    return login['token']
-
-
 def create_channels(token_1, token_2):
     """
         Creates 6 test channels with tokens from two users
         returned channel_id's are stored in global variables
     """
-    global channel_01, channel_02, channel_03, channel_04, channel_05, channel_06 # pylint: disable=global-statement,invalid-name
+    global channel_01, channel_02, channel_03, channel_04, channel_05, channel_06
 
     channel_01 = channels_create(token_1, 'Channel 01', True)
     channel_02 = channels_create(token_1, 'Channel 02', False)
@@ -375,13 +355,3 @@ def check_ownership(uid, start, end):
         return True
 
     return False
-
-def get_random_string(length):
-    """
-        Generates random string with the combination of lower-
-        and upper-case letters
-    """
-    letters = string.ascii_letters
-    random_str = ''.join(random.choice(letters) for i in range(length))
-
-    return random_str
