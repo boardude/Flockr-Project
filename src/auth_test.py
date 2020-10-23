@@ -24,7 +24,6 @@ from error import InputError, AccessError
 from data import users
 
 
-
 def test_register_email():
     '''register success with valid email'''
     # invalid email
@@ -131,22 +130,20 @@ def test_data_changes():
 
     assert users[0]['u_id'] == 1
     assert users[0]['email'] == 'philsmart@gmail.com'
-    assert users[0]['password'] == 'bigboys111'
+    assert users[0]['password'] == auth.pw_encode('bigboys111')
     assert users[0]['name_first'] == 'Phil'
     assert users[0]['name_last'] == 'Smart'
     assert users[0]['channels'] == []
-    assert users[0]['token'] == '1'
     assert users[0]['handle'] == 'philsmart'
 
     auth.auth_register('darryngarryn@gmail.com', 'niceice123', 'Darryn', 'Garryn')
 
     assert users[1]['u_id'] == 2
     assert users[1]['email'] == 'darryngarryn@gmail.com'
-    assert users[1]['password'] == 'niceice123'
+    assert users[1]['password'] == auth.pw_encode('niceice123')
     assert users[1]['name_first'] == 'Darryn'
     assert users[1]['name_last'] == 'Garryn'
     assert users[1]['channels'] == []
-    assert users[1]['token'] == '2'
     assert users[1]['handle'] == 'darryngarryn'
 
     # u_id created in ascending order
