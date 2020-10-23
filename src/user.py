@@ -3,9 +3,10 @@ import users to access data
 import AccessError and InputError for error raising
 import re module for email checking
 '''
-import re
 from error import AccessError, InputError
 from data import users
+from helper import get_user_from_token
+from auth import is_email_valid
 
 def user_profile(token, u_id):
     '''
@@ -32,9 +33,9 @@ def user_profile(token, u_id):
         InputError: User with u_id is not a valid user
         AccessError: given token does not refer to a valid user
     '''
-    request_user = token_to_user(token)
+    request_user = get_user_from_token(token)
     # raise AccessError when given token does not refer to a valid user
-    if request_user is False:
+    if request_user is None:
         raise AccessError()
 
     # raise InputError when given u_id is not correct
@@ -69,9 +70,9 @@ def user_profile_setname(token, name_first, name_last):
             2. name_last is not between 1 and 50 characters inclusively in length
         AccessError: given token does not refer to a valid user
     '''
-    request_user = token_to_user(token)
+    request_user = get_user_from_token(token)
     # raise AccessError when given token does not refer to a valid user
-    if request_user is False:
+    if request_user is None:
         raise AccessError()
 
     if len(name_first) == 0 or len(name_last) == 0:
@@ -101,9 +102,9 @@ def user_profile_setemail(token, email):
             2. Email address is already being used by another user
         AccessError: given token does not refer to a valid user
     '''
-    request_user = token_to_user(token)
+    request_user = get_user_from_token(token)
     # raise AccessError when given token does not refer to a valid user
-    if request_user is False:
+    if request_user is None:
         raise AccessError()
 
     # raise InputError when new email is invalid
@@ -136,9 +137,9 @@ def user_profile_sethandle(token, handle_str):
             2. handle is already used by another user
         AccessError: given token does not refer to a valid user
     '''
-    request_user = token_to_user(token)
+    request_user = get_user_from_token(token)
     # raise AccessError when given token does not refer to a valid user
-    if request_user is False:
+    if request_user is None:
         raise AccessError()
 
     # raise InputError if the length of handle is not valid
@@ -153,44 +154,3 @@ def user_profile_sethandle(token, handle_str):
     request_user['handle'] = handle_str
     return {
     }
-
-def token_to_user(token):
-    '''
-    This is a simple helper function.
-    It will return a user with given token if it exists in data,
-    else return False
-
-    Args:
-        param1: token
-
-    Returns:
-        This will return uesr(dictionary) if token refers to a valid user in data,
-        else return False.
-
-    Raises:
-        this will not raise any error
-    '''
-    for user in users:
-        if user['token'] == token:
-            return user
-    return False
-
-def is_email_valid(email):
-    '''
-    This is a simple helper function to test email validity.
-    This will return True if email is valid, else return False
-
-    Args:
-        param1: email
-
-    Returns:
-        This will return a boolean value.
-        True for valid, False for invalid.
-
-    Raises:
-        This will not raise any error.
-    '''
-    regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
-    if re.search(regex, email):
-        return True
-    return False
