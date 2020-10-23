@@ -4,7 +4,7 @@
 from other import clear
 from data import users, channels
 from channels import channels_create
-from helper import register_and_login
+from auth import auth_login, auth_register
 
 def test_clear_standard():
     # initial clear
@@ -15,8 +15,10 @@ def test_clear_standard():
     assert len(channels) == 0
 
     # create users
-    token_1 = register_and_login('validuseremail@gmail.com', 'validpass', 'User', 'One')
-    token_2 = register_and_login('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
+    auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    auth_register('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
+    token_1 = auth_login('validuseremail@gmail.com', 'validpass')['token']
+    token_2 = auth_login('validuser2email@gmail.com', 'validpass2')['token']
 
     # create channels
     channels_create(token_1, 'Channel 01', True)
