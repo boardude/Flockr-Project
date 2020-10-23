@@ -44,18 +44,19 @@ def test_channel_addowner():
     channel.channel_invite(token_2, channel_id, u4_id)
     channel.channel_invite(token_2, channel_id, u5_id)
 
-    assert is_user_an_owner(channel_id, u1_id) is True
-    assert is_user_an_owner(channel_id, u2_id) is True
-    assert is_user_an_owner(channel_id, u3_id) is False
-    assert is_user_an_owner(channel_id, u4_id) is False
-    assert is_user_an_owner(channel_id, u5_id) is False
+    assert u1_id in channels[0]['owner_members']
+    assert u2_id in channels[0]['owner_members']
+    assert u3_id not in channels[0]['owner_members']
+    assert u4_id not in channels[0]['owner_members']
+    assert u5_id not in channels[0]['owner_members']
+
     # do add owner
     channel.channel_addowner(token_2, channel_id, u3_id)
-    assert is_user_an_owner(channel_id, u3_id) is True
     channel.channel_addowner(token_1, channel_id, u4_id)
-    assert is_user_an_owner(channel_id, u4_id) is True
     channel.channel_addowner(token_3, channel_id, u5_id)
-    assert is_user_an_owner(channel_id, u5_id) is True
+    assert u3_id in channels[0]['owner_members']
+    assert u4_id in channels[0]['owner_members']
+    assert u5_id in channels[0]['owner_members']
 
 def test_addowner_inputerror_invalid_channel():
     '''
@@ -68,15 +69,15 @@ def test_addowner_inputerror_invalid_channel():
     '''
     clear()
     u1_id = auth.auth_register('test1@test.com', 'password', 'user1_name', 'user1_name')['u_id']
-    token = auth.auth_login('test1@test.com', 'password')['token']
+    token_1 = auth.auth_login('test1@test.com', 'password')['token']
     u2_id = auth.auth_register('test2@test.com', 'password', 'user2_name', 'user2_name')['u_id']
     auth.auth_login('test2@test.com', 'password')
-    channel_id = channels_create(token, 'channel_name', True)['channel_id']
-    channel.channel_invite(token, channel_id, u2_id)
+    channel_id = channels_create(token_1, 'channel_name', True)['channel_id']
+    channel.channel_invite(token_1, channel_id, u2_id)
     with pytest.raises(InputError):
-        assert channel.channel_addowner(token, channel_id + 1, u2_id)
-    assert is_user_an_owner(channel_id, u1_id) is True
-    assert is_user_an_owner(channel_id, u2_id) is False
+        assert channel.channel_addowner(token_1, channel_id + 1, u2_id)
+    assert u1_id in channels[0]['owner_members']
+    assert u2_id not in channels[0]['owner_members']
 
 def test_addowner_inputerror_invalid_user():
     '''
@@ -91,20 +92,24 @@ def test_addowner_inputerror_invalid_user():
     '''
     clear()
     u1_id = auth.auth_register('test1@test.com', 'password', 'user1_name', 'user1_name')['u_id']
-    token = auth.auth_login('test1@test.com', 'password')['token']
+    token_1 = auth.auth_login('test1@test.com', 'password')['token']
     u2_id = auth.auth_register('test2@test.com', 'password', 'user2_name', 'user2_name')['u_id']
     auth.auth_login('test2@test.com', 'password')
-    channel_id = channels_create(token, 'channel_name', True)['channel_id']
-    channel.channel_invite(token, channel_id, u2_id)
+    channel_id = channels_create(token_1, 'channel_name', True)['channel_id']
+    channel.channel_invite(token_1, channel_id, u2_id)
     # user1 add himself as an owner
     with pytest.raises(InputError):
-        assert channel.channel_addowner(token, channel_id, u1_id)
+        assert channel.channel_addowner(token_1, channel_id, u1_id)
     # user1 add user2 as an owner twice
-    channel.channel_addowner(token, channel_id, u2_id)
+    channel.channel_addowner(token_1, channel_id, u2_id)
     with pytest.raises(InputError):
-        assert channel.channel_addowner(token, channel_id, u2_id)
-    assert is_user_an_owner(channel_id, u1_id) is True
-    assert is_user_an_owner(channel_id, u2_id) is True
+        assert channel.channel_addowner(token_1, channel_id, u2_id)
+    # given u_id does not refer to a valid user
+    with pytest.raises(InputError):
+        assert channel.channel_addowner(token_1, channel_id, 0)
+    assert u1_id in channels[0]['owner_members']
+    assert u2_id in channels[0]['owner_members']
+
 def test_addowner_accesserror_invalid_channel():
     '''
         #change function name from "test_addowner_AccessError_invalid_channel" to
@@ -127,21 +132,18 @@ def test_addowner_accesserror_invalid_channel():
     channel.channel_invite(token_1, channel_id, u3_id)
     with pytest.raises(AccessError):
         assert channel.channel_addowner(token_2, channel_id, u3_id)
-    assert is_user_an_owner(channel_id, u2_id) is False
-    assert is_user_an_owner(channel_id, u3_id) is False
-### help function
+    assert u2_id not in channels[0]['owner_members']
+    assert u3_id not in channels[0]['owner_members']
 
-def is_user_an_owner(channel_id, u_id):
-    '''
-        ### check a given channel is in the owner user or not
-        ### return true if the channel is in user's list
-        ###     else return false
-    '''
-    for the_channel in channels:
-        if the_channel['channel_id'] == channel_id:
-            owners = the_channel['owner_members']
-    for owner in owners:
-        if owner == u_id:
-            return True
-    return False
+def test_addowner_invalid_token():
+    # test when given token does not refer to a valid user
+    clear()
+    auth.auth_register('test1@test.com', 'password', 'user1_name', 'user1_name')
+    token_1 = auth.auth_login('test1@test.com', 'password')['token']
+    u2_id = auth.auth_register('test2@test.com', 'password', 'user2_name', 'user2_name')['u_id']
+    auth.auth_login('test2@test.com', 'password')['token']
+    channel_id = channels_create(token_1, 'channel_name', True)['channel_id']
+    channel.channel_invite(token_1, channel_id, u2_id)
+    with pytest.raises(AccessError):
+        assert channel.channel_addowner('invalid_token', channel_id, u2_id)
     

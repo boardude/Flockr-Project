@@ -36,16 +36,16 @@ def test_channel_removeowner():
     channel_id = channels_create(token_2, 'channel name', True)['channel_id']
     channel.channel_invite(token_2, channel_id, u1_id)
     channel.channel_invite(token_2, channel_id, u3_id)
-    assert is_user_an_owner(channel_id, u1_id) is True
-    assert is_user_an_owner(channel_id, u2_id) is True
-    assert is_user_an_owner(channel_id, u3_id) is False
+    assert u1_id in channels[0]['owner_members']
+    assert u2_id in channels[0]['owner_members']
+    assert u3_id not in channels[0]['owner_members']
 
     channel.channel_addowner(token_2, channel_id, u3_id)
-    assert is_user_an_owner(channel_id, u3_id) is True
+    assert u3_id in channels[0]['owner_members']
     channel.channel_removeowner(token_2, channel_id, u3_id)
-    assert is_user_an_owner(channel_id, u3_id) is False
+    assert u3_id not in channels[0]['owner_members']
     channel.channel_removeowner(token_2, channel_id, u1_id)
-    assert is_user_an_owner(channel_id, u1_id) is True
+    assert u1_id in channels[0]['owner_members']
 
 def test_removeowner_inputerror_invalid_channel():
     '''
@@ -62,11 +62,11 @@ def test_removeowner_inputerror_invalid_channel():
     channel_id = channels_create(token_1, 'channel name', True)['channel_id']
     channel.channel_invite(token_1, channel_id, u2_id)
     channel.channel_addowner(token_1, channel_id, u2_id)
-    assert is_user_an_owner(channel_id, u2_id) is True
-    assert is_user_an_owner(channel_id, u1_id) is True
+    assert u1_id in channels[0]['owner_members']
+    assert u2_id in channels[0]['owner_members']
     with pytest.raises(InputError):
         assert channel.channel_removeowner(token_1, channel_id + 1, u2_id)
-    assert is_user_an_owner(channel_id, u2_id) is True
+    assert u2_id in channels[0]['owner_members']
 
 def test_removeowner_inputerror_invalid_uid():
     '''
@@ -83,11 +83,14 @@ def test_removeowner_inputerror_invalid_uid():
 
     channel_id = channels_create(token_1, 'channel name', True)['channel_id']
     channel.channel_invite(token_1, channel_id, u2_id)
-    assert is_user_an_owner(channel_id, u1_id) is True
-    assert is_user_an_owner(channel_id, u2_id) is False
+    assert u1_id in channels[0]['owner_members']
+    assert u2_id not in channels[0]['owner_members']
     with pytest.raises(InputError):
         assert channel.channel_removeowner(token_1, channel_id, u2_id)
-    assert is_user_an_owner(channel_id, u2_id) is False
+    assert u2_id not in channels[0]['owner_members']
+    # given u_id does not refer to a valid user
+    with pytest.raises(InputError):
+        channel.channel_removeowner(token_1, channel_id, 0)
 
 def test_removeowner_accesserror_no_permission():
     '''
@@ -108,22 +111,13 @@ def test_removeowner_accesserror_no_permission():
     channel_id = channels_create(token_2, 'channel name', True)['channel_id']
     channel.channel_invite(token_2, channel_id, u1_id)
     channel.channel_invite(token_2, channel_id, u3_id)
-    assert is_user_an_owner(channel_id, u2_id) is True
-    assert is_user_an_owner(channel_id, u3_id) is False
+    assert u2_id in channels[0]['owner_members']
+    assert u3_id not in channels[0]['owner_members']
     with pytest.raises(AccessError):
         assert channel.channel_removeowner(token_3, channel_id, u2_id)
-    assert is_user_an_owner(channel_id, u2_id) is True
-    assert is_user_an_owner(channel_id, u3_id) is False
-def is_user_an_owner(channel_id, u_id):
-    '''
-        HELP FUNCTION
-        #check is the user an owner
-    '''
-    for the_channel in channels:
-        if the_channel['channel_id'] == channel_id:
-            owners = the_channel['owner_members']
-    for owner in owners:
-        if owner == u_id:
-            return True
-    return False
+    assert u2_id in channels[0]['owner_members']
+    assert u3_id not in channels[0]['owner_members']
+    # access error when given token does not refer to a valid user
+    with pytest.raises(AccessError):
+        assert channel.channel_removeowner('invalid_token', channel_id, u3_id)
     
