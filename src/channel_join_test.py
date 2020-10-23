@@ -37,12 +37,12 @@ def test_channel_join_default_user():
     token_2 = auth.auth_login('test2@test.com', 'password')['token']
     channel_id = channels_create(token_1, 'channel_name', True)['channel_id']
     channel.channel_join(token_2, channel_id)
-    assert is_user_in_channel(channel_id, u1_id) is True
-    assert is_user_in_channel(channel_id, u2_id) is True
-    assert is_channel_in_user_data(channel_id, u1_id) is True
-    assert is_channel_in_user_data(channel_id, u2_id) is True
-    assert is_user_an_owner(channel_id, u1_id) is True
-    assert is_user_an_owner(channel_id, u2_id) is False
+    assert u1_id in channels[0]['all_members']
+    assert u2_id in channels[0]['all_members']
+    assert u1_id in channels[0]['owner_members']
+    assert u2_id not in channels[0]['owner_members']
+    assert channel_id in users[0]['channels']
+    assert channel_id in users[1]['channels']
     channel.channel_join(token_1, channel_id)
     channel.channel_join(token_2, channel_id) # user join a channel which contains that user
 
@@ -60,12 +60,12 @@ def test_channel_join_flockr_owner():
     token_2 = auth.auth_login('test2@test.com', 'password')['token']
     channel_id = channels_create(token_2, 'channel_name', False)['channel_id']
     channel.channel_join(token_1, channel_id)
-    assert is_user_in_channel(channel_id, u1_id) is True
-    assert is_user_in_channel(channel_id, u2_id) is True
-    assert is_channel_in_user_data(channel_id, u1_id) is True
-    assert is_channel_in_user_data(channel_id, u2_id) is True
-    assert is_user_an_owner(channel_id, u1_id) is True
-    assert is_user_an_owner(channel_id, u2_id) is True
+    assert u1_id in channels[0]['all_members']
+    assert u2_id in channels[0]['all_members']
+    assert channel_id in users[0]['channels']
+    assert channel_id in users[1]['channels']
+    assert u1_id in channels[0]['owner_members']
+    assert u2_id in channels[0]['owner_members']
 
 def test_join_inputerror_channel():
     '''
@@ -84,10 +84,10 @@ def test_join_inputerror_channel():
     channel_id = channels_create(token_1, 'channel_name', True)['channel_id']
     with pytest.raises(InputError):
         channel.channel_join(token_2, channel_id + 1)
-    assert is_user_in_channel(channel_id, u1_id) is True
-    assert is_user_in_channel(channel_id, u2_id) is False
-    assert is_channel_in_user_data(channel_id, u1_id) is True
-    assert is_channel_in_user_data(channel_id, u2_id) is False
+    assert u1_id in channels[0]['all_members']
+    assert u2_id not in channels[0]['all_members']
+    assert channel_id in users[0]['channels']
+    assert channel_id not in users[1]['channels']
 
 def test_join_accesserror_channel():
     '''
@@ -105,50 +105,12 @@ def test_join_accesserror_channel():
     token_2 = auth.auth_login('test2@test.com', 'password')['token']
     channel_id = channels_create(token_1, 'channel_name', False)['channel_id']
     with pytest.raises(AccessError):
-        channel.channel_join(token_2, channel_id)
-    assert is_user_in_channel(channel_id, u1_id) is True
-    assert is_user_in_channel(channel_id, u2_id) is False
-    assert is_channel_in_user_data(channel_id, u1_id) is True
-    assert is_channel_in_user_data(channel_id, u2_id) is False
+        channel.channel_join(token_2, channel_id)    
+    assert u1_id in channels[0]['all_members']
+    assert u2_id not in channels[0]['all_members']   
+    assert channel_id in users[0]['channels']
+    assert channel_id not in users[1]['channels']
 
-### help function
-def is_user_in_channel(channel_id, u_id):
-    '''
-        ### check a given user is in the given channel or not
-        ### retrun true if the user is in channel's list
-        ###     else return false
-    '''
-    for the_channel in channels:
-        if the_channel['channel_id'] == channel_id:
-            all_members = the_channel.get('all_members')
-    for member in all_members:
-        if member == u_id:
-            return True
-    return False
-
-def is_channel_in_user_data(channel_id, u_id):
-    '''
-        ### check a given channel is in the given user or not
-        ### return true if the channel is in user's list
-        ###     else return false
-    '''
-    for user in users:
-        if user['u_id'] == u_id:
-            for the_channel in user['channels']:
-                if the_channel == channel_id:
-                    return True
-    return False
-
-def is_user_an_owner(channel_id, u_id):
-    '''
-        ### check a given channel is in the owner user or not
-        ### return true if the channel is in user's list
-        ###     else return false
-    '''
-    for the_channel in channels:
-        if the_channel['channel_id'] == channel_id:
-            owners = the_channel['owner_members']
-    for owner in owners:
-        if owner == u_id:
-            return True
-    return False
+    # access error when given token does not refer to a valid user
+    with pytest.raises(AccessError):
+        channel.channel_join('invalid_token', channel_id)

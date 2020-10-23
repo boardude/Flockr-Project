@@ -16,7 +16,6 @@ users = [
         'password' : 'test123',
         'token' : '1', # for iteration 1
         'channels' : [ ], # a list to store this user's channel(channel_id)
-        'permission_id' : 1 or 2 (1 means flockr user, 2 means flockr member)
     },
     {
         'u_id': 2,
@@ -27,7 +26,6 @@ users = [
         'password' : 'test123',
         'token' : '2', # for iteration 1
         'channels' : [ ], # a list to store this user's channel(channel_id)
-        'permission_id' : 1 or 2 (1 means flockr user, 2 means flockr member)
     },
 ]
 
@@ -96,7 +94,7 @@ channels = [
 
 ]
 
-def create_user(email, password, name_first, name_last, handle):
+def create_user(email, password, name_first, name_last, handle, token):
     '''
     This is a simple helper function to create a new user with given information.
     This will append new user to the list of users.
@@ -114,16 +112,17 @@ def create_user(email, password, name_first, name_last, handle):
     Raises:
         This will not raise any error.
     '''
-    new_user = {}
-    new_user['u_id'] = len(users) + 1
-    new_user['name_first'] = name_first
-    new_user['name_last'] = name_last
-    new_user['email'] = email
-    new_user['password'] = password
-    new_user['channels'] = []
-    new_user['token'] = str(len(users) + 1)
-    new_user['handle'] = handle
-    if len(users) == 0:
+    new_user = {
+        'u_id' : len(users) + 1,
+        'name_first' : name_first,
+        'name_last' : name_last,
+        'email' : email,
+        'password' : password,
+        'channels' : [],
+        'token' : token,
+        'handle' : handle,
+    }
+    if new_user['u_id'] == 1:
         new_user['permission_id'] = 1
     else:
         new_user['permission_id'] = 2
