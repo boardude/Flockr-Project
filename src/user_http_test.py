@@ -117,3 +117,209 @@ def http_test_invalid_uid(url):
     profile_resp = requests.get(url + 'user/profile', json={
         'token': input2['token'], 'u_id': input4['u_id']})
     assert profile_resp.status_code == 400
+
+###HTTP TEST of SETNAME ###
+
+def http_test_valid_setname(url):
+    '''
+        valid test:
+            1. call clear to claear all data
+            2. call auth/register and auth/login to get 'login and register'
+            3. call setname to reset name
+            4. call user/profile to check accuracy
+
+    '''
+    requests.delete(url + 'clear')
+    ###normal test for setname###
+
+    #register user1 with input1
+    input1 = {
+        'email' : 'test1@test.com',
+        'password' : 'passowrd',
+        'name_first' : 'user1_name',
+        'name_last' : 'user1_name'
+    }
+    requests.post(url + 'auth/register', json=input1)
+
+    #login user1 with email and password
+    login_resp1 = requests.post(url + 'auth/login', json={
+        'email' : 'test1@test.com', 'password':'password'})
+    login_return1 = json.loads(login_resp1.text)
+
+    #reset user1 name with input2
+    input2 = {
+        'token': login_return1['token'],
+        'name_first': 'first_name',
+        'name_last': 'last_name'
+    }
+    requests.put(url + 'user/profile/setname', json=input2)
+
+    #checke user/prifile with input3
+    input3 = {
+        'token': login_return1['token'],
+        'u_id' : login_return1['u_id']
+    }
+    resp1 = requests.get(url + 'user/profile', json=input3)
+    assert resp1.status_code == 200
+    assert json.loads(resp1.text)['user']['name_first'] == input2['name_first']
+    assert json.loads(resp1.text)['user']['name_last'] == input2['name_last']
+
+    ###http test for length 50###
+
+    #register user2 with input4
+    input4 = {
+        'email' : 'test2@test.com',
+        'password' : 'passowrd',
+        'name_first' : 'user2_name',
+        'name_last' : 'usee2_name'
+    }
+    requests.post(url + 'auth/register', json=input4)
+
+    #login user2 with email and password
+    login_resp2 = requests.post(url + 'auth/login', json={
+        'email' : 'test2@test.com', 'password': 'password'})
+    login_return2 = json.loads(login_resp2.text)
+
+    #reset user2 name with input4
+    long_name = '0123456789'
+    long_name = long_name * 5
+    input5 = {
+        'token': login_return2['token'],
+        'name_first': long_name,
+        'name_last': long_name
+    }
+    requests.put(url + 'user/profile/setname', json=input5)
+
+    #checke user/prifile with input5
+    input6 = {
+        'token': login_return2['token'],
+        'u_id': login_return2['u_id']
+    }
+    resp2 = requests.get(url + 'user/profile', json=input6)
+    assert resp2.status_code == 200
+    assert json.loads(resp2.text)['user']['name_first'] == input5['name_first']
+    assert json.loads(resp2.text)['user']['name_last'] == input5['name_last']
+
+    ###http test for length 1###
+
+    #register user3 with input7
+    input7 = {
+        'email' : 'test3@test.com',
+        'password' : 'passowrd',
+        'name_first' : 'user3_name',
+        'name_last' : 'usee3_name'
+    }
+    requests.post(url + 'auth/register', json=input7)
+
+    #login user3 with email and password
+    login_resp3 = requests.post(url + 'auth/login', json={
+        'email' : 'test3@test.com', 'password': 'password'})
+    login_return3 = json.loads(login_resp3.text)
+
+    #reset user3 name with input8
+    input8 = {
+        'token': login_return3['token'],
+        'name_first': '1',
+        'name_last': '1',
+    }
+    requests.put(url + 'user/profile/setname', json=input8)
+
+    #checke user/prifile with input9
+    input9 = {
+        'token': login_return3['token'],
+        'u_id' : login_return2['u_id']
+    }
+    resp3 = requests.get(url + 'user/profile', json=input9)
+    assert resp3.status_code == 200
+    assert json.loads(resp3.text)['user']['name_first'] == input8['name_first']
+    assert json.loads(resp3.text)['user']['name_last'] == input8['name_last']
+
+def http_test_invalid_firstname(url):
+    '''
+        invalid test of 0 characters and 26 charaters of firstname
+    '''
+    requests.delete(url + 'clear')
+
+    #register user1 with input1
+    input1 = {
+        'email' : 'test1@test.com',
+        'password' : 'passowrd',
+        'name_first' : 'user1_name',
+        'name_last' : 'user1_name'
+    }
+    requests.post(url + 'auth/register', json=input1)
+
+    #login user1 with email and password
+    login_resp1 = requests.post(url + 'auth/login', json={
+        'email' : 'test1@test.com', 'password': 'password'})
+    login_return1 = json.loads(login_resp1.text)
+
+    #reset long name for user
+    long_name = '012345678910'
+    long_name = long_name * 5
+    #reset user1 name with input2
+    input2 = {
+        'token': login_return1['token'],
+        'name_first': long_name,
+        'name_last': 'last_name',
+    }
+    requests.put(url + 'user/profile/setname', json=input2)
+
+    #checke user/prifile with input3 for user1
+    input3 = {
+        'token': login_return1['token'],
+        'u_id' : login_return1['u_id']
+    }
+    resp1 = requests.get(url + 'user/profile', json=input3)
+    assert resp1.status_code == 400
+
+    #reset zero characters for user
+    input4 = {
+        'token': login_return1['token'],
+        'name_first': '',
+        'name_last': 'last_name',
+    }
+    resp2 = requests.put(url + 'user/profile/setname', json=input4)
+
+    assert resp2.status_code == 400
+
+def http_test_invalid_lastname(url):
+    '''
+        invalid test of 0 characters and 26 charaters of firstname
+    '''
+    requests.delete(url + 'clear')
+
+    #register user1 with input1
+    input1 = {
+        'email' : 'test1@test.com',
+        'password' : 'passowrd',
+        'name_first' : 'user1_name',
+        'name_last' : 'user1_name'
+    }
+    requests.post(url + 'auth/register', json=input1)
+
+    #login user1 with email and password
+    login_resp1 = requests.post(url + 'auth/login', json={
+        'email' : 'test1@test.com', 'password': 'password'})
+    login_return1 = json.loads(login_resp1.text)
+
+    #reset long name for user
+    long_name = '012345678910'
+    long_name = long_name * 5
+    #reset user1 name with input2
+    input2 = {
+        'token': login_return1['token'],
+        'name_first': 'first_name',
+        'name_last': long_name,
+    }
+    resp1 = requests.put(url + 'user/profile/setname', json=input2)
+    assert resp1.status_code == 400
+
+    #reset zero characters for user
+    input4 = {
+        'token': login_return1['token'],
+        'name_first': 'first_name',
+        'name_last': '',
+    }
+    resp2 = requests.put(url + 'user/profile/setname', json=input4)
+    assert resp2.status_code == 400
