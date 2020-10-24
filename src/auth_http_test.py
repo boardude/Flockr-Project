@@ -29,6 +29,27 @@ def url():
         server.kill()
         raise Exception("Couldn't get URL from local server")
 
+@pytest.fixture
+def initial_users(url):
+    # this function would clear all data and create 3 users
+    requests.delete(url + 'clear')
+    input = {
+        'password' : 'password',
+        'name_first': 'u',
+        'name_last' : '1',
+        }
+    for idx in range(3):
+        input['email'] = str(idx + 1) + 'test@test.com'
+        requests.post(url + 'auth/register', json=input)
+
+########################################
+########## register tests ##############
+########################################
+# 1. standard test
+# 2. error when invalid email
+# 3. error when occupied email
+# 4. error when invalid entered name
+
 def test_register_standard(url):
     '''
     A simple test to register standard
@@ -45,7 +66,7 @@ def test_register_standard(url):
     assert resp.status_code == 200
     assert json.loads(resp.text)['u_id'] == 1
     assert json.loads(resp.text)['token'] == token_update(1, 'register')
-    
+
     # create a standard user with len(password) == 6 and
     # len(first_name) == 50 and len(last_name) == 50
     input = {
@@ -106,3 +127,46 @@ def test_register_error_invalid_name(url):
     resp = requests.post(url + 'auth/register', json=input)
     assert resp.status_code == 400
     input['name_last'] = 'a' * 51
+
+########################################
+############ login tests ###############
+########################################
+# 1. standard test
+# 2. error when invalid email
+# 3. error when incorrect password
+
+def test_login_standard(url, initial_users):
+    '''
+    A simple test for register standard
+    '''
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password',
+        }
+    resp = requests.post(url + 'auth/login', json=input)
+    assert resp.status_code == 200
+    assert json.loads(resp.text)['u_id'] == 1
+    assert json.loads(resp.text)['token'] == token_update(1, 'login')
+
+def test_login_error_invalid_email(url, initial_users):
+    '''
+    A simple test for invalid email
+    '''
+    input = {
+        'email' : 'tetstest.com',
+        'password' : 'password',
+        }
+    resp = requests.post(url + 'auth/login', json=input)
+    assert resp.status_code == 400
+
+def test_login_error_incorrect_pw(url, initial_users):
+    '''
+    A simple test for invalid password
+    '''
+    input = {
+        'email' : '1tets@test.com',
+        'password' : 'wrong_password',
+        }
+    resp = requests.post(url + 'auth/login', json=input)
+    assert resp.status_code == 400
+    
