@@ -207,4 +207,162 @@ def http_test_channel_invite_not_authorised_member():
     }
     resp = requests.post(url + 'channel/invite', json=input)
     assert resp.status_code == 400
-    
+
+#####################
+###CHANNEL DETAILS###
+#####################
+def http_test_chennel_valid_details(url, initial_users):
+    '''
+        valid test
+        register user1 and create channel1
+        register user2 and create channel2
+        register user3 and join channel1
+        user1 requests channel_details for channel1
+        user2 requests channel_details for channel2
+    '''
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    u1_id = json.loads(resp.text)['u_id']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token2 = json.loads(resp.text)['token']
+    u2_id = json.loads(resp.text)['u_id']
+    input = {
+        'email' : '3test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    u3_id = json.loads(resp.text)['u_id']
+
+    ###user 1 create channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+
+    ###user 2 create channel2
+    input = {
+        'token' : token2,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id2 = json.loads(resp.text)['channel_id']
+
+    ###user 1 invite user3
+    input = {
+        'token' : token1,
+        'channel_id' : channel_id1,
+        'u_id' : u3_id
+    }
+    requests.post(url + 'channel/invite', json=input)
+
+    ###user 1 require channel details
+    resp = requests.get(url + 'channel/details', json={
+        'token' : token1,
+        'channel_id' : channel_id1
+    })
+    details_1 = json.loads(resp.text)
+    assert details_1.status_code == 200
+    assert details_1['name'] == 'channel_name_1'
+    assert len(details_1['owner_members']) == 1
+    assert details_1['owner_members'][0]['u_id'] == u1_id
+    assert len(details_1['all_members']) == 2
+    assert details_1['all_members'][0]['u_id'] == u1_id
+    assert details_1['all_members'][1]['u_id'] == u3_id
+
+    ###user 2 require channel details
+    resp = requests.get(url + 'channel/details', json={
+        'token' : token2,
+        'channel_id' : channel_id2
+    })
+    details_2 = json.loads(resp.text)
+    assert details_2.status_code == 200
+    assert details_2['name'] == 'channel_name_2'
+    assert len(details_2['owner_members']) == 1
+    assert details_2['owner_members'][0]['u_id'] == u2_id
+    assert len(details_2['all_members']) == 1
+    assert details_2['all_members'][0]['u_id'] == u2_id
+
+def http_test_details_invalid_channel(url, initial_users):
+    '''
+        invalid test of worng channel id
+        register user1
+        user1 create a channel
+        user1 requests channel_details by wrong channel_id
+    '''
+    ### login a user
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    ### user1 create channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+    ###user1 require channel details with wrong channel id
+    resp = requests.get(url + 'channel/details', json={
+        'token' : token1,
+        'channel_id' : channel_id1 + 1
+    })
+    assert resp.status_code == 400
+
+def http_test_details_not_authorised_menber():
+    '''
+        invalid test of the authorised user is not a member of channel
+        register user1 and user2
+        user1 create a channel1
+        user2 requests channel_details of channel1
+    '''
+    ##login two users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token2 = json.loads(resp.text)['token']
+
+    ###user 1 create channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+
+    ###user2 require channel details who is not an owner
+    resp = requests.get(url + 'channel/details', json={
+        'token' : token2,
+        'channel_id' : channel_id1
+    })
+    assert resp.status_code == 400
+
+    ###user with invalid token requires channel details
+    resp = requests.get(url + 'channel/details', json={
+        'token' : 'invalid_token',
+        'channel_id' : channel_id1
+    })
+    assert resp.status_code == 400
