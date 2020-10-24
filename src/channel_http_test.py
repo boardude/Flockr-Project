@@ -721,4 +721,195 @@ def http_test_channel_join_not_public(url, initial_users):
     }
     resp = requests.post(url + 'channel/join', json=input)
     assert resp.status_code == 400
+
+####################################
+###HTTP TEST OF CHANNEL ADDOWNER ###
+####################################
+def http_test_channel_addowner_valid(url, initial_users):
+    '''
+        valid test
+    '''
+    ##login two users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token2 = json.loads(resp.text)['token']
+    u2_id = json.loads(resp.text)['u_id']
     
+    ###user 1 create public channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+    
+    ### user2 join channel1
+    input = {
+        'token': token2,
+        'channel_id' : channel_id1
+    }
+    resp = requests.post(url + 'channel/join', json=input)
+    
+    ###user1 add user2 as a new owner
+    input = {
+        'token': token1,
+        'channel_id' : channel_id1,
+        'u_id': u2_id
+    }
+    resp = requests.post(url + 'channel/addowner', json=input)
+    assert resp.status_code == 200
+
+def http_test_channel_addwoner_invalid_channel_id(url, initial_users):
+    '''
+        "test_addowner_inputerror_invalid_channel"
+        invalid test of wrong channel id
+        register user1 and user2
+        user1 invites user2
+        user1 add user2 as an owner with invalid channel id
+    '''
+    ##login two users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    u2_id = json.loads(resp.text)['u_id']
+    token2 = json.loads(resp.text)['token']
+    
+    ###user 1 create public channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+    
+    ### user2 join channel1
+    input = {
+        'token': token2,
+        'channel_id' : channel_id1
+    }
+    resp = requests.post(url + 'channel/join', json=input)
+    
+    ###user1 add user2 as a new owner
+    input = {
+        'token': token1,
+        'channel_id' : channel_id1 + 1,
+        'u_id': u2_id
+    }
+    resp = requests.post(url + 'channel/addowner', json=input)
+    assert resp.status_code == 400
+
+def http_test_channel_addowner_already_owner(url, initial_users):
+    '''
+        invalid test of user is already an owner of the channel
+    '''
+    ##login two users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token2 = json.loads(resp.text)['token']
+    u2_id = json.loads(resp.text)['u_id']
+    
+    ###user 1 create public channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+
+    ### user2 join channel1
+    input = {
+        'token': token2,
+        'channel_id' : channel_id1
+    }
+    resp = requests.post(url + 'channel/join', json=input)
+    
+    ###user1 add user2 as a new owner
+    input = {
+        'token': token1,
+        'channel_id' : channel_id1,
+        'u_id': u2_id
+    }
+    requests.post(url + 'channel/addowner', json=input)
+    
+    ###addowner twice
+    resp = requests.post(url + 'channel/addowner', json=input)
+    assert resp.status_code == 400
+
+def http_test_channel_addowner_not_owner():
+    ##login three users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token2 = json.loads(resp.text)['token']
+    input = {
+        'email' : '3test@test.com',
+        'password' : 'password'
+    }
+    u3_id = json.loads(resp.text)['u_id']
+    token3 = json.loads(resp.text)['token']
+    ###user 1 create public channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+
+    ### user2 user3 join channel1
+    input = {
+        'token': token2,
+        'channel_id' : channel_id1
+    }
+    resp = requests.post(url + 'channel/join', json=input)
+    input = {
+        'token': token3,
+        'channel_id' : channel_id1
+    }
+    resp = requests.post(url + 'channel/join', json=input)
+    ###user2 who is not owner add user3 as a new owner
+    input = {
+        'token': token2,
+        'channel_id' : channel_id1,
+        'u_id': u3_id
+    }
+    resp = requests.post(url + 'channel/addowner', json=input)
+    assert resp.status_code == 400
