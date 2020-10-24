@@ -366,3 +366,191 @@ def http_test_details_not_authorised_menber():
         'channel_id' : channel_id1
     })
     assert resp.status_code == 400
+
+################################
+###HTTP TEST OF CHANNEL LEAVE###
+################################
+def http_test_channel_leave_member_valid():
+    '''
+        valid test
+        regiser user1 and user2
+        user1 create a new channel and invite user2
+        then user2 leave the channel
+    '''
+    ##login two users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    u2_id = json.loads(resp.text)['u_id']
+    token2 = json.loads(resp.text)['token']
+
+    ###user 1 create channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+    ###user 1 invite user2
+    input = {
+        'token' : token1,
+        'channel_id' : channel_id1,
+        'u_id' : u2_id
+    }
+    requests.post(url + 'channel/invite', json=input)
+
+    ### user2 leave channel1
+    input = {
+        'token': token2,
+        'channel_id' : channel_id1,
+    }
+    resp = requests.post(url + 'channel/leave', json=input)
+    assert resp.status_code == 200
+
+def http_test_channel_leave_owner_valid(url, initial_users):
+    '''
+        valid test
+        regiser user1 and user2
+        user1 create a new channel and invite user2
+        then user1 leave the channel
+    '''
+    ##login two users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    u2_id = json.loads(resp.text)['u_id']
+
+
+    ###user 1 create channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+    ###user 1 invite user2
+    input = {
+        'token' : token1,
+        'channel_id' : channel_id1,
+        'u_id' : u2_id
+    }
+    requests.post(url + 'channel/invite', json=input)
+
+    ### user1 who is the owner leave channel1
+    input = {
+        'token': token1,
+        'channel_id' : channel_id1,
+    }
+    resp = requests.post(url + 'channel/leave', json=input)
+    assert resp.status_code == 200
+def http_test_channel_leave_invalid_channel_id(url, initial_users):
+    '''
+        "test_leave_inputerror_channel"
+        invalid test of channel id is not a valid
+        regiser user1 and user2
+        user1 create a new channel and invite user2
+        then user2 leave channel with wrong channel_id
+    '''
+    ##login two users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    u2_id = json.loads(resp.text)['u_id']
+    token2 = json.loads(resp.text)['token']
+
+    ###user 1 create channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+    ###user 1 invite user2
+    input = {
+        'token' : token1,
+        'channel_id' : channel_id1,
+        'u_id' : u2_id
+    }
+    requests.post(url + 'channel/invite', json=input)
+
+    ### user2 leave channel1 with wrong channel id
+    input = {
+        'token': token2,
+        'channel_id' : channel_id1 + 1
+    }
+    resp = requests.post(url + 'channel/leave', json=input)
+    assert resp.status_code == 400
+
+def http_test_channel_leave_not_authorised_member():
+    '''
+        change function name from "test_leave_AccessError_not_authorised_member"
+        to "test_leave_accesserror_not_authorised_member"
+        invalid test of the authorised user is not already a member of t he channel
+        register user1 and user2
+        user1 create a new channel and DO NOT invite user2
+        user2 leave channel with user1's channel_id
+    '''
+    ##login two users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+
+    token2 = json.loads(resp.text)['token']
+
+    ###user 1 create channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+    ### user2 leave channel1 with wrong channel id
+    input = {
+        'token': token2,
+        'channel_id' : channel_id1
+    }
+    resp = requests.post(url + 'channel/leave', json=input)
+    assert resp.status_code == 400
+    ### invalid test if the token does not refer to a valid user
+    input = {
+        'token': 'invalidtoken',
+        'channel_id' : channel_id1
+    }
+    resp = requests.post(url + 'channel/leave', json=input)
+    assert resp.status_code == 400
