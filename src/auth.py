@@ -12,7 +12,7 @@ import re
 import jwt
 import hashlib
 from error import InputError, AccessError
-from helper import get_user_from_id, get_user_from_email, get_user_from_token
+from helper import get_user_from_email, get_user_from_token
 SECRET = 'grape6'
 
 def auth_login(email, password):
@@ -50,10 +50,11 @@ def auth_login(email, password):
         raise InputError()
 
     # update token status and get a new token
-    token = token_update(user['u_id'], 'login')
+    new_token = token_update(user['u_id'], 'login')
+    user['token'] = new_token
     return {
         'u_id' : user['u_id'],
-        'token' : token,
+        'token' : new_token,
     }
 
 def auth_logout(token):
@@ -80,7 +81,7 @@ def auth_logout(token):
         raise AccessError()
 
     # updata token status
-    token_update(user['u_id'], 'logout')
+    user['token'] = token_update(user['u_id'], 'logout')
     return {
         'is_success' : True
     }
@@ -195,9 +196,6 @@ def token_update(u_id, action):
     if action == 'login':
         info['has_login'] = True
     new_token = jwt.encode(info, SECRET, algorithm='HS256').decode('utf-8')
-    if action != 'register':
-        user = get_user_from_id(u_id)
-        user['token'] = new_token
     return new_token
 
 
