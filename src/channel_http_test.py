@@ -554,3 +554,171 @@ def http_test_channel_leave_not_authorised_member():
     }
     resp = requests.post(url + 'channel/leave', json=input)
     assert resp.status_code == 400
+
+
+################################
+###HTTP TEST OF CHANNEL JOIN ###
+################################
+def http_test_channel_join_default_user_valid(url, initial_users):
+    '''
+        valid test
+        register user1 and user2
+        user1 create a public channel
+        user2 join that channel
+    '''
+    ##login two users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token2 = json.loads(resp.text)['token']
+
+    ###user 1 create channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+    ### user2 join channel1
+    input = {
+        'token': token2,
+        'channel_id' : channel_id1
+    }
+    resp = requests.post(url + 'channel/join', json=input)
+    assert resp.status_code == 200
+
+    ###user1 who is the owner join the channel
+    input = {
+        'token': token1,
+        'channel_id' : channel_id1
+    }
+    resp = requests.post(url + 'channel/join', json=input)
+    assert resp.status_code == 200
+
+    ###user 2 join the channel again
+    input = {
+        'token': token2,
+        'channel_id' : channel_id1
+    }
+    resp = requests.post(url + 'channel/join', json=input)
+    assert resp.status_code == 200
+
+def http_test_channel_join_folckr_owner(url, initial_users):
+    '''
+        valid test
+        register user1 and user2
+        user2 create a private channel
+        user1 join that channel
+    '''
+    ##login two users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token2 = json.loads(resp.text)['token']
+    ###user 2 create private channel1
+    input = {
+        'token' : token2,
+        'name' : 'channel_name',
+        'public' : False
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+    ### user1 join channel1
+    input = {
+        'token': token1,
+        'channel_id' : channel_id1
+    }
+    resp = requests.post(url + 'channel/join', json=input)
+    assert resp.status_code == 200
+
+def http_test_channel_join_incorrect_channel_id(url, initial_users):
+    '''
+        "test_join_inputerror_channel"
+        invalid test of the invalid channel ID
+        register user1 and user2
+        user1 create a public channel
+        user2 join channel with wrong channel_id
+    '''
+    ##login two users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token2 = json.loads(resp.text)['token']
+
+    ###user 1 create channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : True
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+    ### user2 join channel1
+    input = {
+        'token': token2,
+        'channel_id' : channel_id1 + 1
+    }
+    resp = requests.post(url + 'channel/join', json=input)
+    assert resp.status_code == 400
+
+def http_test_channel_join_not_public(url, initial_users):
+    '''
+        invalid test of the private channel
+        register user1 and user2
+        user1 create a NOT-public channel
+        user2 join that channel
+    '''
+    ##login two users
+    input = {
+        'email' : '1test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token1 = json.loads(resp.text)['token']
+    input = {
+        'email' : '2test@test.com',
+        'password' : 'password'
+    }
+    resp = requests.post(url + 'auth/login', json=input)
+    token2 = json.loads(resp.text)['token']
+    ###user 1 create private channel1
+    input = {
+        'token' : token1,
+        'name' : 'channel_name',
+        'public' : False
+    }
+    resp = requests.post(url + 'channels/create', json=input)
+    channel_id1 = json.loads(resp.text)['channel_id']
+    ### user2 join channel1
+    input = {
+        'token': token2,
+        'channel_id' : channel_id1
+    }
+    resp = requests.post(url + 'channel/join', json=input)
+    assert resp.status_code == 400
+    
