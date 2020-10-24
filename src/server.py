@@ -175,7 +175,7 @@ def change_permission():
     return dumps(admin_userpermission_change(data['token'],
             data['u_id'], data['permission_id']))
 
-@APP.route('/search', method=['GET'])
+@APP.route('/search', methods=['GET'])
 def search_msg():
     token = request.args.get('token')
     query_str = request.args.get('query_str')
