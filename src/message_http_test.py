@@ -100,6 +100,16 @@ def test_send_bad_channel(url, initial_conditions):
     resp = requests.post(url + 'message/send', json = data)
     assert resp.status_code == 400
 
+def test_send_invalid_token(url, initial_conditions):
+    #incorrect channel_id
+    data = {
+        'token' : token_generate(1, 'logout'),
+        'channel_id' : 0,
+        'message' : 'this shouldnt work',
+    }
+    resp = requests.post(url + 'message/send', json = data)
+    assert resp.status_code == 400
+
 ### MESSAGE REMOVE TESTS
 def test_remove_standard(url, initial_conditions):
     #standard remove
@@ -107,12 +117,22 @@ def test_remove_standard(url, initial_conditions):
         'token' : token_generate(1, 'login'),
         'message_id' : 10001,
     }
-    
+    msg_data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+        'start' : 0,
+    }
+    # check all msgs
+    resp = requests.get(url + 'channel/messages', params=msg_data)
+    assert len(json.loads(resp.text)['messages']) == 4
+    # do remove
     resp = requests.delete(url + 'message/remove', json = data)
     assert resp.status_code == 200
+    # check all msgs
+    resp = requests.get(url + 'channel/messages', params=msg_data)
+    assert len(json.loads(resp.text)['messages']) == 3
 
 def test_remove_message_id(url, initial_conditions):
-    
     # message not sent by user
     data = {
         'token' : token_generate(5, 'login'),
@@ -122,23 +142,19 @@ def test_remove_message_id(url, initial_conditions):
     assert resp.status_code == 400
     
     # message sent by user
-    
     data = {
         'token' : token_generate(2, 'login'),
         'message_id' : 10002,
     }
-    
     resp = requests.delete(url + 'message/remove', json = data)
     assert resp.status_code == 200
 
 def test_remove_owner(url, initial_conditions):
-    
     #user not owner of channel
     data = {
         'token' : token_generate(3, 'login'),
         'message_id' : 10003,
     }
-    
     resp = requests.delete(url + 'message/remove', json = data)
     assert resp.status_code == 400
     
@@ -147,22 +163,42 @@ def test_remove_owner(url, initial_conditions):
         'token' : token_generate(1, 'login'),
         'message_id' : 10001,
     }
-    
     resp = requests.delete(url + 'message/remove', json = data)
     assert resp.status_code == 200
+
+def test_remove_invalid_token(url, initial_conditions):
+    data = {
+        'token' : token_generate(1, 'logout'),
+        'message_id' : 10001,
+    }
+    resp = requests.delete(url + 'message/remove', json = data)
+    assert resp.status_code == 400
     
 ### MESSAGE EDIT TESTS
 
 def test_edit_standard(url, initial_conditions):
     #standard edit
+    # not-empty new msg
     data = {
         'token' : token_generate(1, 'login'),
         'message_id' : 10001,
         'message' : 'new message',
     }
-    
     resp = requests.put(url + 'message/edit', json = data)
     assert resp.status_code == 200
+    msg_data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+        'start' : 0,
+    }
+    resp = requests.get(url + 'channel/messages', params=msg_data)
+    assert len(json.loads(resp.text)['messages']) == 4
+    # empty new msg
+    data['message'] = ''
+    resp = requests.put(url + 'message/edit', json = data)
+    assert resp.status_code == 200
+    resp = requests.get(url + 'channel/messages', params=msg_data)
+    assert len(json.loads(resp.text)['messages']) == 3
 
 def test_edit_messageid(url, initial_conditions):
     # incorrect message_id
@@ -173,14 +209,12 @@ def test_edit_messageid(url, initial_conditions):
     }
     resp = requests.put(url + 'message/edit', json = data)
     assert resp.status_code == 400
-    
     # correct message_id
     data = {
         'token' : token_generate(2, 'login'),
         'message_id' : 10002,
         'message' : 'new message',
     }
-    
     resp = requests.put(url + 'message/edit', json = data)
     assert resp.status_code == 200
     
@@ -191,17 +225,23 @@ def test_edit_not_an_owner(url, initial_conditions):
         'message_id' : 10003,
         'message' : 'new message',
     }
-    
     resp = requests.put(url + 'message/edit', json = data)
     assert resp.status_code == 400
-    
     #user is owner
-    
     data = {
         'token' : token_generate(2, 'login'),
         'message_id' : 10002,
         'message' : 'new message',
     }
-    
     resp = requests.put(url + 'message/edit', json = data)
     assert resp.status_code == 200
+
+def test_edit_invalid_token(url, initial_conditions):
+    data = {
+        'token' : token_generate(1, 'logout'),
+        'message_id' : 10001,
+        'message' : 'new message',
+    }
+    
+    resp = requests.put(url + 'message/edit', json = data)
+    assert resp.status_code == 400
