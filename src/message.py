@@ -40,6 +40,8 @@ def message_send(token, channel_id, message):
     if len(message) > 1000:
         raise InputError()
     #AccessError when user hasn't joined the channel
+    if channel is None:
+        raise AccessError()
     if auth_user['u_id'] not in channel['all_members']:
         raise AccessError()
 
