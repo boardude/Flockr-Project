@@ -30,23 +30,23 @@ def url():
         raise Exception("Couldn't get URL from local server")
 
 @pytest.fixture
-def create_users():
+def create_users(url):
     # clear data
     requests.delete(url + 'clear')
 
     # register & log in 2 users
     for i in range(2):
         user_data = {
-            'password' : 'validpass' + str(i),
+            'password' : 'validpass' + str(i+1),
             'name_first': 'User',
-            'name_last' : '0' + str(i),
-            'email': 'validuser' + str(i) + '@gmail.com',
+            'name_last' : '0' + str(i+1),
+            'email': 'validuser' + str(i+1) + 'email@gmail.com',
         }
         requests.post(url + 'auth/register', json=user_data)
         resp = requests.post(url + 'auth/login', json=user_data)
 
 @pytest.fixture
-def create_channels():
+def create_channels(url):
     """
         Creates 6 test channels with tokens from two users
         returned channel_id's are stored in global variables

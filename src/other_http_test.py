@@ -30,17 +30,17 @@ def url():
         raise Exception("Couldn't get URL from local server")
 
 @pytest.fixture
-def create_users():
+def create_users(url):
     # clear data
     requests.delete(url + 'clear')
 
     # register & log in 3 users
     for i in range(3):
         user_data = {
-            'password' : 'validpass' + str(i),
+            'password' : 'validpass' + str(i+1),
             'name_first': 'User',
-            'name_last' : '0' + str(i),
-            'email': 'validuser' + str(i) + '@gmail.com',
+            'name_last' : '0' + str(i+1),
+            'email': 'validuser' + str(i+1) + 'email@gmail.com',
         }
         requests.post(url + 'auth/register', json=user_data)
         resp = requests.post(url + 'auth/login', json=user_data)
@@ -256,21 +256,20 @@ def test_http_users_all_standard(url, create_users):
     payload = r.json()
 
     # check correct details have been returned
-    assert payload['users'][0]['u_id'] == users[0]['u_id']
-    assert payload['users'][0]['email'] == 'validuseremail@gmail.com'
+    assert payload['users'][0]['u_id'] == 1
+    assert payload['users'][0]['email'] == 'validuser1email@gmail.com'
     assert payload['users'][0]['name_first'] == 'User'
-    assert payload['users'][0]['name_last'] == 'One'
-    assert payload['users'][0]['handle_str'] == 'userone'
+    assert payload['users'][0]['name_last'] == '01'
+    assert payload['users'][0]['handle_str'] == 'user01'
 
-    assert payload['users'][1]['u_id'] == users[1]['u_id']
-    assert payload['users'][1]['u_id'] == users[1]['u_id']
+    assert payload['users'][1]['u_id'] == 2
     assert payload['users'][1]['email'] == 'validuser2email@gmail.com'
     assert payload['users'][1]['name_first'] == 'User'
-    assert payload['users'][1]['name_last'] == 'Two'
-    assert payload['users'][1]['handle_str'] == 'usertwo'
+    assert payload['users'][1]['name_last'] == '02'
+    assert payload['users'][1]['handle_str'] == 'user02'
 
-    assert payload['users'][2]['u_id'] == users[2]['u_id']
+    assert payload['users'][2]['u_id'] == 3
     assert payload['users'][2]['email'] == 'validuser3email@gmail.com'
     assert payload['users'][2]['name_first'] == 'User'
-    assert payload['users'][2]['name_last'] == 'Three'
-    assert payload['users'][2]['handle_str'] == 'userthree'
+    assert payload['users'][2]['name_last'] == '03'
+    assert payload['users'][2]['handle_str'] == 'user03'
