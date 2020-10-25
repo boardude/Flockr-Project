@@ -36,7 +36,7 @@ def test_channel_removeowner():
     channel_id = channels_create(token_2, 'channel name', True)['channel_id']
     channel.channel_invite(token_2, channel_id, u1_id)
     channel.channel_invite(token_2, channel_id, u3_id)
-    assert u1_id in channels[0]['owner_members']
+    assert u1_id not in channels[0]['owner_members']
     assert u2_id in channels[0]['owner_members']
     assert u3_id not in channels[0]['owner_members']
 
@@ -44,8 +44,6 @@ def test_channel_removeowner():
     assert u3_id in channels[0]['owner_members']
     channel.channel_removeowner(token_2, channel_id, u3_id)
     assert u3_id not in channels[0]['owner_members']
-    channel.channel_removeowner(token_2, channel_id, u1_id)
-    assert u1_id in channels[0]['owner_members']
 
 def test_removeowner_inputerror_invalid_channel():
     '''

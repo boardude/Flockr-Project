@@ -5,7 +5,7 @@ import signal
 from time import sleep
 import requests
 import json
-from auth import auth_login, auth_logout, auth_register, token_update
+from auth import auth_login, auth_logout, auth_register, token_generate
 
 # Use this fixture to get the URL of the server. It starts the server for you,
 # so you don't need to.
@@ -65,7 +65,7 @@ def test_register_standard(url):
     resp = requests.post(url + 'auth/register', json=input)
     assert resp.status_code == 200
     assert json.loads(resp.text)['u_id'] == 1
-    assert json.loads(resp.text)['token'] == token_update(1, 'register')
+    assert json.loads(resp.text)['token'] == token_generate(1, 'register')
 
     # create a standard user with len(password) == 6 and
     # len(first_name) == 50 and len(last_name) == 50
@@ -78,7 +78,7 @@ def test_register_standard(url):
     resp = requests.post(url + 'auth/register', json=input)
     assert resp.status_code == 200
     assert json.loads(resp.text)['u_id'] == 2
-    assert json.loads(resp.text)['token'] == token_update(2, 'register')
+    assert json.loads(resp.text)['token'] == token_generate(2, 'register')
 
 def test_register_error_invalid_email(url):
     '''
@@ -146,7 +146,7 @@ def test_login_standard(url, initial_users):
     resp = requests.post(url + 'auth/login', json=input)
     assert resp.status_code == 200
     assert json.loads(resp.text)['u_id'] == 1
-    assert json.loads(resp.text)['token'] == token_update(1, 'login')
+    assert json.loads(resp.text)['token'] == token_generate(1, 'login')
 
 def test_login_error_invalid_email(url, initial_users):
     '''
@@ -187,7 +187,7 @@ def test_logout_standard(url, initial_users):
         }
     requests.post(url + 'auth/login', json=input)
     # do logout
-    resp = requests.post(url + 'auth/logout', json={'token': token_update(1, 'login')})
+    resp = requests.post(url + 'auth/logout', json={'token': token_generate(1, 'login')})
     assert resp.status_code == 200
     assert json.loads(resp.text)['is_success'] is True
 
