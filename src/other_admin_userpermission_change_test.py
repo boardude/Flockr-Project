@@ -10,7 +10,7 @@ from helper import get_user_from_token
 from error import InputError, AccessError
 
 @pytest.fixture
-def initial_users():
+def create_users():
     clear()
     auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
     auth_register('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
@@ -19,7 +19,7 @@ def initial_users():
     auth_login('validuser2email@gmail.com', 'validpass2')
     auth_login('validuser3email@gmail.com', 'validpass3')
 
-def test_userpermission_InputError():
+def test_userpermission_InputError(create_users):
     # u_id does not refer to a valid user
     with pytest.raises(InputError):
         admin_userpermission_change(users[0]['token'], 0, 1)
@@ -32,7 +32,7 @@ def test_userpermission_InputError():
     with pytest.raises(InputError):
         admin_userpermission_change(users[0]['token'], users[1]['u_id'], 'str')
 
-def test_userpermission_AccessError():
+def test_userpermission_AccessError(create_users):
     # token is not an authorised user
     with pytest.raises(AccessError):
         admin_userpermission_change('invalid_token', users[0]['u_id'], 2)
@@ -41,7 +41,7 @@ def test_userpermission_AccessError():
     with pytest.raises(AccessError):
         admin_userpermission_change(users[1]['token'], users[0]['u_id'], 2)
 
-def test_userpermission_standard():
+def test_userpermission_standard(create_users):
     # preliminary assertions
     assert users[0]['permission_id'] == 1
     assert users[1]['permission_id'] == 2

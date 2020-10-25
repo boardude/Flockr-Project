@@ -21,7 +21,7 @@ from data import users
 from error import AccessError
 
 @pytest.fixture
-def initial_users():
+def create_users():
     clear()
     auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
     auth_register('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
@@ -30,7 +30,7 @@ def initial_users():
     auth_login('validuser2email@gmail.com', 'validpass2')
     auth_login('validuser3email@gmail.com', 'validpass3')
 
-def test_all_invalid_token(initial_users):
+def test_all_invalid_token(create_users):
     # empty
     with pytest.raises(AccessError):
         users_all('')
@@ -48,10 +48,9 @@ def test_all_invalid_token(initial_users):
     with pytest.raises(AccessError):
         users_all(bad_token)
 
-def test_all_standard(initial_users):
-    # ensure all three tokens work
-    user_profile_sethandle(users[1]['token'], 'validuser2')
+def test_all_standard(create_users):
     users_return = users_all(users[1]['token'])
+
     # check correct details have been returned
     assert users_return['users'][0]['u_id'] == users[0]['u_id']
     assert users_return['users'][0]['email'] == 'validuseremail@gmail.com'
@@ -64,7 +63,7 @@ def test_all_standard(initial_users):
     assert users_return['users'][1]['email'] == 'validuser2email@gmail.com'
     assert users_return['users'][1]['name_first'] == 'User'
     assert users_return['users'][1]['name_last'] == 'Two'
-    assert users_return['users'][1]['handle_str'] == 'validuser2'
+    assert users_return['users'][1]['handle_str'] == 'usertwo'
 
     assert users_return['users'][2]['u_id'] == users[2]['u_id']
     assert users_return['users'][2]['email'] == 'validuser3email@gmail.com'
