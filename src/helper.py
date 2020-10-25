@@ -79,3 +79,23 @@ def get_channel_from_id(channel_id):
         if channel['channel_id'] == channel_id:
             return channel
     return None
+
+def is_user_an_owner(token, channel_id):
+    '''
+    this is a helper function to check ownership.
+
+    Args:
+        param1: authorised user's token
+        param2: target channel
+
+    Returns:
+        it will return True if user is the owner of channel or flockr,
+        else return False
+    '''
+    user = get_user_from_token(token)
+    channel = get_channel_from_id(channel_id)
+    if user['permission_id'] == 1:
+        return True
+    if user['u_id'] in channel['owner_members']:
+        return True
+    return False

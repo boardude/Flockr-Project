@@ -3,7 +3,8 @@ import users and channels from data to manipulate data
 import error for error raising
 import datatime for creating timestamp
 '''
-from data import users, channels, create_new_msg
+from data import create_new_msg
+from helper import get_channel_from_id, get_user_from_token, is_user_an_owner
 from error import InputError, AccessError
 
 def message_send(token, channel_id, message):
@@ -30,8 +31,8 @@ def message_send(token, channel_id, message):
             1. given token does not refer to a valid user
             2. the authorised user has not joined the channel with channel_id
     '''
-    auth_user = token_to_user(token)
-    channel = channelid_to_channel(channel_id)
+    auth_user = get_user_from_token(token)
+    channel = get_channel_from_id(channel_id)
     # AccessError when given token does not refer to a valid user
     if auth_user is None:
         raise AccessError()
@@ -39,7 +40,7 @@ def message_send(token, channel_id, message):
     if len(message) > 1000:
         raise InputError()
     #AccessError when user hasn't joined the channel
-    if is_user_in_channel(token, channel_id) is False:
+    if auth_user['u_id'] not in channel['all_members']:
         raise AccessError()
 
     #Send message
@@ -69,7 +70,7 @@ def message_remove(token, message_id):
             2. Message with message_id was sent by the authorised user making this request
             3. The authorised user is an owner of this channel or the flockr
     '''
-    auth_user = token_to_user(token)
+    auth_user = get_user_from_token(token)
     msg_info = get_message_info(message_id)
 
     # access error when given token does not refer to a valid user
@@ -119,7 +120,7 @@ def message_edit(token, message_id, message):
         return {
         }
 
-    auth_user = token_to_user(token)
+    auth_user = get_user_from_token(token)
     msg_info = get_message_info(message_id)
     # access error when given token does not refer to a valid user
     if auth_user is None:
@@ -141,73 +142,6 @@ def message_edit(token, message_id, message):
     return {
     }
 
-def token_to_user(token):
-    '''
-    This is a simple helper function.
-    It will return a user with given token if it exists in data,
-    else return False
-
-    Args:
-        param1: token
-
-    Returns:
-        This will return uesr(dictionary) if token refers to a valid user in data,
-        else return False.
-
-    Raises:
-        this will not raise any error
-    '''
-    for user in users:
-        if user['token'] == token:
-            return user
-    return None
-
-def channelid_to_channel(channel_id):
-    '''
-    This is a simple helper function.
-    It will return a channel with given channel_id if it exists in data,
-    else return False
-
-    Args:
-        param1: channel_id
-
-    Returns:
-        This will return channel(dictionary) if token refers to a valid chanenl in data,
-        else return False.
-
-    Raises:
-        this will not raise any error
-    '''
-    for channel in channels:
-        if channel['channel_id'] == channel_id:
-            return channel
-    return None
-
-
-def is_user_in_channel(token, channel_id):
-    '''
-    This is a simple helper function.
-    It will test whether a user with given token is in target channel.
-
-    Args:
-        param1: token
-
-    Returns:
-        This will return a boolean value.
-        It will return True if the user is in target channel.
-        else return False.
-
-    Raises:
-        this will not raise any error
-    '''
-    user = token_to_user(token)
-    if user is False:
-        return False
-    for channel in user['channels']:
-        if channel == channel_id:
-            return True
-    return False
-
 def get_message_info(message_id):
     '''
     This is a helper function.
@@ -225,12 +159,9 @@ def get_message_info(message_id):
             'channel_id' : channel_id,
             'msg_list' : channel['messages'],
         }
-
-    Raises:
-        this will not raise any error
     '''
     channel_id = int(str(message_id)[:-4])
-    channel = channelid_to_channel(channel_id)
+    channel = get_channel_from_id(channel_id)
     if channel is None:
         return None
     for msg in channel['messages']:
@@ -242,23 +173,3 @@ def get_message_info(message_id):
                 'msg_list' : channel['messages'],
             }
     return None
-
-def is_user_an_owner(token, channel_id):
-    '''
-    this is a helper function to check ownership.
-
-    Args:
-        param1: authorised user's token
-        param2: target channel
-
-    Returns:
-        it will return True if user is the owner of channel or flockr,
-        else return False
-    '''
-    user = token_to_user(token)
-    channel = channelid_to_channel(channel_id)
-    if user['u_id'] == 1:
-        return True
-    if user['u_id'] in channel['owner_members']:
-        return True
-    return False
