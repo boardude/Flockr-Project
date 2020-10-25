@@ -4,8 +4,7 @@ import error.py for error raising
 from helper import some helper functions
 '''
 from error import InputError, AccessError
-from data import users, channels
-from helper import get_user_from_id, get_user_from_token, get_channel_from_id
+from helper import get_user_from_id, get_user_from_token, get_channel_from_id, is_user_an_owner
 
 def channel_invite(token, channel_id, u_id):
     '''
@@ -53,9 +52,6 @@ def channel_invite(token, channel_id, u_id):
 
     channel['all_members'].append(u_id)
     invited_user['channels'].append(channel_id)
-    # if u_id refers to the owner of flockr, channel would set it as an owner
-    if invited_user['permission_id'] == 1:
-        channel['owner_members'].append(invited_user['u_id'])
     return {
     }
 
@@ -246,9 +242,6 @@ def channel_join(token, channel_id):
 
     channel['all_members'].append(auth_user['u_id'])
     auth_user['channels'].append(channel_id)
-    # owner of flockr will become the owner of channel
-    if auth_user['permission_id'] == 1:
-        channel['owner_members'].append(auth_user['u_id'])
     return {
     }
 
@@ -297,7 +290,7 @@ def channel_addowner(token, channel_id, u_id):
 
     # access error when the authorised user is not
     # an owner of the flockr, or an owner of this channel
-    if auth_user['permission_id'] != 1 and auth_user['u_id'] not in channel['owner_members']:
+    if is_user_an_owner(token, channel_id) is False:
         raise AccessError()
 
     channel['owner_members'].append(u_id)
@@ -346,12 +339,9 @@ def channel_removeowner(token, channel_id, u_id):
 
     # accesss error when the authorised user is not
     # an owner of the flockr, or an owner of this channel
-    if auth_user['permission_id'] != 1 and auth_user['u_id'] not in channel['owner_members']:
+    if is_user_an_owner(token, channel_id) is False:
         raise AccessError()
-
-    # program will ignore the request if u_id refers to the owner of flockr
-    if removed_user['permission_id'] != 1:
-        channel['owner_members'].remove(u_id)
+    channel['owner_members'].remove(u_id)
     return {
     }
 

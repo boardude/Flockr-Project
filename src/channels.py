@@ -83,13 +83,10 @@ def channels_create(token, name, is_public):
     new_channel = create_new_channel(len(channels) + 1, is_public, name, new_user_id)
 
     # add new channel_id to user's channels list
-    for user in users:
-        if user['token'] is token:
-            user['channels'].append(new_channel['channel_id'])
+    user['channels'].append(new_channel['channel_id'])
 
 
     # return channel_id
     return {
         'channel_id': new_channel['channel_id'],
     }
-
