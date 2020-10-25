@@ -5,7 +5,7 @@ from time import sleep
 import json
 import requests
 import pytest
-from auth import token_update
+from auth import token_generate
 
 # Use this fixture to get the URL of the server. It starts the server for you,
 # so you don't need to.
@@ -70,7 +70,7 @@ def test_invite_standard(url, initial_basics):
     '''
     # user 4 invites uesr1 to channel1
     data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 1,
         'u_id' : 1,
     }
@@ -79,7 +79,7 @@ def test_invite_standard(url, initial_basics):
 
     # user 6 invites user2 to channel3
     data = {
-        'token' : token_update(6, 'login'),
+        'token' : token_generate(6, 'login'),
         'channel_id' : 3,
         'u_id' : 2,
     }
@@ -92,7 +92,7 @@ def test_invite_error_invalid_channel(url, initial_basics):
     '''
     # user 4 invites uesr1 to a channel with channel_id 0 (not exist)
     data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 0,
         'u_id' : 1,
     }
@@ -105,7 +105,7 @@ def test_invite_error_invalid_uid(url, initial_basics):
     '''
     # user 4 invites a users with id 0 to channel 1
     data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 1,
         'u_id' : 0,
     }
@@ -120,7 +120,7 @@ def test_invite_error_invalid_token(url, initial_basics):
     '''
     # a logout user
     data = {
-        'token' : token_update(4, 'logout'),
+        'token' : token_generate(4, 'logout'),
         'channel_id' : 1,
         'u_id' : 0,
     }
@@ -137,7 +137,7 @@ def test_invite_error_not_member(url, initial_basics):
     '''
     # user6 invite user1 to channel 2(belongs to user 7)
     data = {
-        'token' : token_update(4, 'logout'),
+        'token' : token_generate(4, 'logout'),
         'channel_id' : 2,
         'u_id' : 0,
     }
@@ -145,7 +145,7 @@ def test_invite_error_not_member(url, initial_basics):
     assert resp.status_code == 400
     # user2 invite user1 to channel 1(belongs to user 7)
     data = {
-        'token' : token_update(2, 'logout'),
+        'token' : token_generate(2, 'logout'),
         'channel_id' : 1,
         'u_id' : 0,
     }
@@ -166,7 +166,7 @@ def test_details_standar(url, initial_basics):
     2. invite user1 and user2 to channel1 and user6 asks details of chnanel 1
     '''
     detail_data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 1,
     }
     resp = requests.get(url + 'channel/details', params=detail_data)
@@ -176,7 +176,7 @@ def test_details_standar(url, initial_basics):
     assert len(json.loads(resp.text)['owner_members']) == 1
     # invite user1 and user2 to channel1
     invite_data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 1,
         'u_id' : 1,
     }
@@ -184,7 +184,7 @@ def test_details_standar(url, initial_basics):
     invite_data['u_id'] = 2
     requests.post(url + 'channel/invite', json=invite_data)
     # user2 ask details of channel1
-    detail_data['token'] = token_update(2, 'login')
+    detail_data['token'] = token_generate(2, 'login')
     resp = requests.get(url + 'channel/details', params=detail_data)
     assert resp.status_code == 200
     assert json.loads(resp.text)['name'] == 'channel1'
@@ -196,7 +196,7 @@ def test_details_error_invalid_channel(url, initial_basics):
     error when given channel_id is invalid
     '''
     data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 0,
     }
     resp = requests.get(url + 'channel/details', params=data)
@@ -218,7 +218,7 @@ def test_details_error_not_member(url, initial_basics):
     error when authorised user is not a member
     '''
     data = {
-        'token' : token_update(1, 'login'),
+        'token' : token_generate(1, 'login'),
         'channel_id' : 1,
     }
     resp = requests.get(url + 'channel/details', params=data)
@@ -237,13 +237,13 @@ def test_messages_standard(url, initial_basics):
     test standard
     '''
     send_data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 1,
         'message' : 'msg',
     }
     resp = requests.post(url + 'message/send', json=send_data)
     return_data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 1,
         'start' : 0,
     }
@@ -257,7 +257,7 @@ def test_messages_error_invalid_channel(url, initial_basics):
     error when given channel_id is invalid
     '''
     return_data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 0,
         'start' : 0,
     }
@@ -269,7 +269,7 @@ def test_messages_error_invalid_start(url, initial_basics):
     error when given channel_id is invalid
     '''
     return_data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 0,
         'start' : 100,
     }
@@ -281,7 +281,7 @@ def test_messages_error_invalid_token(url, initial_basics):
     error when given token is invalid
     '''
     send_data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 1,
         'message' : 'msg',
     }
@@ -299,13 +299,13 @@ def test_messages_error_not_member(url, initial_basics):
     error when given user is not a member
     '''
     send_data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 1,
         'message' : 'msg',
     }
     resp = requests.post(url + 'message/send', json=send_data)
     return_data = {
-        'token' : token_update(5, 'login'),
+        'token' : token_generate(5, 'login'),
         'channel_id' : 1,
         'start' : 0,
     }
@@ -321,14 +321,14 @@ def test_messages_error_not_member(url, initial_basics):
 # 4. error when authorised user is not a member of given channel
 def test_leave_standard(url, initial_basics):
     data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 1,
     }
     resp = requests.post(url + 'channel/leave', json=data)
     assert resp.status_code == 200
     
     data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 1,
         'u_id' : 1,
     }
@@ -337,7 +337,7 @@ def test_leave_standard(url, initial_basics):
 
 def test_leave_error_invalid_channel(url, initial_basics):
     data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 0,
     }
     resp = requests.post(url + 'channel/leave', json=data)
@@ -353,7 +353,7 @@ def test_leave_error_invalid_token(url, initial_basics):
 
 def test_leave_error_not_member(url, initial_basics):
     data = {
-        'token' : token_update(7, 'login'),
+        'token' : token_generate(7, 'login'),
         'channel_id' : 1,
     }
     resp = requests.post(url + 'channel/leave', json=data)
@@ -368,7 +368,7 @@ def test_leave_error_not_member(url, initial_basics):
 # 4. error when no permission
 def test_join_standard(url, initial_basics):
     data = {
-        'token' : token_update(1, 'login'),
+        'token' : token_generate(1, 'login'),
         'channel_id' : 1,
     }
     resp = requests.post(url + 'channel/join', json=data)
@@ -379,7 +379,7 @@ def test_join_standard(url, initial_basics):
     
 def test_join_error_invalid_channel(url, initial_basics):
     data = {
-        'token' : token_update(1, 'login'),
+        'token' : token_generate(1, 'login'),
         'channel_id' : 0,
     }
     resp = requests.post(url + 'channel/join', json=data)
@@ -395,7 +395,7 @@ def test_join_error_invalid_token(url, initial_basics):
 
 def test_join_error_no_permission(url, initial_basics):
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 3,
     }
     resp = requests.post(url + 'channel/join', json=data)
@@ -411,14 +411,14 @@ def test_join_error_no_permission(url, initial_basics):
 # 5. error when add owner twice
 def test_add_owner_standard(url, initial_basics):
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 1,
     }
     requests.post(url + 'channel/join', json=data)
-    data['token'] = token_update(1, 'login')
+    data['token'] = token_generate(1, 'login')
     requests.post(url + 'channel/join', json=data)
     data = {
-        'token' : token_update(1, 'login'),
+        'token' : token_generate(1, 'login'),
         'channel_id' : 1,
         'u_id' : 2,
     }
@@ -427,12 +427,12 @@ def test_add_owner_standard(url, initial_basics):
     
 def test_add_owner_error_invalid_channel(url, initial_basics):
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 1,
     }
     resp = requests.post(url + 'channel/join', json=data)
     data = {
-        'token' : token_update(1, 'login'),
+        'token' : token_generate(1, 'login'),
         'channel_id' : 0,
         'u_id' : 2,
     }
@@ -441,12 +441,12 @@ def test_add_owner_error_invalid_channel(url, initial_basics):
 
 def test_add_owner_error_add_twice(url, initial_basics):
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 1,
     }
     requests.post(url + 'channel/join', json=data)
     data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 1,
         'u_id' : 2,
     }
@@ -456,7 +456,7 @@ def test_add_owner_error_add_twice(url, initial_basics):
 
 def test_add_owner_error_invalid_token(url, initial_basics):
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 1,
     }
     requests.post(url + 'channel/join', json=data)
@@ -470,14 +470,14 @@ def test_add_owner_error_invalid_token(url, initial_basics):
 
 def test_add_owner_error_no_permission(url, initial_basics):
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 1,
     }
     requests.post(url + 'channel/join', json=data)
-    data['token'] = token_update(1, 'login')
+    data['token'] = token_generate(1, 'login')
     requests.post(url + 'channel/join', json=data)
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 1,
         'u_id' : 2,
     }
@@ -494,45 +494,45 @@ def test_add_owner_error_no_permission(url, initial_basics):
 # 5. error when add owner twice
 def test_rmowner_standard(url, initial_basics):
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 1,
     }
     requests.post(url + 'channel/join', json=data)
     data = {
-        'token' : token_update(1, 'login'),
+        'token' : token_generate(1, 'login'),
         'channel_id' : 1,
         'u_id' : 2,
     }
     requests.post(url + 'channel/addowner', json=data)
-    data['token'] = token_update(4, 'login')
+    data['token'] = token_generate(4, 'login')
     resp = requests.post(url + 'channel/removeowner', json=data)
     assert resp.status_code == 200
 
 def test_rmowner_error_invalid_channel(url, initial_basics):
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 1,
     }
     requests.post(url + 'channel/join', json=data)
     data = {
-        'token' : token_update(1, 'login'),
+        'token' : token_generate(1, 'login'),
         'channel_id' : 1,
         'u_id' : 2,
     }
     requests.post(url + 'channel/addowner', json=data)
-    data['token'] = token_update(4, 'login')
+    data['token'] = token_generate(4, 'login')
     data['channel_id'] = 0
     resp = requests.post(url + 'channel/removeowner', json=data)
     assert resp.status_code == 400
 
 def test_rmowner_error_not_owner(url, initial_basics):
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 1,
     }
     requests.post(url + 'channel/join', json=data)
     data = {
-        'token' : token_update(4, 'login'),
+        'token' : token_generate(4, 'login'),
         'channel_id' : 1,
         'u_id' : 2,
     }
@@ -541,12 +541,12 @@ def test_rmowner_error_not_owner(url, initial_basics):
 
 def test_rmowner_error_invalid_token(url, initial_basics):
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 1,
     }
     requests.post(url + 'channel/join', json=data)
     data = {
-        'token' : token_update(1, 'login'),
+        'token' : token_generate(1, 'login'),
         'channel_id' : 1,
         'u_id' : 2,
     }
@@ -561,12 +561,12 @@ def test_rmowner_error_invalid_token(url, initial_basics):
 
 def test_rmowner_error_no_permissino(url, initial_basics):
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 1,
     }
     requests.post(url + 'channel/join', json=data)
     data = {
-        'token' : token_update(2, 'login'),
+        'token' : token_generate(2, 'login'),
         'channel_id' : 1,
         'u_id' : 4,
     }
