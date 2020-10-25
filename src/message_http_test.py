@@ -5,6 +5,7 @@ import signal
 import requests
 import json
 from auth import token_generate
+from time import sleep
 
 # Use this fixture to get the URL of the server. It starts the server for you,
 # so you don't need to.
@@ -54,16 +55,16 @@ def initial_conditions(url):
             input = {
                 'token' : token_generate(1, 'login'),
                 'channel_id' : 1,
-                'message' : 'message ' + idx,
+                'message' : 'message ' + str(idx),
             }
-            requests.posts(url + 'message/send', json = input)
+            requests.post(url + 'message/send', json = input)
             if idx == 2:
                 data = {
                     'token' : token_generate(2, 'login'),
                     'channel_id' : 1,
                     'u_id' : 2,
-            }
-            requests.post(url + 'channel/addowner', json=data)
+                }
+                requests.post(url + 'channel/addowner', json=data)
 
 
 ### MESSAGE SEND TESTS
@@ -85,7 +86,7 @@ def test_send_bad_message(url, initial_conditions):
         'message' : 'c' * 1001,
     }
     
-    resp = request.post(url + 'message/send', json = input)
+    resp = requests.post(url + 'message/send', json = input)
     assert resp.status_code == 400
 
 def test_send_bad_channel(url, initial_conditions):
@@ -96,7 +97,7 @@ def test_send_bad_channel(url, initial_conditions):
         'message' : 'this shouldnt work',
     }
     
-    resp = request.post(url + 'message/send', json = input)
+    resp = requests.post(url + 'message/send', json = input)
     assert resp.status_code == 400
 
 ### MESSAGE REMOVE TESTS
@@ -107,7 +108,7 @@ def test_remove_standard(url, initial_conditions):
         'message_id' : 10001,
     }
     
-    resp = request.delete(url + 'message/remove', json = input)
+    resp = requests.delete(url + 'message/remove', json = input)
     assert resp.status_code == 200
 
 def test_remove_message_id(url, initial_conditions):
@@ -118,7 +119,7 @@ def test_remove_message_id(url, initial_conditions):
         'message_id' : 10002,
     }
     
-    resp = request.delete(url + 'message/remove', json = input)
+    resp = requests.delete(url + 'message/remove', json = input)
     assert resp.status_code == 400
     
     # message sent by user
@@ -128,7 +129,7 @@ def test_remove_message_id(url, initial_conditions):
         'message_id' : 10002,
     }
     
-    resp = request.delete(url + 'message/remove', json = input)
+    resp = requests.delete(url + 'message/remove', json = input)
     assert resp.status_code == 200
 
 def test_remove_owner(url, initial_conditions):
@@ -139,7 +140,7 @@ def test_remove_owner(url, initial_conditions):
         'message_id' : 10003,
     }
     
-    resp = request.delete(url + 'message/remove', json = input)
+    resp = requests.delete(url + 'message/remove', json = input)
     assert resp.status_code == 400
     
     #user owner of channel
@@ -148,7 +149,7 @@ def test_remove_owner(url, initial_conditions):
         'message_id' : 10001,
     }
     
-    resp = request.delete(url + 'message/remove', json = input)
+    resp = requests.delete(url + 'message/remove', json = input)
     assert resp.status_code == 200
     
 ### MESSAGE EDIT TESTS
@@ -161,7 +162,7 @@ def test_edit_standard(url, initial_conditions):
         'message' : 'new message',
     }
     
-    resp = request.put(url + 'message/edit', json = input)
+    resp = requests.put(url + 'message/edit', json = input)
     assert resp.status_code == 200
 
 def test_edit_messageid(url, initial_conditions):
@@ -172,7 +173,7 @@ def test_edit_messageid(url, initial_conditions):
         'message' : 'new message',
     }
     
-    resp = request.put(url + 'message/edit', json = input)
+    resp = requests.put(url + 'message/edit', json = input)
     assert resp.status_code == 400
     
     # correct message_id
@@ -182,7 +183,7 @@ def test_edit_messageid(url, initial_conditions):
         'message' : 'new message',
     }
     
-    resp = request.put(url + 'message/edit', json = input)
+    resp = requests.put(url + 'message/edit', json = input)
     assert resp.status_code == 200
     
 def test_edit_not_an_owner(url, initial_conditions):
@@ -193,7 +194,7 @@ def test_edit_not_an_owner(url, initial_conditions):
         'message' : 'new message',
     }
     
-    resp = request.put(url + 'message/edit', json = input)
+    resp = requests.put(url + 'message/edit', json = input)
     assert resp.status_code == 400
     
     #user is owner
@@ -204,5 +205,5 @@ def test_edit_not_an_owner(url, initial_conditions):
         'message' : 'new message',
     }
     
-    resp = request.put(url + 'message/edit', json = input)
+    resp = requests.put(url + 'message/edit', json = input)
     assert resp.status_code == 200
