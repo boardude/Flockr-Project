@@ -31,13 +31,19 @@ def url():
 
 @pytest.fixture
 def create_users():
-    clear()
-    auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
-    auth_register('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
-    auth_register('validuser3email@gmail.com', 'validpass3', 'User', 'Three')
-    auth_login('validuseremail@gmail.com', 'validpass')
-    auth_login('validuser2email@gmail.com', 'validpass2')
-    auth_login('validuser3email@gmail.com', 'validpass3')
+    # clear data
+    requests.delete(url + 'clear')
+
+    # register & log in 3 users
+    for i in range(3):
+        user_data = {
+            'password' : 'validpass' + str(i),
+            'name_first': 'User',
+            'name_last' : '0' + str(i),
+            'email': 'validuser' + str(i) + '@gmail.com',
+        }
+        requests.post(url + 'auth/register', json=user_data)
+        resp = requests.post(url + 'auth/login', json=user_data)
 
 def test_http_userpermission_InputError(url, create_users):
     # u_id does not refer to a valid user

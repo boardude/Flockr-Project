@@ -7,14 +7,6 @@ import requests
 import pytest
 from auth import token_generate
 
-##### GLOBAL VARIABLES #####
-channel_01 = None
-channel_02 = None
-channel_03 = None
-channel_04 = None
-channel_05 = None
-channel_06 = None
-
 # Use this fixture to get the URL of the server. It starts the server for you,
 # so you don't need to.
 @pytest.fixture
@@ -39,11 +31,19 @@ def url():
 
 @pytest.fixture
 def create_users():
-    clear()
-    auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
-    auth_register('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
-    auth_login('validuseremail@gmail.com', 'validpass')
-    auth_login('validuser2email@gmail.com', 'validpass2')
+    # clear data
+    requests.delete(url + 'clear')
+
+    # register & log in 2 users
+    for i in range(2):
+        user_data = {
+            'password' : 'validpass' + str(i),
+            'name_first': 'User',
+            'name_last' : '0' + str(i),
+            'email': 'validuser' + str(i) + '@gmail.com',
+        }
+        requests.post(url + 'auth/register', json=user_data)
+        resp = requests.post(url + 'auth/login', json=user_data)
 
 @pytest.fixture
 def create_channels():
@@ -51,14 +51,54 @@ def create_channels():
         Creates 6 test channels with tokens from two users
         returned channel_id's are stored in global variables
     """
-    global channel_01, channel_02, channel_03, channel_04, channel_05, channel_06
+    channel_data = {
+        'token': token_generate(1, 'login'),
+        'channel_name': 'Channel 01',
+        'is_public': True,
+    }
+    requests.post(url + 'channels/create', json=channel_data)
 
-    channel_01 = channels_create(users[0]['token'], 'Channel 01', True)
-    channel_02 = channels_create(users[0]['token'], 'Channel 02', False)
-    channel_03 = channels_create(users[0]['token'], 'Channel 03', True)
-    channel_04 = channels_create(users[1]['token'], 'Channel 04 User 2', True)
-    channel_05 = channels_create(users[1]['token'], 'Channel 05 User 2', False)
-    channel_06 = channels_create(users[1]['token'], 'Channel 06 User 2', False)
+    channel_data = {
+        'token': token_generate(1, 'login'),
+        'channel_name': 'Channel 02',
+        'is_public': False,
+    }
+    requests.post(url + 'channels/create', json=channel_data)
+
+    channel_data = {
+        'token': token_generate(1, 'login'),
+        'channel_name': 'Channel 03',
+        'is_public': True,
+    }
+    requests.post(url + 'channels/create', json=channel_data)
+
+    channel_data = {
+        'token': token_generate(1, 'login'),
+        'channel_name': 'Channel 03',
+        'is_public': True,
+    }
+    requests.post(url + 'channels/create', json=channel_data)
+
+    channel_data = {
+        'token': token_generate(2, 'login'),
+        'channel_name': 'Channel 04 User 02',
+        'is_public': True,
+    }
+    requests.post(url + 'channels/create', json=channel_data)
+
+    channel_data = {
+        'token': token_generate(2, 'login'),
+        'channel_name': 'Channel 05 User 02',
+        'is_public': False,
+    }
+    requests.post(url + 'channels/create', json=channel_data)
+
+    channel_data = {
+        'token': token_generate(2, 'login'),
+        'channel_name': 'Channel 06 User 02',
+        'is_public': False,
+    }
+    requests.post(url + 'channels/create', json=channel_data)
 
 def test_http_list_invalid_token(url, create_users, create_channels):
     """
