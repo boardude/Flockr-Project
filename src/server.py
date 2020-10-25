@@ -140,7 +140,7 @@ def edit_message():
 @APP.route('/user/profile', methods=['GET'])
 def get_profile():
     token = request.args.get('token')
-    u_id = request.args.get('u_id')
+    u_id = int(request.args.get('u_id'))
     return dumps(user_profile(token, u_id))
 
 @APP.route('/user/profile/setname', methods=["PUT"])
