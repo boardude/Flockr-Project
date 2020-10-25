@@ -125,7 +125,7 @@ def test_search_cross_join_channel(create_users):
     # search from first user
     messages = search(users[0]['token'], 'What')
 
-    # make sure messages from both users appear
+    # make sure messages from both users are returned
     assert len(messages['messages']) == 5
     assert messages['messages'][0]['message_id'] == msg1['message_id']
     assert messages['messages'][0]['u_id'] == users[0]['u_id']

@@ -229,7 +229,6 @@ def test_create_standard(create_users, create_channels):
     uid_2 = users[1]['u_id']
     assert check_ownership(uid_2, 4, 6)
 
-
 def test_create_duplicate(create_users, create_channels):
     """
         When two channels with duplicate details are created

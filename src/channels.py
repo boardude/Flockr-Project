@@ -10,7 +10,7 @@
 """
 from data import users, channels, create_new_channel
 from error import InputError, AccessError
-from helper import get_user_from_token
+from helper import get_user_from_token, get_channel_from_id
 
 #### INTERFACE FUNCTION IMPLEMENTATIONS ####
 def channels_list(token):
@@ -18,28 +18,14 @@ def channels_list(token):
         Returns a list of all channels (with channel name & channel id)
         that the authorised user is part of when given the user's token
     """
-
     # check token validity
-    if get_user_from_token(token) is None:
-        raise AccessError
-
-    for user in users:
-        if user['token'] is token:
-            user_channel_ids = user['channels']
-            break
-
-    user_channels = []
-
-    for user_channel_id in user_channel_ids:
-        for channel in channels:
-            if channel['channel_id'] == user_channel_id:
-                new_channel_entry = {}
-                new_channel_entry['channel_id'] = channel['channel_id']
-                new_channel_entry['name'] = channel['name']
-                user_channels.append(new_channel_entry)
-
+    auth_user = get_user_from_token(token)
+    if auth_user is None:
+        raise AccessError()
+    # get list of channel_id
+    user_channels = auth_user['channels']
     return {
-        'channels': user_channels,
+        'channels': list(map(channel_detail, user_channels)),
     }
 
 def channels_listall(token):
@@ -49,18 +35,15 @@ def channels_listall(token):
     """
 
     # check token validity
-    if get_user_from_token(token) is None:
-        raise AccessError
-
+    auth_user = get_user_from_token(token)
+    if auth_user is None:
+        raise AccessError()
+    # get list of channel_id
     all_channels = []
     for channel in channels:
-        new_channel_entry = {}
-        new_channel_entry['channel_id'] = channel['channel_id']
-        new_channel_entry['name'] = channel['name']
-        all_channels.append(new_channel_entry)
-
+        all_channels.append(channel['channel_id'])
     return {
-        'channels': all_channels,
+        'channels': list(map(channel_detail, all_channels)),
     }
 
 def channels_create(token, name, is_public):
@@ -79,14 +62,22 @@ def channels_create(token, name, is_public):
         raise AccessError
 
     # create new channel in data.py
-    new_user_id = user['u_id']
-    new_channel = create_new_channel(len(channels) + 1, is_public, name, new_user_id)
+    new_channel = create_new_channel(len(channels) + 1, is_public, name, user['u_id'])
 
     # add new channel_id to user's channels list
     user['channels'].append(new_channel['channel_id'])
 
-
     # return channel_id
     return {
         'channel_id': new_channel['channel_id'],
+    }
+
+def channel_detail(channel_id):
+    '''
+    a helper function to tranfer channel_id to associated info
+    '''
+    channel = get_channel_from_id(channel_id)
+    return {
+        'channel_id' : channel['channel_id'],
+        'name' : channel['name'],
     }
