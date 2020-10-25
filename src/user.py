@@ -5,7 +5,7 @@ import re module for email checking
 '''
 from error import AccessError, InputError
 from data import users
-from helper import get_user_from_token
+from helper import get_user_from_token, get_user_from_id
 from auth import is_email_valid
 
 def user_profile(token, u_id):
@@ -34,21 +34,22 @@ def user_profile(token, u_id):
         AccessError: given token does not refer to a valid user
     '''
     request_user = get_user_from_token(token)
+    target_user = get_user_from_id(u_id)
     # raise AccessError when given token does not refer to a valid user
     if request_user is None:
         raise AccessError()
 
     # raise InputError when given u_id is not correct
-    if request_user['u_id'] != u_id:
+    if target_user is None:
         raise InputError()
 
     return {
         'user' : {
-            'u_id' : request_user['u_id'],
-            'email' : request_user['email'],
-            'name_first' : request_user['name_first'],
-            'name_last' : request_user['name_last'],
-            'handle_str' : request_user['handle'],
+            'u_id' : target_user['u_id'],
+            'email' : target_user['email'],
+            'name_first' : target_user['name_first'],
+            'name_last' : target_user['name_last'],
+            'handle_str' : target_user['handle'],
         },
     }
 
