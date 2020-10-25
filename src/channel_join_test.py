@@ -64,7 +64,7 @@ def test_channel_join_flockr_owner():
     assert u2_id in channels[0]['all_members']
     assert channel_id in users[0]['channels']
     assert channel_id in users[1]['channels']
-    assert u1_id in channels[0]['owner_members']
+    assert u1_id not in channels[0]['owner_members']
     assert u2_id in channels[0]['owner_members']
 
 def test_join_inputerror_channel():

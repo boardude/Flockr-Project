@@ -50,7 +50,7 @@ def auth_login(email, password):
         raise InputError()
 
     # update token status and get a new token
-    new_token = token_update(user['u_id'], 'login')
+    new_token = token_generate(user['u_id'], 'login')
     user['token'] = new_token
     return {
         'u_id' : user['u_id'],
@@ -81,7 +81,7 @@ def auth_logout(token):
         raise AccessError()
 
     # updata token status
-    user['token'] = token_update(user['u_id'], 'logout')
+    user['token'] = token_generate(user['u_id'], 'logout')
     return {
         'is_success' : True
     }
@@ -130,7 +130,7 @@ def auth_register(email, password, name_first, name_last):
 
     # check data.py for more details of data storing
     handle = handle_initial(name_first, name_last, len(users) + 1)
-    token = token_update(len(users) + 1, 'register')
+    token = token_generate(len(users) + 1, 'register')
     new_user = create_user(email, pw_encode(password), name_first, name_last, handle, token)
     return {
         'u_id' : new_user['u_id'],
@@ -176,7 +176,7 @@ def pw_encode(password):
     '''
     return hashlib.sha256(password.encode()).hexdigest()
 
-def token_update(u_id, action):
+def token_generate(u_id, action):
     '''
     this is a helper functino for token status updating.
     it will return a brand new token according to action.

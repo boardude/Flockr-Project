@@ -45,7 +45,7 @@ def test_channel_invite():
     assert channel_id in users[0]['channels']
     assert channel_id in users[1]['channels']
     assert channel_id in users[2]['channels']
-    assert u1_id in channels[0]['owner_members']
+    assert u1_id not in channels[0]['owner_members']
     assert u2_id in channels[0]['owner_members']
     assert u3_id not in channels[0]['owner_members']
     
