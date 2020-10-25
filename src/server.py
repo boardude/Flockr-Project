@@ -1,5 +1,5 @@
 import sys
-from auth import auth_login, auth_logout, auth_register, token_update
+from auth import auth_login, auth_logout, auth_register
 from channel import channel_invite, channel_details, channel_messages, channel_leave
 from channel import channel_join, channel_addowner, channel_removeowner
 from channels import channels_create, channels_list, channels_listall
