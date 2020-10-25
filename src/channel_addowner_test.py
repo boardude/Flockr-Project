@@ -44,7 +44,7 @@ def test_channel_addowner():
     channel.channel_invite(token_2, channel_id, u4_id)
     channel.channel_invite(token_2, channel_id, u5_id)
 
-    assert u1_id in channels[0]['owner_members']
+    assert u1_id not in channels[0]['owner_members']
     assert u2_id in channels[0]['owner_members']
     assert u3_id not in channels[0]['owner_members']
     assert u4_id not in channels[0]['owner_members']
