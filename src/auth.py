@@ -75,13 +75,22 @@ def auth_logout(token):
     Raises:
         AccessError: token does not refer to a valid token
     '''
-    user = get_user_from_token(token)
-    # access error when given token does not refer to a valid user
-    if user is None:
+    auth_user = get_user_from_token(token)
+    # access error when given token does not refer to a exsiting user
+    exist = False
+    for user in users:
+        if user['token'] == token:
+            exist = True
+    if exist is False:
         raise AccessError()
 
-    # updata token status
-    user['token'] = token_generate(user['u_id'], 'logout')
+    # return false if auth_user's status is logout
+    if auth_user is None:
+        return {
+            'is_success' : False
+        }
+    # return true and update token if logout success
+    auth_user['token'] = token_generate(auth_user['u_id'], 'logout')
     return {
         'is_success' : True
     }
@@ -197,7 +206,6 @@ def token_generate(u_id, action):
         info['has_login'] = True
     new_token = jwt.encode(info, SECRET, algorithm='HS256').decode('utf-8')
     return new_token
-
 
 def is_email_valid(email):
     '''
