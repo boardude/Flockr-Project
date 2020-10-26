@@ -22,7 +22,7 @@
     test of invalid token
 '''
 import pytest
-from auth import auth_login, auth_register 
+from auth import auth_login, auth_register
 from error import InputError, AccessError
 from other import clear
 from data import users
@@ -55,9 +55,7 @@ def test_profile_invalid_uid(initial_users):
         invalid uid to check
     '''
     with pytest.raises(InputError):
-        user_profile(users[0]['token'], users[1]['u_id'])
-    with pytest.raises(InputError):
-        user_profile(users[0]['token'], users[0]['u_id'] - 1)
+        user_profile(users[0]['token'], 0)
 
 def test_profile_invalid_token(initial_users):
     '''
