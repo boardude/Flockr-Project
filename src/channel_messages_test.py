@@ -81,16 +81,19 @@ def test_valid_with_msg(initial_users, initial_msg):
     assert resp['messages'][0]['u_id'] == users[0]['u_id']
     assert resp['messages'][0]['message_id'] == 10001
 
+def test_valid_without_msg(initial_users):
+    resp = channel.channel_messages(users[0]['token'], channels[0]['channel_id'], 0)
+    assert len(resp['messages']) == 0
+    assert resp['end'] == -1
+
 def test_input_error_channelID(initial_users, initial_msg):
     # input error when Channel ID is not a valid channel
     with pytest.raises(InputError):
         assert channel.channel_messages(users[0]['token'], 123123, 0)
 
 def test_input_error_invalid_start(initial_users, initial_msg):
-    # input error when start is greater than 
+    # input error when start is greater than
     # the total number of messages in the channel
-    with pytest.raises(InputError):
-        assert channel.channel_messages(users[0]['token'], channels[0]['channel_id'], 51)
     with pytest.raises(InputError):
         assert channel.channel_messages(users[0]['token'], channels[0]['channel_id'], 52)
 

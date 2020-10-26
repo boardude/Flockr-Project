@@ -33,17 +33,17 @@ def channel_invite(token, channel_id, u_id):
 
     # access error when given token does not refer to a valid user
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description='Invalid Token')
     # input error when u_id does not refer to a valid user
     if invited_user is None:
-        raise InputError()
+        raise InputError(description='Invalid u_id')
     # input error when channel_id does not refer to a valid channel.
     if channel is None:
-        raise InputError()
+        raise InputError(description='Invalid channel_id')
 
     # accesss error when the authorised user is not a member of the channel
     if auth_user['u_id'] not in channel['all_members']:
-        raise AccessError()
+        raise AccessError(description='')
 
     # invited_user is already in channel
     if invited_user['u_id'] in channel['all_members']:
@@ -142,7 +142,7 @@ def channel_messages(token, channel_id, start):
     all_msgs = list(reversed(channel['messages']))
     # input error when start is greater than the total number
     # of messages in the channel
-    if start >= len(all_msgs):
+    if start > len(all_msgs):
         raise InputError()
 
     # access error when Authorised user is not a member of channel with channel_id
