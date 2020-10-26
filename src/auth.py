@@ -38,16 +38,16 @@ def auth_login(email, password):
                     3. Password is not correct
     '''
     if is_email_valid(email) is False:
-        raise InputError()
+        raise InputError(description='Email is invalid.')
 
     # inputerror when Email entered does not belong to a user
     user = get_user_from_email(email)
     if user is None:
-        raise InputError()
+        raise InputError(description='Email not registered.')
 
     # inputerror when Password is not correct
     if user['password'] != pw_encode(password):
-        raise InputError()
+        raise InputError(description='Password is incorrect.')
 
     # update token status and get a new token
     new_token = token_generate(user['u_id'], 'login')
@@ -82,7 +82,7 @@ def auth_logout(token):
         if user['token'] == token:
             exist = True
     if exist is False:
-        raise AccessError()
+        raise AccessError(description='Invalid token.')
 
     # return false if auth_user's status is logout
     if auth_user is None:
@@ -123,19 +123,19 @@ def auth_register(email, password, name_first, name_last):
     '''
     # inputerror when Email entered is not a valid email
     if is_email_valid(email) is False:
-        raise InputError()
+        raise InputError(description='Email is invalid.')
 
     # inputerror when Email address is already being used by another user
     if get_user_from_email(email) is not None:
-        raise InputError()
+        raise InputError(description='Email alsready in use.')
 
     # password length check
     if len(password) < 6:
-        raise InputError()
+        raise InputError(description='Password must be 6 characters or more.')
     if len(name_first) == 0 or len(name_last) == 0:
-        raise InputError()
+        raise InputError(description='Name cannot be empty')
     if len(name_first) > 50 or len(name_last) > 50:
-        raise InputError()
+        raise InputError(description='Name too long')
 
     # check data.py for more details of data storing
     handle = handle_initial(name_first, name_last, len(users) + 1)
