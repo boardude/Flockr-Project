@@ -37,11 +37,11 @@ def user_profile(token, u_id):
     target_user = get_user_from_id(u_id)
     # raise AccessError when given token does not refer to a valid user
     if request_user is None:
-        raise AccessError()
+        raise AccessError(description='Token does not refer to a valid user')
 
     # raise InputError when given u_id is not correct
     if target_user is None:
-        raise InputError()
+        raise InputError(description='u_id is not correct')
 
     return {
         'user' : {
@@ -74,12 +74,12 @@ def user_profile_setname(token, name_first, name_last):
     request_user = get_user_from_token(token)
     # raise AccessError when given token does not refer to a valid user
     if request_user is None:
-        raise AccessError()
+        raise AccessError(description='token does not refer to a valid user')
 
     if len(name_first) == 0 or len(name_last) == 0:
-        raise InputError()
+        raise InputError(description='length of name_first is zero')
     if len(name_first) > 50 or len(name_last) > 50:
-        raise InputError()
+        raise InputError(description='length of name_first is greater than 50')
 
     request_user['name_first'] = name_first
     request_user['name_last'] = name_last
@@ -106,16 +106,16 @@ def user_profile_setemail(token, email):
     request_user = get_user_from_token(token)
     # raise AccessError when given token does not refer to a valid user
     if request_user is None:
-        raise AccessError()
+        raise AccessError(description='token does not refer to a valid user')
 
     # raise InputError when new email is invalid
     if is_email_valid(email) is False:
-        raise InputError()
+        raise InputError(description='new email is invalid')
 
     # raise InputError when new email has been occupied
     for user in users:
         if user['email'] == email:
-            raise InputError()
+            raise InputError(description='new email has been occupied')
 
     request_user['email'] = email
     return {
@@ -141,16 +141,16 @@ def user_profile_sethandle(token, handle_str):
     request_user = get_user_from_token(token)
     # raise AccessError when given token does not refer to a valid user
     if request_user is None:
-        raise AccessError()
+        raise AccessError(description='token does not refer to a valid user')
 
     # raise InputError if the length of handle is not valid
     if len(handle_str) > 20 or len(handle_str) < 3:
-        raise InputError()
+        raise InputError(description='length of handle is not valid')
 
     # raise InputError if new handle has been occupied by someone
     for user in users:
         if user['handle'] == handle_str:
-            raise InputError()
+            raise InputError(description='new handle has been occupied by someone')
 
     request_user['handle'] = handle_str
     return {
