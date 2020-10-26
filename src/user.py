@@ -106,16 +106,16 @@ def user_profile_setemail(token, email):
     request_user = get_user_from_token(token)
     # raise AccessError when given token does not refer to a valid user
     if request_user is None:
-        raise AccessError(description='token does not refer to a valid user')
+        raise AccessError(description='Token does not refer to a valid user')
 
     # raise InputError when new email is invalid
     if is_email_valid(email) is False:
-        raise InputError(description='new email is invalid')
+        raise InputError(description='New email is invalid')
 
     # raise InputError when new email has been occupied
     for user in users:
         if user['email'] == email:
-            raise InputError(description='new email has been occupied')
+            raise InputError(description='New email has been occupied')
 
     request_user['email'] = email
     return {

@@ -190,10 +190,10 @@ def channel_leave(token, channel_id):
         raise AccessError(description='token does not refer to a valid token')
     # input error when Channel ID is not a valid channel
     if channel is None:
-        raise InputError(description='Channel ID is not a valid channel')
+        raise InputError(description='Channel ID is not a valid channel.')
     # access error when Authorised user is not a member of channel with channel_id
     if auth_user['u_id'] not in channel['all_members']:
-        raise AccessError(description='Authorised user is not a member of channel')
+        raise AccessError(description='Authorised user is not a member of channel.')
 
     auth_user['channels'].remove(channel_id)
     channel['all_members'].remove(auth_user['u_id'])
