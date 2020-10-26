@@ -78,7 +78,7 @@ def test_profile_invalid_uid(url, initial_basics):
     '''
     #call the user/profile with user1's token and user2's u_id
     profile_resp = requests.get(url + 'user/profile', params={
-        'token': token_generate(1, 'login'), 'u_id': 2})
+        'token': token_generate(1, 'login'), 'u_id': 0})
     assert profile_resp.status_code == 400
 
 def test_profile_invalid_token(url, initial_basics):

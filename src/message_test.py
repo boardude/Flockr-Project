@@ -71,13 +71,15 @@ def test_msg_send(initial_data):
         message_send('invalid_token', channels[0]['channel_id'], 'msg')
 
     # 4. access error 2 when the authorised user has not joined the channel
-    #    they aretrying to post to
+    #    they are trying to post to or non-exsiting channel
     with pytest.raises(AccessError):
         message_send(users[0]['token'], channels[1]['channel_id'], 'msg')
     with pytest.raises(AccessError):
         message_send(users[1]['token'], channels[1]['channel_id'], 'msg')
     with pytest.raises(AccessError):
         message_send(users[2]['token'], channels[0]['channel_id'], 'msg')
+    with pytest.raises(AccessError):
+        message_send(users[2]['token'], 0, 'msg')
 
 def test_msg_remove(initial_data, initial_msgs):
     ''' test for msg_remove'''
@@ -108,6 +110,8 @@ def test_msg_remove(initial_data, initial_msgs):
     # 2. input error when message (based on ID) no longer exists
     with pytest.raises(InputError):
         message_remove(users[1]['token'], 10002)
+    with pytest.raises(InputError):
+        message_remove(users[1]['token'], 100002)
 
     # 3. access error 1 when given token does not refer to a valid user
     with pytest.raises(AccessError):

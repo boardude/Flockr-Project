@@ -1,25 +1,29 @@
 ## General
-1. we assume that the very first user who signs up is the owner of flockr(user[0]).
-2. we assume that all data will be stored in data.py file in iteration 1, and every single file imports data.py if it need.
-3. we assume that we do not cover data storing persistence in iteration 1.
+1. We assume that the very first user who signs up is the owner of flockr(user[0]).
+2. We assume that all data will be stored in data.py, and every single file imports data.py if it need.
+3. We assume that we do not cover data storing persistence in iteration 2.
+4. We assume that the key for encoding token is a variable called SECRET with value 'grape6'.
+5. We assume that a given token is invalid if it cannot be decoded or its digital signature shows user has logged out except auth_logout.
+6. We assume that an invalid token would raise an accesserror except auth_login and auth_logout.
 
 ## auth
-1. we assume that token == str(u_id) for iteration 1.
-2. we assume that auth_login and auth_register will not generate a unique token.
-3. we assume that users can always log out in iteration 1 because we cannot test token validity.
-4. we assume that user will always enter valid name_first and name_last (no numbers and symbols).
+1. We assume that token is not equal to str(u_id) for iteration 2 and would be encoded by jwt.
+2. We assume that auth_login and auth_register will generate a same token to show the user has login.
+3. We assume that it would raise an error if a logout user's token is passed into auth_logout.
+4. We assume that user will always enter valid name_first and name_last (no numbers).
+5. We assume that it will not raise an error if a user login twice.
+6. We assume that entered password would be encoded by hashlib.sha256 which cannot be reverted.
+7. We assume that it will return false if given token refers to a user with logout status.
+8. We assume that it will login automatically after a user registers.
 
 ## channel
-1. we assume that program will also raise access error if the token cannot refer to a valid user.
-2. we assume that program will keep the channel if all members of it leave that channel.
-3. we assume that there is no bug in channel_messages for iteration 1 because we need message_send() to test it.
-4. we assume that if authorised user invites a uses who is already a member of channel, 
-                    program will ignore the request and return directly.
-5. we assume that if a user tries to join a channel he is already in, program will ignore the request and return directly.
-6. we assume that if the owner of flockr enter any channel, channel will set this user as owner of channel directly.
-7. we assume that the owner of channel cannot modify channel owner permission of the owner of flockr.
-8. we assume that the owner of channel can modify other owner's permission whatever he is the channel creater
-9. we assume that only after the owner of flockr enters a channel, he will have owner permission of that channel
+1. We assume that an owner of flockr will not be set as an owner of channel after he enters a channel. But the user still has permission of channel owner.
+2. We assume that program will keep the channel if all members of it leave that channel.
+3. We assume that an owner of channel can modify other owner's permission no matter he is the creator or not.
+4. We assume that program will not raise an error if start is equal to the number of messages in the channel in channel_messages
+5. We assume that if authorised user invites a uses who is already a member of channel, program will ignore the request and return directly.
+6. We assume that if a user tries to join a channel he is already in, program will ignore the request and return directly.
+7. We assume that only after the owner of flockr enters a channel, he will have owner permission of that channel.
 
 ## channels
 **Validity of tokens as parameters for channels_\* functions**  
@@ -31,4 +35,19 @@ Following from the above assumption, the token input will be taken as is in all 
 **Duplicate channel details for channels_create()**  
 Assume a new channel with the same details (token, name, is_public) as an existing channel will be created regardless since the channel_id differs the two.
 
+## message
+1. We assume that all messages will have a unique message_id which is equal to 10000 * channel_id + the sequence was sent.
+2. We assume that users can send an empty string in message_send.
+3. We assume that it will raise an access error when given channel_id is invalid.
+4. We assume that all messages will keep its unique message_id after any message is removed.
+5. We assume that the length of message can be greater than 1000 in message_edit.
+6. We assume that message_id would be always valid in message_edit except when new message is an empty string.
 
+## user
+1. We assume that name cannot be empty in user_setname.
+2. We assume that it will raise an error when a user tries to set his email with his current email.
+3. We assume that it will raise an error when a user tries to set his handle with his current handle.
+
+## other
+1. We assume that search will return all messages containing given query_str.
+2. We assume that an owner of flockr can modify other owner's permission no matter he is the first registerd user or not. 

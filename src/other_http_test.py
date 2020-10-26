@@ -151,9 +151,6 @@ def test_permission_invalid_permission_id(url, initial_data):
     }
     resp = requests.post(url + 'admin/userpermission/change', json=data)
     assert resp.status_code == 400
-    data['permission_id'] = '1'
-    resp = requests.post(url + 'admin/userpermission/change', json=data)
-    assert resp.status_code == 400
 
 def test_pemission_invalid_token(url, initial_data):
     '''
@@ -174,7 +171,6 @@ def test_pemission_invalid_token(url, initial_data):
 ############ search tests ##############
 ########################################
 # 1. standard
-# 2. 
 def test_search_standard(url, initial_data):
     '''
     test search standard

@@ -29,7 +29,7 @@ def clear():
 def users_all(token):
     # check token validity
     if get_user_from_token(token) is None:
-        raise AccessError()
+        raise AccessError(description="Unauthorised access")
 
     all_users = []
     for user in users:
@@ -49,20 +49,20 @@ def admin_userpermission_change(token, u_id, permission_id):
     # check u_id validity
     user = get_user_from_id(u_id)
     if user is None:
-        raise InputError
+        raise InputError(description=f"Cannot find user with ID of {u_id}")
 
     # check permission_id validity
     if permission_id not in [1, 2]:
-        raise InputError
+        raise InputError(description="Invalid permission code")
 
     # check token validity
     if get_user_from_token(token) is None:
-        raise AccessError
+        raise AccessError(description="Unauthorised access")
 
     # check if token refers to an owner
     admin = get_user_from_token(token)
     if admin['permission_id'] != 1:
-        raise AccessError
+        raise AccessError(description="Members cannot modify permissions")
 
     # change permission of u_id user to permission_id
     user['permission_id'] = permission_id
@@ -73,7 +73,7 @@ def admin_userpermission_change(token, u_id, permission_id):
 def search(token, query_str):
     # check token validity
     if get_user_from_token(token) is None:
-        raise AccessError
+        raise AccessError(description="Unauthorised access")
 
     result = []
     user = get_user_from_token(token)

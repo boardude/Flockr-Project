@@ -44,18 +44,23 @@ def echo():
 @APP.route('/auth/login', methods=['POST'])
 def login():
     data = request.get_json()
-    return dumps(auth_login(data['email'], data['password']))
+    email = data['email']
+    password = data['password']
+    return dumps(auth_login(email, password))
 
 @APP.route('/auth/logout', methods=['POST'])
 def logout():
-    data = request.get_json()
-    return dumps(auth_logout(data['token']))
+    token = request.get_json()['token']
+    return dumps(auth_logout(token))
 
 @APP.route('/auth/register', methods=['POST'])
 def register():
     data = request.get_json()
-    return dumps(auth_register(data['email'], data['password'],
-                    data['name_first'], data['name_last']))
+    email = data['email']
+    password = data['password']
+    name_first = data['name_first']
+    name_last = data['name_last']
+    return dumps(auth_register(email, password, name_first, name_last))
 
 ########################################
 ############# channel.py ###############
@@ -63,7 +68,10 @@ def register():
 @APP.route('/channel/invite', methods=['POST'])
 def invite():
     data = request.get_json()
-    return dumps(channel_invite(data['token'], data['channel_id'], data['u_id']))
+    token = data['token']
+    channel_id = int(data['channel_id'])
+    u_id = int(data['u_id'])
+    return dumps(channel_invite(token, channel_id, u_id))
 
 @APP.route('/channel/details', methods=['GET'])
 def get_details():
@@ -81,22 +89,32 @@ def recent_messages():
 @APP.route('/channel/leave', methods=['POST'])
 def leave_channel():
     data = request.get_json()
-    return dumps(channel_leave(data['token'], data['channel_id']))
+    token = data['token']
+    channel_id = int(data['channel_id'])
+    return dumps(channel_leave(token, channel_id))
 
 @APP.route('/channel/join', methods=['POST'])
 def join_channel():
     data = request.get_json()
-    return dumps(channel_join(data['token'], data['channel_id']))
+    token = data['token']
+    channel_id = int(data['channel_id'])
+    return dumps(channel_join(token, channel_id))
 
 @APP.route('/channel/addowner', methods=['POST'])
 def addowner():
     data = request.get_json()
-    return dumps(channel_addowner(data['token'], data['channel_id'], data['u_id']))
+    token = data['token']
+    channel_id = int(data['channel_id'])
+    u_id = int(data['u_id'])
+    return dumps(channel_addowner(token, channel_id, u_id))
 
 @APP.route('/channel/removeowner', methods=['POST'])
 def removeowner():
     data = request.get_json()
-    return dumps(channel_removeowner(data['token'], data['channel_id'], data['u_id']))
+    token = data['token']
+    channel_id = int(data['channel_id'])
+    u_id = int(data['u_id'])
+    return dumps(channel_removeowner(token, channel_id, u_id))
 
 ########################################
 ############ channels.py ###############
@@ -104,7 +122,10 @@ def removeowner():
 @APP.route('/channels/create', methods=['POST'])
 def create_channel():
     data = request.get_json()
-    return dumps(channels_create(data['token'], data['name'], data['is_public']))
+    token = data['token']
+    name = data['name']
+    is_public = bool(data['is_public'])
+    return dumps(channels_create(token, name, is_public))
 
 @APP.route('/channels/list', methods=['GET'])
 def list_joined_channels():
@@ -122,17 +143,25 @@ def list_all_channels():
 @APP.route('/message/send', methods=['POST'])
 def send_message():
     data = request.get_json()
-    return dumps(message_send(data['token'], data['channel_id'], data['message']))
+    token = data['token']
+    channel_id = int(data['channel_id'])
+    msg = data['message']
+    return dumps(message_send(token, channel_id, msg))
 
 @APP.route('/message/remove', methods=['DELETE'])
 def delete_message():
     data = request.get_json()
-    return dumps(message_remove(data['token'], data['message_id']))
+    token = data['token']
+    message_id = int(data['message_id'])
+    return dumps(message_remove(token, message_id))
 
 @APP.route('/message/edit', methods=['PUT'])
 def edit_message():
     data = request.get_json()
-    return dumps(message_edit(data['token'], data['message_id'], data['message']))
+    token = data['token']
+    message_id = int(data['message_id'])
+    message = data['message']
+    return dumps(message_edit(token, message_id, message))
 
 ########################################
 ############### user.py ################
@@ -173,7 +202,7 @@ def get_all_users():
 def change_permission():
     data = request.get_json()
     return dumps(admin_userpermission_change(data['token'],
-            data['u_id'], data['permission_id']))
+            int(data['u_id']), int(data['permission_id'])))
 
 @APP.route('/search', methods=['GET'])
 def search_msg():

@@ -1,12 +1,10 @@
-# Yicheng (Mike) Zhu
-# Last updated 21/10/2020
-
 import pytest
-from other import search, clear
-from auth import auth_login, auth_register
-from data import users
-from error import AccessError
+from other import clear
+from data import users, channels
 from channels import channels_create
+from other import users_all, clear, search, admin_userpermission_change
+from auth import auth_login, auth_register
+from error import AccessError, InputError
 from channel import channel_join
 from message import message_send
 
@@ -19,6 +17,77 @@ def create_users():
     auth_login('validuseremail@gmail.com', 'validpass')
     auth_login('validuser2email@gmail.com', 'validpass2')
     auth_login('validuser3email@gmail.com', 'validpass3')
+
+def test_clear_standard():
+    # initial clear
+    clear()
+
+    # preliminary assertions
+    assert len(users) == 0
+    assert len(channels) == 0
+
+    # create users
+    auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
+    auth_register('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
+    token_1 = auth_login('validuseremail@gmail.com', 'validpass')['token']
+    token_2 = auth_login('validuser2email@gmail.com', 'validpass2')['token']
+
+    # create channels
+    channels_create(token_1, 'Channel 01', True)
+    channels_create(token_1, 'Channel 02', False)
+    channels_create(token_2, 'Channel 03', False)
+
+    # intermediate assertions
+    assert len(users) == 2
+    assert len(channels) == 3
+
+    # invoke clear() for testing
+    clear()
+
+    # final assertions
+    assert len(users) == 0
+    assert len(channels) == 0
+
+def test_usersall_invalid_token(create_users):
+    # empty
+    with pytest.raises(AccessError):
+        users_all('')
+
+    # None
+    with pytest.raises(AccessError):
+        users_all(None)
+
+    # Not the correct data type
+    with pytest.raises(AccessError):
+        users_all(123)
+
+    # Not an authorised user
+    bad_token = 'invalid_token'
+    with pytest.raises(AccessError):
+        users_all(bad_token)
+
+def test_usersall_standard(create_users):
+    users_return = users_all(users[1]['token'])
+
+    # check correct details have been returned
+    assert users_return['users'][0]['u_id'] == users[0]['u_id']
+    assert users_return['users'][0]['email'] == 'validuseremail@gmail.com'
+    assert users_return['users'][0]['name_first'] == 'User'
+    assert users_return['users'][0]['name_last'] == 'One'
+    assert users_return['users'][0]['handle_str'] == 'userone'
+
+    assert users_return['users'][1]['u_id'] == users[1]['u_id']
+    assert users_return['users'][1]['u_id'] == users[1]['u_id']
+    assert users_return['users'][1]['email'] == 'validuser2email@gmail.com'
+    assert users_return['users'][1]['name_first'] == 'User'
+    assert users_return['users'][1]['name_last'] == 'Two'
+    assert users_return['users'][1]['handle_str'] == 'usertwo'
+
+    assert users_return['users'][2]['u_id'] == users[2]['u_id']
+    assert users_return['users'][2]['email'] == 'validuser3email@gmail.com'
+    assert users_return['users'][2]['name_first'] == 'User'
+    assert users_return['users'][2]['name_last'] == 'Three'
+    assert users_return['users'][2]['handle_str'] == 'userthree'
 
 def test_search_invalid_token(create_users):
     # empty
@@ -34,10 +103,8 @@ def test_search_invalid_token(create_users):
         search(123, 'query')
 
     # Not an authorised user
-    bad_token = 'invalid_token'
-
     with pytest.raises(AccessError):
-        search(bad_token, 'query')
+        search('bad_token', 'query')
 
 def test_search_no_cross_join_channel(create_users):
     # create channels for the first user
@@ -142,3 +209,44 @@ def test_search_cross_join_channel(create_users):
     assert messages['messages'][4]['message_id'] == msg5['message_id']
     assert messages['messages'][4]['u_id'] == users[1]['u_id']
     assert messages['messages'][4]['message'] == 'What?'
+
+def test_userpermission_InputError(create_users):
+    # u_id does not refer to a valid user
+    with pytest.raises(InputError):
+        admin_userpermission_change(users[0]['token'], 0, 1)
+
+    # permission_id does not refer to a value permission
+    with pytest.raises(InputError):
+        admin_userpermission_change(users[0]['token'], users[1]['u_id'], 3)
+
+    # permission_id does not refer to a value permission (wrong data type)
+    with pytest.raises(InputError):
+        admin_userpermission_change(users[0]['token'], users[1]['u_id'], 'str')
+
+def test_userpermission_AccessError(create_users):
+    # token is not an authorised user
+    with pytest.raises(AccessError):
+        admin_userpermission_change('invalid_token', users[0]['u_id'], 2)
+
+    # token is an authorised user but not an owner
+    with pytest.raises(AccessError):
+        admin_userpermission_change(users[1]['token'], users[0]['u_id'], 2)
+
+def test_userpermission_standard(create_users):
+    # preliminary assertions
+    assert users[0]['permission_id'] == 1
+    assert users[1]['permission_id'] == 2
+    assert users[2]['permission_id'] == 2
+
+    # testing
+    admin_userpermission_change(users[0]['token'], users[1]['u_id'], 1)
+    assert users[1]['permission_id'] == 1
+
+    admin_userpermission_change(users[0]['token'], users[2]['u_id'], 1)
+    assert users[2]['permission_id'] == 1   
+   
+    admin_userpermission_change(users[1]['token'], users[2]['u_id'], 2)
+    assert users[2]['permission_id'] == 2
+
+    admin_userpermission_change(users[1]['token'], users[0]['u_id'], 2)
+    assert users[0]['permission_id'] == 2

@@ -21,7 +21,7 @@ def channels_list(token):
     # check token validity
     auth_user = get_user_from_token(token)
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description="Unauthorised access")
     # get list of channel_id
     user_channels = auth_user['channels']
     return {
@@ -37,7 +37,7 @@ def channels_listall(token):
     # check token validity
     auth_user = get_user_from_token(token)
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description="Unauthorised access")
     # get list of channel_id
     all_channels = []
     for channel in channels:
@@ -55,11 +55,11 @@ def channels_create(token, name, is_public):
     user = get_user_from_token(token)
     # check name validity
     if len(name) > 20:
-        raise InputError()
+        raise InputError(description="Name cannot be longer than 20 characters")
 
     # check token validity
     if user is None:
-        raise AccessError
+        raise AccessError(description="Unauthorised access")
 
     # create new channel in data.py
     new_channel = create_new_channel(len(channels) + 1, is_public, name, user['u_id'])

@@ -33,17 +33,17 @@ def channel_invite(token, channel_id, u_id):
 
     # access error when given token does not refer to a valid user
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description='Invalid Token')
     # input error when u_id does not refer to a valid user
     if invited_user is None:
-        raise InputError()
+        raise InputError(description='Invalid u_id')
     # input error when channel_id does not refer to a valid channel.
     if channel is None:
-        raise InputError()
+        raise InputError(description='Invalid channel_id')
 
     # accesss error when the authorised user is not a member of the channel
     if auth_user['u_id'] not in channel['all_members']:
-        raise AccessError()
+        raise AccessError(description='Not a member')
 
     # invited_user is already in channel
     if invited_user['u_id'] in channel['all_members']:
@@ -85,13 +85,13 @@ def channel_details(token, channel_id):
 
     # access error when given token does not refer to a valid user
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description='Invalid token')
     # inputerror when Channel ID is not a valid channel
     if channel is None:
-        raise InputError()
+        raise InputError(description='Invalid channel_id')
     # access error when Authorised user is not a member of channel with channel_id
     if auth_user['u_id'] not in channel['all_members']:
-        raise AccessError()
+        raise AccessError(description='Not a member')
 
     return {
         'name': channel['name'],
@@ -134,20 +134,20 @@ def channel_messages(token, channel_id, start):
     channel = get_channel_from_id(channel_id)
     # access error when given token does not refer to a valid user
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description='Invalid token')
     # input error when Channel ID is not a valid channel
     if channel is None:
-        raise InputError()
+        raise InputError(description='Invalid channel_id')
 
     all_msgs = list(reversed(channel['messages']))
     # input error when start is greater than the total number
     # of messages in the channel
-    if start >= len(all_msgs):
-        raise InputError()
+    if start > len(all_msgs):
+        raise InputError(description='Invalid start index')
 
     # access error when Authorised user is not a member of channel with channel_id
     if auth_user['u_id'] not in channel['all_members']:
-        raise AccessError()
+        raise AccessError(description='Not a member')
 
     return_messages = []
     end = start + 50
@@ -187,13 +187,13 @@ def channel_leave(token, channel_id):
     channel = get_channel_from_id(channel_id)
     # access error when the token does not refer to a valid token
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description='Invalid token')
     # input error when Channel ID is not a valid channel
     if channel is None:
-        raise InputError()
+        raise InputError(description='Invalid channel_id')
     # access error when Authorised user is not a member of channel with channel_id
     if auth_user['u_id'] not in channel['all_members']:
-        raise AccessError()
+        raise AccessError(description='Not a member')
 
     auth_user['channels'].remove(channel_id)
     channel['all_members'].remove(auth_user['u_id'])
@@ -226,14 +226,14 @@ def channel_join(token, channel_id):
     channel = get_channel_from_id(channel_id)
     # access error when the token does not refer to a valid token
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description='Invalid token')
     # input error when Channel ID is not a valid channel
     if channel is None:
-        raise InputError()
+        raise InputError(description='Invalid channel_id')
     # access error when channel_id refers to a channel that is private
     # the authorised user is not a global owner
     if channel['public'] is False and auth_user['permission_id'] != 1:
-        raise AccessError()
+        raise AccessError(description='Not permitted to join')
 
     # already in the channel
     if channel_id in auth_user['channels']:
@@ -273,25 +273,25 @@ def channel_addowner(token, channel_id, u_id):
     invited_user = get_user_from_id(u_id)
     # access error when the token does not refer to a valid token
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description='Invalid token')
 
     # input error when Channel ID is not a valid channel
     if channel is None:
-        raise InputError()
+        raise InputError(description='Invalid channel_id')
 
     # input error when u_id does not refer to a valid user
     if invited_user is None:
-        raise InputError()
-    
+        raise InputError(description='Invalid u_id')
+
     # input error when When user with user id u_id
     # is already an owner of the channel
     if invited_user['u_id'] in channel['owner_members']:
-        raise InputError()
+        raise InputError(description='Already an owner')
 
     # access error when the authorised user is not
     # an owner of the flockr, or an owner of this channel
     if is_user_an_owner(token, channel_id) is False:
-        raise AccessError()
+        raise AccessError(description='Not permitted to add')
 
     channel['owner_members'].append(u_id)
     return {
@@ -326,21 +326,21 @@ def channel_removeowner(token, channel_id, u_id):
     removed_user = get_user_from_id(u_id)
     # access error when given token does not refer to a valid user
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description='Invalid token')
     # input error when Channel ID is not a valid channel
     if channel is None:
-        raise InputError()
+        raise InputError(description='Invalid channel_id')
     # input error when u_id does not refer to a valid user
     if removed_user is None:
-        raise InputError()
+        raise InputError(description='Invalid u_id')
     # input error when user with user id u_id is not an owner of the channel
     if removed_user['u_id'] not in channel['owner_members']:
-        raise InputError()
+        raise InputError(description='Not a owner of channel')
 
     # accesss error when the authorised user is not
     # an owner of the flockr, or an owner of this channel
     if is_user_an_owner(token, channel_id) is False:
-        raise AccessError()
+        raise AccessError(description='Not permitted to remove')
     channel['owner_members'].remove(u_id)
     return {
     }

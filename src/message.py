@@ -35,15 +35,15 @@ def message_send(token, channel_id, message):
     channel = get_channel_from_id(channel_id)
     # AccessError when given token does not refer to a valid user
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description='Invalid token.')
     #InputError when message > 1000 characters
     if len(message) > 1000:
-        raise InputError()
+        raise InputError(description='Message exceeds 1000 characters.')
     #AccessError when user hasn't joined the channel
     if channel is None:
-        raise AccessError()
+        raise AccessError(description='Invalid channel.')
     if auth_user['u_id'] not in channel['all_members']:
-        raise AccessError()
+        raise AccessError(description='User is not a member of channel.')
 
     #Send message
     new_msg = create_new_msg(message, channel, auth_user['u_id'])
@@ -77,20 +77,20 @@ def message_remove(token, message_id):
 
     # access error when given token does not refer to a valid user
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description='Invalid token.')
 
     # input error when given message_id does not refer to a valid message
     if msg_info is None:
-        raise InputError()
+        raise InputError(description='Invalid message ID.')
 
-    # accee error when auth user does not have permission
+    # access error when auth user does not have permission
     permittd = False
     if msg_info['u_id'] == auth_user['u_id']:
         permittd = True
     if is_user_an_owner(token, msg_info['channel_id']) is True:
         permittd = True
     if permittd is False:
-        raise AccessError()
+        raise AccessError(description='User must be an owner.')
 
     # do remove work
     msg_info['msg_list'].remove(msg_info['message'])
@@ -126,7 +126,7 @@ def message_edit(token, message_id, message):
     msg_info = get_message_info(message_id)
     # access error when given token does not refer to a valid user
     if auth_user is None:
-        raise AccessError()
+        raise AccessError(description='Invalid token')
 
     # access error when auth user does not have permission
     permittd = False
@@ -135,7 +135,7 @@ def message_edit(token, message_id, message):
     if is_user_an_owner(token, msg_info['channel_id']) is True:
         permittd = True
     if permittd is False:
-        raise AccessError()
+        raise AccessError(description='User must be an owner')
 
     # do edit work
     for msg in msg_info['msg_list']:
