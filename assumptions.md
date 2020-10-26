@@ -8,12 +8,13 @@
 
 ## auth
 1. We assume that token is not equal to str(u_id) for iteration 2 and would be encoded by jwt.
-2. We assume that auth_login and auth_register will generate a unique token to show the difference status.
+2. We assume that auth_login and auth_register will generate a same token to show the user has login.
 3. We assume that it would raise an error if a logout user's token is passed into auth_logout.
 4. We assume that user will always enter valid name_first and name_last (no numbers).
 5. We assume that it will not raise an error if a user login twice.
 6. We assume that entered password would be encoded by hashlib.sha256 which cannot be reverted.
 7. We assume that it will return false if given token refers to a user with logout status.
+8. We assume that it will login automatically after a user registers.
 
 ## channel
 1. We assume that an owner of flockr will not be set as an owner of channel after he enters a channel. But the user still has permission of channel owner.
