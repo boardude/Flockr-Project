@@ -94,6 +94,8 @@ def test_login_invalid_email():
     auth.auth_register('validemail@gmail.com', 'valid123', 'valid', 'valid')
     with pytest.raises(InputError):
         auth.auth_login('diffemail@gmail.com', 'valid123')
+    with pytest.raises(InputError):
+        auth.auth_login('diffgmail.com', 'valid123')
 
     # login with existing user
     auth.auth_login('validemail@gmail.com', 'valid123')
@@ -110,11 +112,14 @@ def test_logout_success():
     '''logout if user logged in'''
     # logout user that's logged in
     clear()
-    auth.auth_register('validemail@gmail.com', 'valid123', 'valid', 'valid')
-    token = auth.auth_login('validemail@gmail.com', 'valid123')
-    temp = auth.auth_logout(token['token'])
+    logout_token = auth.auth_register('validemail@gmail.com', 'valid123', 'valid', 'valid')['token']
+    login_token = auth.auth_login('validemail@gmail.com', 'valid123')['token']
+    temp = auth.auth_logout(login_token)
+    assert temp['is_success'] is True
 
-    assert temp['is_success']
+    # logout with a logged out user
+    temp = auth.auth_logout(logout_token)
+    assert temp['is_success'] is False
 
     #logout bad token
     clear()
