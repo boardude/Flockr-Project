@@ -112,13 +112,13 @@ def test_logout_success():
     '''logout if user logged in'''
     # logout user that's logged in
     clear()
-    logout_token = auth.auth_register('validemail@gmail.com', 'valid123', 'valid', 'valid')['token']
+    auth.auth_register('validemail@gmail.com', 'valid123', 'valid', 'valid')['token']
     login_token = auth.auth_login('validemail@gmail.com', 'valid123')['token']
     temp = auth.auth_logout(login_token)
     assert temp['is_success'] is True
 
     # logout with a logged out user
-    temp = auth.auth_logout(logout_token)
+    temp = auth.auth_logout(auth.token_generate(1, 'logout'))
     assert temp['is_success'] is False
 
     #logout bad token

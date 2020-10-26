@@ -200,10 +200,10 @@ def token_generate(u_id, action):
     '''
     info = {
         'u_id' : u_id,
-        'has_login' : False,
+        'has_login' : True,
     }
-    if action == 'login':
-        info['has_login'] = True
+    if action == 'logout':
+        info['has_login'] = False
     new_token = jwt.encode(info, SECRET, algorithm='HS256').decode('utf-8')
     return new_token
 
