@@ -4,13 +4,16 @@ import re module to check email validity
 import error.py for error raising
 import hashlib module for encoding password
 import jwt for token encoding and decoding
+import string and random for generating unique code
 from helper import some helper functions
 global variable SECRET is for token encoding and decoding
 '''
-from data import users, create_user
 import re
-import jwt
 import hashlib
+import string
+from random import randint
+import jwt
+from data import users, create_user
 from error import InputError, AccessError
 from helper import get_user_from_email, get_user_from_token
 SECRET = 'grape6'
@@ -146,6 +149,69 @@ def auth_register(email, password, name_first, name_last):
         'token' : new_user['token'],
     }
 
+def pwreset_req(email):
+    '''
+    This function is for password reset request.
+    It would call a helper function to generate a unique code and
+    store it in data.
+
+    Args:
+        param1(str): email of request user
+
+    Returns:
+        It would return an empty dict
+
+    Raises:
+        InputError:
+            given email does not refer to a valid user
+    '''
+    # get user from email
+    user = get_user_from_email(email)
+    # InputError when there is not such a user
+    # see assmuption for more details
+    if user is None:
+        raise InputError(description='User does not exist')
+    # get unique code and store it
+    code = reset_code_generate()
+    user['reset_code'] = code
+    return {}
+
+def pwreset_set(reset_code, new_password):
+    '''
+    This function is for password reset part
+    It would check the validity of reset_code
+    If code is valid, it would store new_password into database.
+    Otherwise, it would raise an InputError
+
+    Args:
+        param1(str): an unique code with length 50
+        param2(str): new password
+
+    Returns:
+        It would return an empty dict
+
+    Raises:
+        InputError:
+            1. reset_code is not a valid reset code
+            2. Password entered is not a valid password
+    '''
+    # get user whose reset_code is equal to entered code
+    found = False
+    for user in users:
+        if user['reset_code'] == reset_code:
+            found = True
+            break
+    # found is false means that there is not such a user has the same reset_code
+    # I.E. given reset code is invalid
+    if found is False:
+        raise InputError(description='Invalid reset code')
+    # raise InputError when new_password is invalid
+    if len(new_password) < 6:
+        raise InputError(description='Invalid new password')
+    # store new password
+    user['password'] = pw_encode(new_password)
+    return {}
+
 def handle_initial(name_first, name_last, u_id):
     '''
     This is a simple helper function to generate a handle(string) which combines
@@ -226,3 +292,34 @@ def is_email_valid(email):
     if re.search(regex, email):
         return True
     return False
+
+def reset_code_generate():
+    '''
+    a helper function for generation a unique code for reset_pw
+    the unique code is a combination of uppercase and number with length of 50
+    see assumption for more details
+
+    Args:
+        It does not have arguments
+
+    Returns:
+        It would return a unique code(str)
+    '''
+    chars = string.ascii_uppercase + '0123456789'
+    code = ''
+    while len(code) < 50:
+        selection = randint(0, len(chars) - 1)
+        code += chars[selection]
+    return code
+
+def get_reset_code(email):
+    '''
+    a helper function for get stored reset_code from database
+
+    Args:
+        param(str): target user's email
+
+    Returns:
+        It would return what is stored in database(str)
+    '''
+    return get_user_from_email(email)['reset_code']
