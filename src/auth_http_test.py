@@ -5,7 +5,7 @@ import signal
 from time import sleep
 import requests
 import json
-from auth import auth_login, auth_logout, auth_register, token_generate
+from auth import auth_login, auth_logout, auth_register, token_generate, get_reset_code
 
 # Use this fixture to get the URL of the server. It starts the server for you,
 # so you don't need to.
@@ -204,3 +204,141 @@ def test_logout_error_invalid_token(url):
     # do logout
     resp = requests.post(url + 'auth/logout', json={'token': 'invalid_token'})
     assert resp.status_code == 400
+
+########################################
+########### pwreset tests ##############
+########################################
+
+def test_pwreset_req_standard(url, initial_users):
+    '''
+    test pwreset_req works well
+    no error
+    user1 with email 1test@test.com calls pwreset_req
+    '''
+    data = {
+        'email' : '1test@test.com'
+        }
+    resp = requests.post(url + 'auth/passwordreset/request', json=data)
+    assert resp.status_code == 200
+
+def test_pwreset_req_invalid_email(url, initial_users):
+    '''
+    error when entered email does not refer to a valid user
+    pass an non-exist email address to pwreset_req
+    '''
+    data = {
+        'email' : 'invalidemail@test.com'
+        }
+    resp = requests.post(url + 'auth/passwordreset/request', json=data)
+    assert resp.status_code == 400
+
+def test_pwreset_set_standard(url, initial_users):
+    '''
+    test pwreset_set works well
+    no error
+    user1 calls pwreset_req to get reset code and passes it to set
+    logout and login with new password
+    '''
+    # call pwreset_req to set reset_code in database
+    data = {
+        'email' : '1test@test.com'
+        }
+    requests.post(url + 'auth/passwordreset/request', json=data)
+    # reset password with new pw '123456
+    data = {
+        'reset_code' : get_reset_code('1test@test.com'),
+        'new_password' : '123456'
+    }
+    resp = requests.post(url + 'auth/passwordreset/reset', json=data)
+    assert resp.status_code == 200
+    # logout
+    requests.post(url + 'auth/logout', json={'token': token_generate(1, 'login')})
+    # login with new password
+    data = {
+        'email' : '1test@test.com',
+        'password' : '123456',
+        }
+    resp = requests.post(url + 'auth/login', json=data)
+    assert resp.status_code == 200
+
+def test_pwreset_set_invalid_code(url, initial_users):
+    '''
+    test error raising when entered code is invalid
+    1. non-existing
+    2. empty string
+    3. used code
+    '''
+    # call pwreset_req to set reset_code in database
+    data = {
+        'email' : '1test@test.com'
+        }
+    requests.post(url + 'auth/passwordreset/request', json=data)
+
+    # 1. non-existing code
+    data = {
+        'reset_code' : 'invalid_code',
+        'new_password' : '123456'
+    }
+    resp = requests.post(url + 'auth/passwordreset/reset', json=data)
+    assert resp.status_code == 400
+
+    # 2. empty string
+    data['reset_code'] = ''
+    resp = requests.post(url + 'auth/passwordreset/reset', json=data)
+    assert resp.status_code == 400
+
+    # 3. used code
+    # reset successfully first
+    code = get_reset_code('1test@test.com')
+    data['reset_code'] = code
+    resp = requests.post(url + 'auth/passwordreset/reset', json=data)
+    assert resp.status_code == 200
+    # reset again with the same code
+    data['reset_code'] = code
+    resp = requests.post(url + 'auth/passwordreset/reset', json=data)
+    assert resp.status_code == 400
+
+def test_pwreset_set_invalid_newpw(url, initial_users):
+    '''
+    test error raising when new password is invalid
+    1. new password is empty
+    2. len(new_password) < 6
+    '''
+    # call pwreset_req to set reset_code in database
+    data = {
+        'email' : '1test@test.com'
+        }
+    requests.post(url + 'auth/passwordreset/request', json=data)
+    
+    # 1. empty new password
+    data = {
+        'reset_code' : get_reset_code('1test@test.com'),
+        'new_password' : ''
+    }
+    resp = requests.post(url + 'auth/passwordreset/reset', json=data)
+    assert resp.status_code == 400
+
+    # 2. len(new_password) < 6
+    data = {
+        'reset_code' : get_reset_code('1test@test.com'),
+        'new_password' : '12345'
+    }
+    resp = requests.post(url + 'auth/passwordreset/reset', json=data)
+    assert resp.status_code == 400
+
+    # logout
+    requests.post(url + 'auth/logout', json={'token': token_generate(1, 'login')})
+    # login with invalid password
+    data = {
+        'email' : '1test@test.com',
+        'password' : '12345',
+        }
+    resp = requests.post(url + 'auth/login', json=data)
+    assert resp.status_code == 400
+    # login with original password
+    data = {
+        'email' : '1test@test.com',
+        'password' : 'password',
+        }
+    resp = requests.post(url + 'auth/login', json=data)
+    assert resp.status_code == 200
