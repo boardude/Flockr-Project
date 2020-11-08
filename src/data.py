@@ -14,6 +14,7 @@ users = [
         'handle' : 'user1last',
         'email' : 'test@test.com',
         'password' : 'test123',
+        'reset_code' : '',
         'token' : '1', # for iteration 1
         'channels' : [ ], # a list to store this user's channel(channel_id)
     },
@@ -24,6 +25,7 @@ users = [
         'handle' : 'user2last'
         'email' : 'test2@test.com',
         'password' : 'test123',
+        'reset_code' : '',
         'token' : '2', # for iteration 1
         'channels' : [ ], # a list to store this user's channel(channel_id)
     },
@@ -84,6 +86,11 @@ channels = [
 #   create a new function called create_new_msg
 #   add a attribute called latest_msg_id to each channel
 
+# 7th edition 11/08/2020 daoting
+#   add new attribute (reset_code) to user
+#   the default value should be an empty str
+#   after program calls reset_req, an unique code would be stored in reset_code
+
 import time
 
 users = [
@@ -121,6 +128,7 @@ def create_user(email, password, name_first, name_last, handle, token):
         'channels' : [],
         'token' : token,
         'handle' : handle,
+        'reset_code' : '',
     }
     if new_user['u_id'] == 1:
         new_user['permission_id'] = 1
