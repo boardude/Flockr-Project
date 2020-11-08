@@ -307,7 +307,7 @@ def reset_code_generate():
     '''
     chars = string.ascii_uppercase + '0123456789'
     code = ''
-    for i in range(50):
+    while len(code) < 50:
         selection = randint(0, len(chars) - 1)
         code += chars[selection]
     return code
