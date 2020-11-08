@@ -212,6 +212,7 @@ def test_pwreset_set_normal():
     '''
     standard test (no error)
     create a user and the user resets his password
+    logout and login with new password
     '''
     clear()
     auth.auth_register('test@test.com', 'password', 'first_name', 'last_name')
@@ -221,6 +222,8 @@ def test_pwreset_set_normal():
     auth.pwreset_set(code, 'newpassword')
     assert users[0]['password'] != auth.pw_encode('password')
     assert users[0]['password'] == auth.pw_encode('newpassword')
+    auth.auth_logout(users[0]['token'])
+    auth.auth_login('test@test.com', 'newpassword')
 
 def test_pwreset_set_wrong_code():
     '''
@@ -233,7 +236,8 @@ def test_pwreset_set_wrong_code():
     auth.pwreset_req('test@test.com')
     with pytest.raises(InputError):
         auth.pwreset_set('wrong_code', 'newpassword')
-    
+        auth.pwreset_set('', 'newpassword')
+
 def test_pwreset_set_invalid_newpw():
     '''
     input error when entered code is not correct
@@ -245,4 +249,5 @@ def test_pwreset_set_invalid_newpw():
     auth.pwreset_req('test@test.com')
     code = auth.get_reset_code('test@test.com')
     with pytest.raises(InputError):
-        auth.pwreset_set(code, 'new')
+        auth.pwreset_set(code, 'newpa')
+        auth.pwreset_set(code, '')
