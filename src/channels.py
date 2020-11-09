@@ -16,14 +16,14 @@ from helper import get_user_from_token, get_channel_from_id
 def channels_list(token):
     """
         Returns a list of all channels that a user is a part of and their associated
-        details (name & channel_id)
+        details (name & channel_id).
 
         :param token: The token of the user in question 
-        :type token: string
+        :type token: str
 
         :return: A dictionary containing a list of channels that the user is a part of
         and their associated details. 
-        :rtype: dictionary with nested list
+        :rtype: dict with nested list
     """
     # check token validity
     auth_user = get_user_from_token(token)
@@ -37,14 +37,14 @@ def channels_list(token):
 
 def channels_listall(token):
     """
-        Returns a list of all channels and their associated details (name & channel_id)
+        Returns a list of all channels and their associated details (name & channel_id).
 
         :param token: The token of any authenticated user 
-        :type token: string
+        :type token: str
 
         :return: A dictionary containing a list of all channels and their associated
         details (name & channel_id) 
-        :rtype: dictionary with nested list
+        :rtype: dict with nested list
     """
 
     # check token validity
@@ -73,7 +73,7 @@ def channels_create(token, name, is_public):
         :type is_public: boolean
 
         :return: A dictionary containing the new channel's channel_id (int) 
-        :rtype: dictionary with integer key value
+        :rtype: dict with int key value
 
     """
 
@@ -99,14 +99,14 @@ def channels_create(token, name, is_public):
 
 def channel_detail(channel_id):
     """
-        A helper function to get a channel's details from its id
+        A helper function to get a channel's details from its id.
 
         :param channel_id: channel_id of channel whose details we want 
         :type token: int
 
         :return: A dictionary containing the new channel's details (id & name) as
         key value pairs 
-        :rtype: dictionary
+        :rtype: dict
 
     """
     channel = get_channel_from_id(channel_id)

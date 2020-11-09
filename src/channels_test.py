@@ -36,6 +36,10 @@ channel_06 = None
 
 @pytest.fixture
 def create_users():
+    """
+        Pytest fixture that registers and logs in two users for use in relevant tests.
+    """
+
     clear()
     auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
     auth_register('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
@@ -45,8 +49,8 @@ def create_users():
 @pytest.fixture
 def create_channels():
     """
-        Creates 6 test channels with tokens from two users
-        returned channel_id's are stored in global variables
+        Pytest fixture that creates 6 test channels with tokens from two users.
+        Returned channel_id's are stored in global variables.
     """
     global channel_01, channel_02, channel_03, channel_04, channel_05, channel_06
 
@@ -61,7 +65,13 @@ def create_channels():
 def test_list_invalid_token(create_users, create_channels):
     """
         Test for AccessError exception thrown by channels_create() when token
-        passed in is not a valid token
+        passed in is not a valid token.
+
+        :param create_users: pytest fixture to create two test users
+        :type create_users: pytest fixture
+
+        :param create_channels: pytest fixture to create six test channels
+        :type create_channels: pytest fixture
     """
     # empty
     with pytest.raises(AccessError):
@@ -83,7 +93,13 @@ def test_list_invalid_token(create_users, create_channels):
 
 def test_list_standard(create_users, create_channels):
     """
-        Test for standard functionality of channels_list() according to spec
+        Test for standard functionality of channels_list() according to spec.
+
+        :param create_users: pytest fixture to create two test users
+        :type create_users: pytest fixture
+
+        :param create_channels: pytest fixture to create six test channels
+        :type create_channels: pytest fixture
     """
     # test length of returned channels list, making sure channels of
     # User 2 is not listed
@@ -104,7 +120,13 @@ def test_list_standard(create_users, create_channels):
 def test_listall_invalid_token(create_users, create_channels):
     """
         Test for AccessError exception thrown by channels_create() when token
-        passed in is not a valid token
+        passed in is not a valid token.
+
+        :param create_users: pytest fixture to create two test users
+        :type create_users: pytest fixture
+
+        :param create_channels: pytest fixture to create six test channels
+        :type create_channels: pytest fixture
     """
     # empty
     with pytest.raises(AccessError):
@@ -126,7 +148,13 @@ def test_listall_invalid_token(create_users, create_channels):
 
 def test_listall_standard(create_users, create_channels):
     """
-        Test for standard functionality of channels_listall() according to spec
+        Test for standard functionality of channels_listall() according to spec.
+
+        :param create_users: pytest fixture to create two test users
+        :type create_users: pytest fixture
+
+        :param create_channels: pytest fixture to create six test channels
+        :type create_channels: pytest fixture
     """
     # test length of returned channels list, making sure both
     # users' channels are listed
@@ -156,7 +184,14 @@ def test_listall_standard(create_users, create_channels):
 def test_create_invalid_name(create_users, create_channels):
     """
         Test for InputError exception thrown by channels_create() when name
-        is longer than 20 characters
+        is longer than 20 characters.
+
+
+        :param create_users: pytest fixture to create two test users
+        :type create_users: pytest fixture
+
+        :param create_channels: pytest fixture to create six test channels
+        :type create_channels: pytest fixture
     """
     with pytest.raises(InputError):
         channels_create(users[0]['token'], 'Channel NameThatHasMoreThanTwentyCharacters', True)
@@ -164,7 +199,13 @@ def test_create_invalid_name(create_users, create_channels):
 def test_create_invalid_token(create_users, create_channels):
     """
         Test for AccessError exception thrown by channels_create() when token
-        passed in is not a valid token
+        passed in is not a valid token.
+
+        :param create_users: pytest fixture to create two test users
+        :type create_users: pytest fixture
+
+        :param create_channels: pytest fixture to create six test channels
+        :type create_channels: pytest fixture
     """
     # empty
     with pytest.raises(AccessError):
@@ -186,7 +227,13 @@ def test_create_invalid_token(create_users, create_channels):
 
 def test_create_standard(create_users, create_channels):
     """
-        Test for standard functionality of channels_create() according to spec
+        Test for standard functionality of channels_create() according to spec.
+
+        :param create_users: pytest fixture to create two test users
+        :type create_users: pytest fixture
+
+        :param create_channels: pytest fixture to create six test channels
+        :type create_channels: pytest fixture
     """
     # test for accuracy of details in channels
     assert len(channels) == 6
@@ -222,17 +269,23 @@ def test_create_standard(create_users, create_channels):
     assert user_2_channels[2] == channel_06['channel_id']
 
     # check for channel ownership and membership of first user
-    uid_1 = users[0]['u_id']
-    assert check_ownership(uid_1, 0, 3)
+    u_id_1 = users[0]['u_id']
+    assert check_ownership(u_id_1, 0, 3)
 
     # check for channel ownership of second user
-    uid_2 = users[1]['u_id']
-    assert check_ownership(uid_2, 4, 6)
+    u_id_2 = users[1]['u_id']
+    assert check_ownership(u_id_2, 4, 6)
 
 def test_create_duplicate(create_users, create_channels):
     """
-        When two channels with duplicate details are created
-        Ensure both are created as they differ by channel_id
+        Test for when two channels with duplicate details are created.
+        Ensure both are created as they differ by channel_id.
+
+        :param create_users: pytest fixture to create two test users
+        :type create_users: pytest fixture
+
+        :param create_channels: pytest fixture to create six test channels
+        :type create_channels: pytest fixture
     """
 
     # create test channels
@@ -250,16 +303,16 @@ def test_create_duplicate(create_users, create_channels):
     assert channels[7]['public']
 
     # check for channel ownership and membership
-    uid = users[0]['u_id']
+    u_id = users[0]['u_id']
     is_owner = False
     is_member = False
     for channel in channels:
         for owner in channel['owner_members']:
-            if owner == uid:
+            if owner == u_id:
                 is_owner = True
                 break
         for member in channel['all_members']:
-            if member == uid:
+            if member == u_id:
                 is_member = True
                 break
 
@@ -275,23 +328,35 @@ def test_create_duplicate(create_users, create_channels):
     # ensure the two "duplicate" channels differ by channel_id
     assert channel_01['channel_id'] != channel_02['channel_id']
 
-def check_ownership(uid, start, end):
+def check_ownership(u_id, start, end):
     """
-        Checks whether the channels created by the user (given uid) have
-        correct ownership involving the user. The range of channels to search
-        for is denoted by start and end parameters. Returns True if
-        ownership is correct, otherwise False.
+        Checks whether the channels created by the user (given u_id) have correct 
+        ownership involving the user. The range of channels to check is denoted by 
+        start and end parameters.
+
+        :param u_id: u_id of user whose ownership of channels is to be checked 
+        :type u_id: int
+
+        :param start: start of range of channels to check
+        :type start: int
+
+        :param end: end of range of channels to check
+        :type end: int
+
+        :return: True if ownership is correct for all channels checked, 
+        False if incorrect for any of the channels checked
+        :rtype: bool    
     """
 
     is_owner = False
     is_member = False
     for i in range(start, end):
         for owner in channels[i]['owner_members']:
-            if owner == uid:
+            if owner == u_id:
                 is_owner = True
                 break
         for member in channels[i]['all_members']:
-            if member == uid:
+            if member == u_id:
                 is_member = True
                 break
 
