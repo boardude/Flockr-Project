@@ -67,10 +67,10 @@ def test_list_invalid_token(create_users, create_channels):
         Test for AccessError exception thrown by channels_create() when token
         passed in is not a valid token.
 
-        :param create_users: pytest fixture to create two test users
+        :param create_users: pytest fixture to create two test users 
         :type create_users: pytest fixture
 
-        :param create_channels: pytest fixture to create six test channels
+        :param create_channels: pytest fixture to create six test channels 
         :type create_channels: pytest fixture
     """
     # empty
@@ -95,10 +95,10 @@ def test_list_standard(create_users, create_channels):
     """
         Test for standard functionality of channels_list() according to spec.
 
-        :param create_users: pytest fixture to create two test users
+        :param create_users: pytest fixture to create two test users 
         :type create_users: pytest fixture
 
-        :param create_channels: pytest fixture to create six test channels
+        :param create_channels: pytest fixture to create six test channels 
         :type create_channels: pytest fixture
     """
     # test length of returned channels list, making sure channels of
@@ -122,10 +122,10 @@ def test_listall_invalid_token(create_users, create_channels):
         Test for AccessError exception thrown by channels_create() when token
         passed in is not a valid token.
 
-        :param create_users: pytest fixture to create two test users
+        :param create_users: pytest fixture to create two test users 
         :type create_users: pytest fixture
 
-        :param create_channels: pytest fixture to create six test channels
+        :param create_channels: pytest fixture to create six test channels 
         :type create_channels: pytest fixture
     """
     # empty
@@ -150,10 +150,10 @@ def test_listall_standard(create_users, create_channels):
     """
         Test for standard functionality of channels_listall() according to spec.
 
-        :param create_users: pytest fixture to create two test users
+        :param create_users: pytest fixture to create two test users 
         :type create_users: pytest fixture
 
-        :param create_channels: pytest fixture to create six test channels
+        :param create_channels: pytest fixture to create six test channels 
         :type create_channels: pytest fixture
     """
     # test length of returned channels list, making sure both
@@ -187,10 +187,10 @@ def test_create_invalid_name(create_users, create_channels):
         is longer than 20 characters.
 
 
-        :param create_users: pytest fixture to create two test users
+        :param create_users: pytest fixture to create two test users 
         :type create_users: pytest fixture
 
-        :param create_channels: pytest fixture to create six test channels
+        :param create_channels: pytest fixture to create six test channels 
         :type create_channels: pytest fixture
     """
     with pytest.raises(InputError):
@@ -201,10 +201,10 @@ def test_create_invalid_token(create_users, create_channels):
         Test for AccessError exception thrown by channels_create() when token
         passed in is not a valid token.
 
-        :param create_users: pytest fixture to create two test users
+        :param create_users: pytest fixture to create two test users 
         :type create_users: pytest fixture
 
-        :param create_channels: pytest fixture to create six test channels
+        :param create_channels: pytest fixture to create six test channels 
         :type create_channels: pytest fixture
     """
     # empty
@@ -229,10 +229,10 @@ def test_create_standard(create_users, create_channels):
     """
         Test for standard functionality of channels_create() according to spec.
 
-        :param create_users: pytest fixture to create two test users
+        :param create_users: pytest fixture to create two test users 
         :type create_users: pytest fixture
 
-        :param create_channels: pytest fixture to create six test channels
+        :param create_channels: pytest fixture to create six test channels 
         :type create_channels: pytest fixture
     """
     # test for accuracy of details in channels
@@ -281,10 +281,10 @@ def test_create_duplicate(create_users, create_channels):
         Test for when two channels with duplicate details are created.
         Ensure both are created as they differ by channel_id.
 
-        :param create_users: pytest fixture to create two test users
+        :param create_users: pytest fixture to create two test users 
         :type create_users: pytest fixture
 
-        :param create_channels: pytest fixture to create six test channels
+        :param create_channels: pytest fixture to create six test channels 
         :type create_channels: pytest fixture
     """
 
@@ -337,14 +337,14 @@ def check_ownership(u_id, start, end):
         :param u_id: u_id of user whose ownership of channels is to be checked 
         :type u_id: int
 
-        :param start: start of range of channels to check
+        :param start: start of range of channels to check 
         :type start: int
 
-        :param end: end of range of channels to check
+        :param end: end of range of channels to check 
         :type end: int
 
         :return: True if ownership is correct for all channels checked, 
-        False if incorrect for any of the channels checked
+        False if incorrect for any of the channels checked 
         :rtype: bool    
     """
 
