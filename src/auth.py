@@ -149,7 +149,7 @@ def auth_register(email, password, name_first, name_last):
         'token' : new_user['token'],
     }
 
-def pwreset_req(email):
+def auth_pwreset_req(email):
     '''
     This function is for password reset request.
     It would call a helper function to generate a unique code and
@@ -176,7 +176,7 @@ def pwreset_req(email):
     user['reset_code'] = code
     return {}
 
-def pwreset_set(reset_code, new_password):
+def auth_pwreset_set(reset_code, new_password):
     '''
     This function is for password reset part
     It would check the validity of reset_code
@@ -195,6 +195,9 @@ def pwreset_set(reset_code, new_password):
             1. reset_code is not a valid reset code
             2. Password entered is not a valid password
     '''
+    # input check
+    if reset_code == '':
+        raise InputError(description='Reset code cannot be empty')
     # get user whose reset_code is equal to entered code
     found = False
     for user in users:
@@ -210,6 +213,7 @@ def pwreset_set(reset_code, new_password):
         raise InputError(description='Invalid new password')
     # store new password
     user['password'] = pw_encode(new_password)
+    user['reset_code'] = ''
     return {}
 
 def handle_initial(name_first, name_last, u_id):
