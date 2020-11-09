@@ -39,7 +39,7 @@ def channels_listall(token):
     """
         Provides a list of all channels (and their associated details).
 
-        :param token: The token of any authenticated user 
+        :param token: The token of any authorised user 
         :type token: str
 
         :return: A dictionary containing a list of all channels and their associated
@@ -64,7 +64,7 @@ def channels_create(token, name, is_public):
         Creates a new channel with that name that is either a public or private 
         channel.
 
-        :param token: The token of any authenticated user 
+        :param token: The token of any authorised user 
         :type token: string
 
         :param name: The name of the new channel 
