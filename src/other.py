@@ -18,8 +18,8 @@ from helper import get_user_from_token, get_user_from_id, get_channel_from_id
 
 def clear():
     """
-        Resets flockr data by removing all elements of "users" and "channels"
-        lists in data module
+        Resets internal data of Flockr by removing all elements of "users" and 
+        "channels" lists in data module.
     """
     users.clear()
     channels.clear()
@@ -27,6 +27,12 @@ def clear():
     }
 
 def users_all(token):
+    """
+        Returns a list of all users and their associated details.
+
+        :params: 
+    """
+
     # check token validity
     if get_user_from_token(token) is None:
         raise AccessError(description="Unauthorised access")
