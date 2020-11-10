@@ -10,6 +10,10 @@ from message import message_send
 
 @pytest.fixture
 def create_users():
+    """
+        Pytest fixture that registers and logs in two users for use in relevant tests.
+    """
+
     clear()
     auth_register('validuseremail@gmail.com', 'validpass', 'User', 'One')
     auth_register('validuser2email@gmail.com', 'validpass2', 'User', 'Two')
@@ -19,6 +23,10 @@ def create_users():
     auth_login('validuser3email@gmail.com', 'validpass3')
 
 def test_clear_standard():
+    """
+        Test for standard functionality of clear() according to spec.
+    """
+
     # initial clear
     clear()
 
@@ -49,6 +57,14 @@ def test_clear_standard():
     assert len(channels) == 0
 
 def test_usersall_invalid_token(create_users):
+    """
+        Test for AccessError exception thrown by users_all() when token
+        passed in is not a valid token.
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
+    """
+
     # empty
     with pytest.raises(AccessError):
         users_all('')
@@ -67,6 +83,13 @@ def test_usersall_invalid_token(create_users):
         users_all(bad_token)
 
 def test_usersall_standard(create_users):
+    """
+        Test for standard functionality of users_all() according to spec.
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
+    """
+    
     users_return = users_all(users[1]['token'])
 
     # check correct details have been returned
@@ -90,6 +113,13 @@ def test_usersall_standard(create_users):
     assert users_return['users'][2]['handle_str'] == 'userthree'
 
 def test_search_invalid_token(create_users):
+    """
+        Test for AccessError exception thrown by search() when token
+        passed in is not a valid token.
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
+    """
     # empty
     with pytest.raises(AccessError):
         search('', 'query')
@@ -107,6 +137,14 @@ def test_search_invalid_token(create_users):
         search('bad_token', 'query')
 
 def test_search_no_cross_join_channel(create_users):
+    """
+        Test for standard functionality of search() according to spec when
+        channel_join() is not used (i.e. only user in each channel is the channel creator).
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
+    """
+
     # create channels for the first user
     user01_channel01 = channels_create(users[0]['token'], 'Channel 01 User 01', True)
     user01_channel02 = channels_create(users[0]['token'], 'Channel 02 User 01', False)
@@ -176,6 +214,15 @@ def test_search_no_cross_join_channel(create_users):
     assert messages['messages'][4]['message'] == 'What?'
 
 def test_search_cross_join_channel(create_users):
+    """
+        Test for standard functionality of search() according to spec when
+        channel_join() is used and there are members in each channel which 
+        are not the original channel creator.
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
+    """
+
     # create a channel from user 1
     channel = channels_create(users[0]['token'], 'Channel 01 User 01', True)
 
@@ -211,19 +258,35 @@ def test_search_cross_join_channel(create_users):
     assert messages['messages'][4]['message'] == 'What?'
 
 def test_userpermission_InputError(create_users):
+    """
+        Test for InputError exception thrown by admin_userpermission_change()
+        when u_id does not refer to a valid user or whenpermission_id does not
+        refer to a valid permission id.
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
+    """
     # u_id does not refer to a valid user
     with pytest.raises(InputError):
         admin_userpermission_change(users[0]['token'], 0, 1)
 
-    # permission_id does not refer to a value permission
+    # permission_id does not refer to a valid permission id
     with pytest.raises(InputError):
         admin_userpermission_change(users[0]['token'], users[1]['u_id'], 3)
 
-    # permission_id does not refer to a value permission (wrong data type)
+    # permission_id does not refer to a valid permission id (wrong data type)
     with pytest.raises(InputError):
         admin_userpermission_change(users[0]['token'], users[1]['u_id'], 'str')
 
 def test_userpermission_AccessError(create_users):
+    """
+        Test for AccessError exception thrown by admin_userpermission_change()
+        when token passed in is not a valid token.
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
+    """
+
     # token is not an authorised user
     with pytest.raises(AccessError):
         admin_userpermission_change('invalid_token', users[0]['u_id'], 2)
@@ -233,6 +296,14 @@ def test_userpermission_AccessError(create_users):
         admin_userpermission_change(users[1]['token'], users[0]['u_id'], 2)
 
 def test_userpermission_standard(create_users):
+    """
+        Test for standard functionality of admin_userpermission_change()
+        according to spec.
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
+    """
+
     # preliminary assertions
     assert users[0]['permission_id'] == 1
     assert users[1]['permission_id'] == 2

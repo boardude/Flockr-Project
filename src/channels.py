@@ -15,8 +15,15 @@ from helper import get_user_from_token, get_channel_from_id
 #### INTERFACE FUNCTION IMPLEMENTATIONS ####
 def channels_list(token):
     """
-        Returns a list of all channels (with channel name & channel id)
-        that the authorised user is part of when given the user's token
+        Returns a list of all channels that a user is a part of and their associated
+        details (name & channel_id).
+
+        :param token: The token of the user in question 
+        :type token: str
+
+        :return: A dictionary containing a list of channels that the user is a part of
+        and their associated details. 
+        :rtype: dict with nested list
     """
     # check token validity
     auth_user = get_user_from_token(token)
@@ -30,8 +37,14 @@ def channels_list(token):
 
 def channels_listall(token):
     """
-        Returns a list of all channels (with channel name & channel id) when
-        given the token of any authenticated user
+        Returns a list of all channels and their associated details (name & channel_id).
+
+        :param token: The token of any authenticated user 
+        :type token: str
+
+        :return: A dictionary containing a list of all channels and their associated
+        details (name & channel_id) 
+        :rtype: dict with nested list
     """
 
     # check token validity
@@ -48,8 +61,20 @@ def channels_listall(token):
 
 def channels_create(token, name, is_public):
     """
-        Creates a new channel with that when given the token of an authorised user, the
-        new channel's name, and its is_public property. Channel ID of new channel is returned.
+        Creates a new channel with given its name and is_public property.
+
+        :param token: The token of any authenticated user 
+        :type token: string
+
+        :param name: The name of the new channel 
+        :type name: string
+
+        :param is_public: Boolean value indicating whether the new channel is public 
+        :type is_public: boolean
+
+        :return: A dictionary containing the new channel's channel_id (int) 
+        :rtype: dict with int key value
+
     """
 
     user = get_user_from_token(token)
@@ -73,9 +98,17 @@ def channels_create(token, name, is_public):
     }
 
 def channel_detail(channel_id):
-    '''
-    a helper function to tranfer channel_id to associated info
-    '''
+    """
+        A helper function to get a channel's details from its id.
+
+        :param channel_id: channel_id of channel whose details we want 
+        :type token: int
+
+        :return: A dictionary containing the new channel's details (id & name) as
+        key value pairs 
+        :rtype: dict
+
+    """
     channel = get_channel_from_id(channel_id)
     return {
         'channel_id' : channel['channel_id'],

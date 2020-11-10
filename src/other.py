@@ -18,8 +18,8 @@ from helper import get_user_from_token, get_user_from_id, get_channel_from_id
 
 def clear():
     """
-        Resets flockr data by removing all elements of "users" and "channels"
-        lists in data module
+        Resets internal data of Flcokr by removing all elements of "users" and 
+        "channels" lists in data module.
     """
     users.clear()
     channels.clear()
@@ -27,6 +27,17 @@ def clear():
     }
 
 def users_all(token):
+    """
+        Returns a list of all users and their associated details.
+
+        :param token: The token of any authorised user 
+        :type token: str
+
+        :return: A dictionary containing a list of all users and 
+        their associated details 
+        :rtype: dict with nested list
+    """
+
     # check token validity
     if get_user_from_token(token) is None:
         raise AccessError(description="Unauthorised access")
@@ -46,6 +57,20 @@ def users_all(token):
     }
 
 def admin_userpermission_change(token, u_id, permission_id):
+    """
+        Given a user by their user ID, set their permissions to new permissions
+        described by permission_id.
+
+        :param token: The token of any Flockr owner 
+        :type token: str
+
+        :param u_id: The user ID of the user whose permissions we want to change
+        :type u_id: int
+
+        :param permission_id: The ID of the new permission to be set on the user
+        (1 for owner, 2 for member)
+        :type permission_id: int
+    """
     # check u_id validity
     user = get_user_from_id(u_id)
     if user is None:
@@ -71,6 +96,21 @@ def admin_userpermission_change(token, u_id, permission_id):
     }
 
 def search(token, query_str):
+    """
+        Given a query string, return a collection of messages in all of the 
+        channels that the user has joined that match that query.
+
+        :param token: The token of an authorised Flockr user
+        :type token: str
+
+        :param u_id: The user ID of the user whose permissions we want to change
+        :type u_id: int
+
+        :return: A dictionary with nested list of messages containing
+        the query string
+        :rtype: dict with nested list
+    """
+
     # check token validity
     if get_user_from_token(token) is None:
         raise AccessError(description="Unauthorised access")
