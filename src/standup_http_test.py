@@ -200,3 +200,154 @@ def test_active_error_invalid_channel(url, initial_data):
     }
     resp = requests.get(url + '/standup/active', params=data)
     assert resp.status_code == 400
+
+########################################
+############# send tests ###############
+########################################
+# 1. standard test
+# 2. access error when given token is invalid
+# 3. input error when given channel_id is invalid
+# 4. input error when msg is too long (more than 1000 characters)
+# 5. input error when standup_send in not-active channel
+# 6. access error when standup_send in a channel which is not a member of
+
+def test_send_standard(url, initial_data):
+    '''
+    user1 calls start in channel1
+    user1 calls standup send
+    user2 calls standup send
+    '''
+    # start a standup
+    data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+        'length' : 1
+    }
+    requests.post(url + 'standup/start', json=data)
+    data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+        'message' : 'msg',
+    }
+    resp = requests.post(url + 'standup/send', json=data)
+    assert resp.status_code == 200
+    data['token'] = token_generate(2, 'login')
+    resp = requests.post(url + 'standup/send', json=data)
+    assert resp.status_code == 200
+
+def test_send_error_invalid_token(url, initial_data):
+    '''
+    error test when given token is invalid
+    1. non-existing
+    2. logout token
+    '''
+    # start a standup
+    data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+        'length' : 1
+    }
+    requests.post(url + 'standup/start', json=data)
+    # 1. non-existing token
+    data = {
+        'token' : 'invalid_token',
+        'channel_id' : 1,
+        'message' : 'msg',
+    }
+    resp = requests.post(url + 'standup/send', json=data)
+    assert resp.status_code == 400
+    # 2. user1 logout token
+    data = {
+        'token' : token_generate(1, 'logout'),
+        'channel_id' : 1,
+        'message' : 'msg',
+    }
+    resp = requests.post(url + 'standup/send', json=data)
+    assert resp.status_code == 400
+
+def test_send_error_invalid_channel(url, initial_data):
+    '''
+    error test when given channel_id is invalid
+    channel_id does not exist
+    '''
+    # start a standup
+    data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+        'length' : 1
+    }
+    requests.post(url + 'standup/start', json=data)
+    # 1. non-existing channel with id 0
+    data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 0,
+        'message' : 'msg'
+    }
+    resp = requests.post(url + 'standup/send', json=data)
+    assert resp.status_code == 400
+
+def test_send_error_invalid_msg(url, initial_data):
+    '''
+    error test when msg is too long (1000 characters)
+    user1 calls start in channel1 and send a too long msg
+    '''
+    # start a standup
+    data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+        'length' : 1
+    }
+    requests.post(url + 'standup/start', json=data)
+    # send a too long msg
+    data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+        'message' : 'm' * 1001
+    }
+    resp = requests.post(url + 'standup/send', json=data)
+    assert resp.status_code == 400
+
+def test_send_error_not_active(url, initial_data):
+    '''
+    error test when standup is not active in given channel
+    user 1 calls start in channel 1
+    user 3 calls send in chanenl 2
+    '''
+    # start a standup
+    data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+        'length' : 1
+    }
+    requests.post(url + 'standup/start', json=data)
+    # user 3 calls send in channel 2
+    data = {
+        'token' : token_generate(3, 'login'),
+        'channel_id' : 2,
+        'message' : 'msg'
+    }
+    resp = requests.post(url + 'standup/send', json=data)
+    assert resp.status_code == 400
+
+def test_send_error_not_member(url, initial_data):
+    '''
+    error test when standup_send to wrong channel
+    user 1 calls start in channel1
+    user 3 calls standup_send to channel1
+    '''
+    # start a standup
+    data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+        'length' : 1
+    }
+    requests.post(url + 'standup/start', json=data)
+    # user 3 calls send in channel 2
+    data = {
+        'token' : token_generate(3, 'login'),
+        'channel_id' : 1,
+        'message' : 'msg'
+    }
+    resp = requests.post(url + 'standup/send', json=data)
+    assert resp.status_code == 400
+
