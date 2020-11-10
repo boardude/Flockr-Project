@@ -1,4 +1,5 @@
 import pytest
+import standup
 import time
 from other import clear
 from channels import channels_create
@@ -21,8 +22,8 @@ def initial_data():
     auth_login('test2@test.com', 'password')
     auth_register('test3@test.com', 'password', 'user3', 'user3')
     auth_login('test3@test.com', 'password')
-    channel_id_1 = channels_create(users[0]['token'], 'channel_1', True)
-    channel_id_2 = channels_create(users[2]['token'], 'channel_1', True)
+    channel_id_1 = channels_create(users[0]['token'], 'channel_1', True)['channel_id']
+    channels_create(users[2]['token'], 'channel_1', True)
     channel_join(users[1]['token'], channel_id_1)
 
 ########################################
@@ -61,15 +62,11 @@ def test_start_error_invalid_token(initial_data):
 def test_start_error_invalid_channel(initial_data):
     '''
     error test when given channel_id is invalid
-    1. channel_id does not exist
-    2. user is not in this channel
+    channel_id does not exist
     '''
-    # 1. non-existing channel with id 0
+    # non-existing channel with id 0
     with pytest.raises(InputError):
         standup_start(users[0]['token'], 0, 1)
-    # 2. user 1 calls standup_start in channel_2
-    with pytest.raises(InputError):
-        standup_start(users[0]['token'], channels[1]['channel_id'], 1)
 
 def test_start_error_invalid_req(initial_data):
     '''
@@ -120,28 +117,38 @@ def test_active_error_invalid_token(initial_data):
 def test_active_error_invalid_channel(initial_data):
     '''
     error test when given channel_id is invalid
-    1. channel_id does not exist
-    2. user is not in this channel
+    channel_id does not exist
     '''
-    # 1. non-existing channel with id 0
+    # non-existing channel with id 0
     with pytest.raises(InputError):
         standup_active(users[0]['token'], 0)
-    # 2. user 1 calls standup_start in channel_2
-    with pytest.raises(InputError):
-        standup_active(users[0]['token'], channels[1]['channel_id'])
 
 ########################################
 ############# send tests ###############
 ########################################
-# 1. standard test
+# 1. standard test (2 cases)
 # 2. access error when given token is invalid
 # 3. input error when given channel_id is invalid
 # 4. input error when msg is too long (more than 1000 characters)
 # 5. input error when standup_send in not-active channel
 # 6. access error when standup_send in a channel which is not a member of
 
-def test_send_standard(initial_data):
+def test_send_standard_case1(initial_data):
     '''
+    case1
+    user1 calls start in channel1 and no send
+    check no message in database
+    '''
+    # case1
+    curr_time = int(time.time())
+    finish_time = standup_start(users[0]['token'], channels[0]['channel_id'], 1)['time_finish']
+    while curr_time != finish_time:
+        curr_time = int(time.time())
+    assert len(channels[0]['messages']) == 0
+
+def test_send_standard_case2(initial_data):
+    '''
+    case2
     user1 calls start in channel1
     user1 calls standup send
     user2 calls standup send
@@ -150,7 +157,7 @@ def test_send_standard(initial_data):
     check msg is sent by user1
     '''
     curr_time = int(time.time())
-    finish_time = standup_start(users[0]['token'], channels[0]['channdl_id'], 1)['time_finish']
+    finish_time = standup_start(users[0]['token'], channels[0]['channel_id'], 1)['time_finish']
     standup_send(users[0]['token'], channels[0]['channel_id'], '123')
     standup_send(users[1]['token'], channels[0]['channel_id'], '123')
     while curr_time != finish_time + 1:
