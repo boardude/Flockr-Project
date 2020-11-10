@@ -6,6 +6,7 @@ from channels import channels_create, channels_list, channels_listall
 from message import message_send, message_remove, message_edit
 from user import user_profile, user_profile_setemail, user_profile_sethandle, user_profile_setname
 from other import clear, users_all, search, admin_userpermission_change
+from standup import standup_start, standup_active, standup_send
 from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
@@ -238,6 +239,25 @@ def search_msg():
     token = request.args.get('token')
     query_str = request.args.get('query_str')
     return dumps(search(token, query_str))
+
+########################################
+############# standup.py ###############
+########################################
+@APP.route('/standup/start', methods=['POST'])
+def start_standup():
+    data = request.get_json()
+    return dumps(standup_start(data['token'], int(data['channel_id']), int(data['length'])))
+
+@APP.route('/standup/active', methods=['GET'])
+def standup_active_check():
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
+    return dumps(standup_active(token, channel_id))
+
+@APP.route('/standup/send', methods=['POST'])
+def send_standup_msg():
+    data = request.get_json()
+    return dumps(standup_send(data['token'], int(data['channel_id']), data['message']))
 
 if __name__ == "__main__":
     APP.run(port=0) # Do not edit this port

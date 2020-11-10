@@ -172,6 +172,7 @@ def test_send_error_invalid_token(initial_data):
     1. non-existing
     2. logout token
     '''
+    standup_start(users[0]['token'], channels[0]['channel_id'], 1)
     # 1. non-existing token
     with pytest.raises(AccessError):
         standup_send('invalid-token', channels[0]['channel_id'], '123')
@@ -182,15 +183,11 @@ def test_send_error_invalid_token(initial_data):
 def test_send_error_invalid_channel(initial_data):
     '''
     error test when given channel_id is invalid
-    1. channel_id does not exist
-    2. user is not in this channel
+    channel_id does not exist
     '''
-    # 1. non-existing channel with id 0
+    # non-existing channel with id 0
     with pytest.raises(InputError):
         standup_send(users[0]['token'], 0, 'msg')
-    # 2. user 1 calls standup_start in channel_2
-    with pytest.raises(InputError):
-        standup_send(users[0]['token'], channels[1]['channel_id'], 'msg')
 
 def test_send_error_invalid_msg(initial_data):
     '''
