@@ -180,3 +180,90 @@ def test_data_changes():
     auth.auth_register('bighandle2@gmail.com', 'valid123', 'Yothisisgonna', 'Bemassive')
 
     assert users[9]['handle'] == '10yothisisgonnabemas'
+
+##############################
+######## iter 3 part #########
+##############################
+
+def test_pwreset_req_standard():
+    '''
+    standard test (no error)
+    create a user and the user requests to reset password
+    '''
+    clear()
+    auth.auth_register('test@test.com', 'password', 'first_name', 'last_name')
+    assert users[0]['password'] == auth.pw_encode('password')
+    auth.auth_pwreset_req('test@test.com')
+    code = auth.get_reset_code('test@test.com')
+    assert code is not None
+    assert users[0]['reset_code'] == code
+
+def test_pwreset_req_invalid_email():
+    '''
+    input error when given email does not refer to a user(see assumption)
+    '''
+    clear()
+    auth.auth_register('test@test.com', 'password', 'first_name', 'last_name')
+    assert users[0]['password'] == auth.pw_encode('password')
+    with pytest.raises(InputError):
+        auth.auth_pwreset_req('notest@test.com')
+
+def test_pwreset_set_standard():
+    '''
+    standard test (no error)
+    create a user and the user resets his password
+    logout and login with new password
+    '''
+    clear()
+    auth.auth_register('test@test.com', 'password', 'first_name', 'last_name')
+    assert users[0]['password'] == auth.pw_encode('password')
+    auth.auth_pwreset_req('test@test.com')
+    code = auth.get_reset_code('test@test.com')
+    auth.auth_pwreset_set(code, 'newpassword')
+    assert users[0]['password'] != auth.pw_encode('password')
+    assert users[0]['password'] == auth.pw_encode('newpassword')
+    auth.auth_logout(users[0]['token'])
+    auth.auth_login('test@test.com', 'newpassword')
+
+def test_pwreset_set_wrong_code():
+    '''
+    input error when entered code is not correct
+    create a user and use wrong code for reset
+    1. non-existing code
+    2. empty string
+    3. used code
+    '''
+    clear()
+    auth.auth_register('test@test.com', 'password', 'first_name', 'last_name')
+    assert users[0]['password'] == auth.pw_encode('password')
+    auth.auth_pwreset_req('test@test.com')
+    # non-existing code and empty string
+    with pytest.raises(InputError):
+        auth.auth_pwreset_set('wrong_code', 'newpassword')
+    with pytest.raises(InputError):
+        auth.auth_pwreset_set('', 'newpassword')
+    # check database
+    assert users[0]['password'] == auth.pw_encode('password')
+    # 3. reset code
+    code = auth.get_reset_code('test@test.com')
+    auth.auth_pwreset_set(code, 'newpassword')
+    assert users[0]['password'] != auth.pw_encode('password')
+    assert users[0]['password'] == auth.pw_encode('newpassword')
+    # 3. use used code to reset again
+    with pytest.raises(InputError):
+        auth.auth_pwreset_set(code, 'pppppp')
+    assert users[0]['password'] == auth.pw_encode('newpassword')
+
+def test_pwreset_set_invalid_newpw():
+    '''
+    input error when entered code is not correct
+    create a user and use invalid new password for reset
+    '''
+    clear()
+    auth.auth_register('test@test.com', 'password', 'first_name', 'last_name')
+    assert users[0]['password'] == auth.pw_encode('password')
+    auth.auth_pwreset_req('test@test.com')
+    code = auth.get_reset_code('test@test.com')
+    with pytest.raises(InputError):
+        auth.auth_pwreset_set(code, 'newpa')
+        auth.auth_pwreset_set(code, '')

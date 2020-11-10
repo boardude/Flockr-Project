@@ -14,6 +14,7 @@ users = [
         'handle' : 'user1last',
         'email' : 'test@test.com',
         'password' : 'test123',
+        'reset_code' : '',
         'token' : '1', # for iteration 1
         'channels' : [ ], # a list to store this user's channel(channel_id)
     },
@@ -24,6 +25,7 @@ users = [
         'handle' : 'user2last'
         'email' : 'test2@test.com',
         'password' : 'test123',
+        'reset_code' : '',
         'token' : '2', # for iteration 1
         'channels' : [ ], # a list to store this user's channel(channel_id)
     },
@@ -84,6 +86,22 @@ channels = [
 #   create a new function called create_new_msg
 #   add a attribute called latest_msg_id to each channel
 
+# 7th edition 11/08/2020 daoting
+#   add new attribute (reset_code) to user
+#   the default value should be an empty str
+#   it would store an unique code (str) with length of 50
+#   after program calls reset_req, an unique code would be stored in reset_code
+#   and it would be an empty string after reset password succussfully
+
+# 8th edition 11/10/2020 daoting
+#   add new attributes (time_standupend and standup_msg) to channel
+#   time_standupend is an integer (unix timestamp)
+#   standup_msg is a string
+#   default value for time_standupend is 0, standup_msg is an empty string
+#   after standup_start is called, time_standupend would store the finish_time
+#   after the time is finished, standup_msg would be sent to channel and
+#   time_standupend and standup_msg would be set to default
+
 import time
 
 users = [
@@ -121,6 +139,7 @@ def create_user(email, password, name_first, name_last, handle, token):
         'channels' : [],
         'token' : token,
         'handle' : handle,
+        'reset_code' : '',
     }
     if new_user['u_id'] == 1:
         new_user['permission_id'] = 1
@@ -151,6 +170,8 @@ def create_new_channel(channel_id, is_public, name, uid):
     new_channel['all_members'] = [uid]
     new_channel['messages'] = []
     new_channel['latest_msg_id'] = 0
+    new_channel['time_standupend'] = 0
+    new_channel['standup_msg'] = ''
 
     # add new channel to channels list
     channels.append(new_channel)

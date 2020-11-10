@@ -1,5 +1,5 @@
 import sys
-from auth import auth_login, auth_logout, auth_register
+from auth import auth_login, auth_logout, auth_register, auth_pwreset_req, auth_pwreset_set, get_reset_code
 from channel import channel_invite, channel_details, channel_messages, channel_leave
 from channel import channel_join, channel_addowner, channel_removeowner
 from channels import channels_create, channels_list, channels_listall
@@ -10,6 +10,7 @@ from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from error import InputError
+from flask_mail import Mail, Message
 
 def defaultHandler(err):
     response = err.get_response()
@@ -61,6 +62,34 @@ def register():
     name_first = data['name_first']
     name_last = data['name_last']
     return dumps(auth_register(email, password, name_first, name_last))
+
+@APP.route('/auth/passwordreset/request', methods=['POST'])
+def pwreset_req():
+    email = request.get_json()['email']
+    auth_pwreset_req(email)
+    send_code_email(email)
+    return dumps({})
+
+def send_code_email(email):
+    mail= Mail(APP)
+    APP.config['MAIL_SERVER']='smtp.gmail.com'
+    APP.config['MAIL_PORT'] = 465
+    APP.config['MAIL_USERNAME'] = 'cs1531wed17grape6bot@gmail.com'
+    APP.config['MAIL_PASSWORD'] = 'wed17grape'
+    APP.config['MAIL_USE_TLS'] = False
+    APP.config['MAIL_USE_SSL'] = True
+    mail = Mail(APP)
+    msg = Message('Your UNSW Flockr password reset code',
+                sender = 'cs1531wed17grape6bot@gmail.com',
+                recipients = [email])
+    msg.body = get_reset_code(email)
+    mail.send(msg)
+    return
+
+@APP.route('/auth/passwordreset/reset', methods=['POST'])
+def pwreset_reset():
+    data = request.get_json()
+    return dumps(auth_pwreset_set(data['reset_code'], data['new_password']))
 
 ########################################
 ############# channel.py ###############
