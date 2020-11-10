@@ -6,6 +6,9 @@ import datatime for creating timestamp
 from data import create_new_msg
 from helper import get_channel_from_id, get_user_from_token, is_user_an_owner
 from error import InputError, AccessError
+from datetime import datetime
+import threading 
+import time
 
 def message_send(token, channel_id, message):
     '''
@@ -175,3 +178,39 @@ def get_message_info(message_id):
                 'msg_list' : channel['messages'],
             }
     return None
+
+def message_send_later(token, channel_id, message, time_sent):
+    '''
+    This function will send a message from an authorised user to the channel 
+    specified by channel_id automatically at a specified time in the future.
+    
+    InputError if:
+        - Channel_id is invalid
+        - Message is more than 1000 characters
+        - Time sent is a time in the past
+    
+    AccessError if:
+        - when the authorised use hasn't joined the channel
+    '''
+    
+    ## Errors
+    auth_user = get_user_from_token(token)
+    channel = get_channel_from_id(channel_id)
+    if auth_user['u_id'] not in channel['all_members']:
+        raise AccessError(description='User is not a member of channel.')
+    if channel is None:
+        raise AccessError(description='Invalid channel.')
+    if len(message) > 1000:
+        raise InputError(description='Message exceeds 1000 characters.')
+
+    ### InputError for time in past
+    if datetime.now() > time_sent:
+        raise InputError(description='past time given')
+    
+    ### Initiate timer for message_send function
+    countdown = (time_sent - datetime.now()).total_seconds()
+    threading.Timer(countdown, message_send(token, channel_id, message))
+    
+    return {
+        'message_id': new_msg['message_id']
+    }
