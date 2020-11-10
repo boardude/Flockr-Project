@@ -3,12 +3,11 @@ import users and channels from data to manipulate data
 import error for error raising
 import datatime for creating timestamp
 '''
+import threading
+import time
 from data import create_new_msg
 from helper import get_channel_from_id, get_user_from_token, is_user_an_owner
 from error import InputError, AccessError
-from datetime import datetime
-import threading 
-import time
 
 def message_send(token, channel_id, message):
     '''
@@ -181,36 +180,64 @@ def get_message_info(message_id):
 
 def message_send_later(token, channel_id, message, time_sent):
     '''
-    This function will send a message from an authorised user to the channel 
+    This function will send a message from an authorised user to the channel
     specified by channel_id automatically at a specified time in the future.
-    
-    InputError if:
-        - Channel_id is invalid
-        - Message is more than 1000 characters
-        - Time sent is a time in the past
-    
-    AccessError if:
-        - when the authorised use hasn't joined the channel
+
+    Args:
+        param1(str): authorised uesr's token
+        param2(int): id of target channel
+        param3(str): sent message
+        param4(int): unix_timestamp, a future time
+
+    Returns:
+        It will return a dict with message_id
+
+    Raises:
+        InputError if:
+            - Channel_id is invalid
+            - Message is more than 1000 characters
+            - Time sent is a time in the past
+
+        AccessError if:
+            - when the authorised use hasn't joined the channel
+            - when given token is invalid
     '''
-    
     ## Errors
     auth_user = get_user_from_token(token)
     channel = get_channel_from_id(channel_id)
-    if auth_user['u_id'] not in channel['all_members']:
-        raise AccessError(description='User is not a member of channel.')
+    # access error when given token does not refer to a valid user
+    if auth_user is None:
+        raise AccessError(description='Invalid token')
+    # input error when given channel_id is invalid
     if channel is None:
         raise AccessError(description='Invalid channel.')
+    # access error when the authorised use hasn't joined the channel
+    if auth_user['u_id'] not in channel['all_members']:
+        raise AccessError(description='User is not a member of channel.')
+    # input error when message is more than 1000 characters
     if len(message) > 1000:
         raise InputError(description='Message exceeds 1000 characters.')
 
     ### InputError for time in past
-    if datetime.now() > time_sent:
+    countdown = time_sent - int(time.time())
+    if countdown < 0:
         raise InputError(description='past time given')
-    
+
     ### Initiate timer for message_send function
-    countdown = (time_sent - datetime.now()).total_seconds()
-    threading.Timer(countdown, message_send(token, channel_id, message))
-    
+    new_msg = create_new_msg(message, channel, auth_user['u_id'])
+    channel['latest_msg_id'] += 1
+    timer = threading.Timer(countdown, append_msg_to_channel, args=[new_msg, channel])
+    timer.start()
     return {
         'message_id': new_msg['message_id']
     }
+
+def append_msg_to_channel(new_msg, channel):
+    '''
+    This is a simple helper function to append msg to channel
+
+    Args:
+        param1(dict): message to append
+        param2(dict): target channel
+    '''
+    channel['messages'].append(new_msg)
