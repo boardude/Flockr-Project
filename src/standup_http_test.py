@@ -128,3 +128,75 @@ def test_start_error_invalid_req(url, initial_data):
     assert resp.status_code == 200
     resp = requests.post(url + 'standup/start', json=data)
     assert resp.status_code == 400
+
+########################################
+############# active tests #############
+########################################
+# 1. standard test
+# 2. access error when given token is invalid
+# 3. input error when given channal_id is invalid
+
+def test_active_standard(url, initial_data):
+    '''
+    user1 calls start in channel_1
+    user1 calls active in channel_1
+    user3 calls active in channel_2
+    '''
+    # start standup in channel1
+    data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+        'length' : 1
+    }
+    requests.post(url + 'standup/start', json=data)
+
+    # chanenl 1 active check
+    curr_time = int(time.time())
+    data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+    }
+    resp = requests.get(url + '/standup/active', params=data)
+    assert resp.status_code == 200
+    assert json.loads(resp.text)['is_active'] == True
+    assert json.loads(resp.text)['time_finish'] == curr_time + 1
+    # channel 2 active check
+    data = {
+        'token' : token_generate(3, 'login'),
+        'channel_id' : 2,
+    }
+    resp = requests.get(url + '/standup/active', params=data)
+    assert resp.status_code == 200
+    assert json.loads(resp.text)['is_active'] == False
+    assert json.loads(resp.text)['time_finish'] is None
+
+def test_active_error_invalid_token(url, initial_data):
+    '''
+    error test when given token is invalid
+    1. non-existing
+    2. logout token
+    '''
+    data = {
+        'token' : 'invalid_token',
+        'channel_id' : 1,
+    }
+    # 1. non-existing token
+    resp = requests.get(url + '/standup/active', params=data)
+    assert resp.status_code == 400
+    # 2. user1 logout token
+    data['token'] = token_generate(1, 'logout')
+    resp = requests.get(url + '/standup/active', params=data)
+    assert resp.status_code == 400
+
+def test_active_error_invalid_channel(url, initial_data):
+    '''
+    error test when given channel_id is invalid
+    channel_id does not exist
+    '''
+    # non-existing channel with id 0
+    data = {
+        'token' : 'invalid_token',
+        'channel_id' : 0,
+    }
+    resp = requests.get(url + '/standup/active', params=data)
+    assert resp.status_code == 400
