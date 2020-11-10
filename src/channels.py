@@ -15,8 +15,8 @@ from helper import get_user_from_token, get_channel_from_id
 #### INTERFACE FUNCTION IMPLEMENTATIONS ####
 def channels_list(token):
     """
-        Returns a list of all channels that a user is a part of and their associated
-        details (name & channel_id).
+        Provides a list of all channels (and their associated details) that the 
+        authorised user is a part of.
 
         :param token: The token of the user in question 
         :type token: str
@@ -37,9 +37,9 @@ def channels_list(token):
 
 def channels_listall(token):
     """
-        Returns a list of all channels and their associated details (name & channel_id).
+        Provides a list of all channels (and their associated details).
 
-        :param token: The token of any authenticated user 
+        :param token: The token of any authorised user 
         :type token: str
 
         :return: A dictionary containing a list of all channels and their associated
@@ -61,9 +61,10 @@ def channels_listall(token):
 
 def channels_create(token, name, is_public):
     """
-        Creates a new channel with given its name and is_public property.
+        Creates a new channel with that name that is either a public or private 
+        channel.
 
-        :param token: The token of any authenticated user 
+        :param token: The token of any authorised user 
         :type token: string
 
         :param name: The name of the new channel 

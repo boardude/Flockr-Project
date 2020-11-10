@@ -18,7 +18,7 @@ from helper import get_user_from_token, get_user_from_id, get_channel_from_id
 
 def clear():
     """
-        Resets internal data of Flcokr by removing all elements of "users" and 
+        Resets internal data of Flockr by removing all elements of "users" and 
         "channels" lists in data module.
     """
     users.clear()
