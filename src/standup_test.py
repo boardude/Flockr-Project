@@ -1,139 +1,81 @@
-'''Tests:
-        start:
-            1.invalid channel id
-            2.an active standup is runnign
-        active:
-            1.invalid channel id
-        send:
-            1.invalid channel id
-            2.message is more than 1000 characters
-            3.standup is not active
-            4.the authorised user is not a member in the channel
-'''
 import pytest
-import standup
-from datetime import datetime
+import time
 from other import clear
 from channels import channels_create
 from error import InputError, AccessError
-from data import users
+from data import users, channels
 from standup import standup_start, standup_active, standup_send
+from auth import auth_register, auth_login, token_generate
+from channel import channel_join
 
 @pytest.fixture
-def initial_users():
+def initial_data():
+    '''
+    register 3 users and user 1 and user 3 create a channel
+    user2 join channel1
+    '''
     clear()
-    token1 = auth_register('test1@test.com', 'password', 'first_name', 'last_name')
+    auth_register('test1@test.com', 'password', 'user1', 'user1')
     auth_login('test1@test.com', 'password')
-    token2 = auth_register('test2@test.com', 'password', 'user2_name', 'user2_name')
+    auth_register('test2@test.com', 'password', 'user2', 'user2')
     auth_login('test2@test.com', 'password')
-    auth_register('test3@test.com', 'password', 'user3_first_name', 'user3_last_name')
+    auth_register('test3@test.com', 'password', 'user3', 'user3')
     auth_login('test3@test.com', 'password')
+    channel_id_1 = channels_create(users[0]['token'], 'channel_1', True)
+    channel_id_2 = channels_create(users[2]['token'], 'channel_1', True)
+    channel_join(users[1]['token'], channel_id_1)
 
+########################################
+############# start tests ##############
+########################################
+# 1. standard test
+# 2. access error when given token is invalid
+# 3. input error when given channal_id is invalid
+# 4. input error when channel has already started
 
-def test_start():
+def test_start_standard(initial_data):
     '''
-        valid test
-        1. register and login user
-        2. create channel
-        3. start a standup
+    standard test without errors
+    user 1 call standup_start in channel 1 and standup lasts 1 second
+    check current time is not equal to finish_time
+    curr_time add 1 second would be equal to finish_time
     '''
+    curr_time = int(time.time())
+    finish_time = standup_start(users[0]['token'], channels[0]['channel_id'], 1)['time_finish']
+    assert curr_time != finish_time
+    assert curr_time + 1 == finish_time
 
-    channel_id = channels_create(token1, 'newchannel', True)
-    assert standup_start(token1, channel_id, 100) == datetime.now().second + 100
+def test_start_error_invalid_token(initial_data):
+    '''
+    error test when given token is invalid
+    1. non-existing
+    2. logout token
+    '''
+    # 1. non-existing token
+    with pytest.raises(AccessError):
+        standup_start('invalid-token', channels[0]['channel_id'], 1)
+    # 2. user1 logout token
+    with pytest.raises(AccessError):
+        standup_start(token_generate(0, 'logout'), channels[0]['channel_id'], 1)
 
-def test_start_invalid_channel_id():
+def test_start_error_invalid_channel(initial_data):
     '''
-        invalid test
-        1. create a channel
-        2. start a standup
+    error test when given channel_id is invalid
+    1. channel_id does not exist
+    2. user is not in this channel
     '''
-    channel_id = channels_create(token1, 'newchannel', True)
+    # 1. non-existing channel with id 0
     with pytest.raises(InputError):
-        standup_start(token1, channel_id + 1, 100)
-    
-def test_start_invalid_is_running():
-    '''
-        invalid test
-        1. create a channel
-        2. start a standup
-        3. start another strandup
-    '''
-    channel_id = channels_create(token1, 'newchannel', True)
-    assert standup_start(token1, channel_id, 100)['time_finish'] == datetime.now().second + 100
+        standup_start(users[0]['token'], 0, 1)
+    # 2. user 1 calls standup_start in channel_2
     with pytest.raises(InputError):
-        standup_start(token1, channel_id, 100)
+        standup_start(users[0]['token'], channels[1]['channel_id'], 1)
 
-def test_active():
+def test_start_error_invalid_req(initial_data):
     '''
-        valid test
-        1.create a channel
-        2.start a standup
-        3.get the time_finish and is_active
+    error test when user calls standup_start when it is active in that channel
+    user 1 calls standup_start in channel_1 and call start again
     '''
-    channel_id = channels_create(token1, 'newchannel', True)
-    standup_start(token1, channel_id, 100)
-    assert standup_active(token1, channel_id)['is_active'] == True
-    assert standup_active(token1, channel_id)['time_finish'] == datetime.now().second + 100
-
-def test_active_invalid_channel_id():
-    '''
-        invalid test
-        1. create a channel
-        2. start a standup with invalid channel id
-    '''
-    channel_id = channels_create(token1, 'newchannel', True)
-    standup_start(token1, channel_id, 100)
+    standup_start(users[0]['token'], channels[0]['channel_id'], 3)
     with pytest.raises(InputError):
-        standup_active(token1, channel_id + 1)
-
-def test_send():
-    '''
-        valid test
-        1. create a channel
-        2. start a standup
-        3. send message
-    '''
-    channel_id = channels_create(token1, 'newchannel', True)
-    ##standup_start(token1, channel_id, 100)### unfinished ###
-
-def test_send_invalid_channel_id():
-    '''
-        invalid test
-        1. invalid channel id
-    '''
-    channel_id = channels_create(token1, 'newchannel', True)
-    with pytest.raises(InputError):
-        standup_send(token1, channel_id + 1, 'new_msg')
-
-def test_send_invalid_message():
-    '''
-        invalid test
-        1. invalid message send
-    '''
-    channel_id = channels_create(token1, 'newchannel', True)
-    with pytest.raises(InputError):
-        standup_start(token1, channel_id, 'i' * 1001)
-
-def test_send_invalid_is_not_running():
-    '''
-        invalid test
-        1. create a channel
-        2. standuup is not currently running
-        3. send message
-    '''
-    channel_id = channels_create(token1, 'newchannel', True)
-    assert standup_active(token1, channel_id)['is_active'] == False
-    with pytest.raises(InputError):
-        standup_send(token1, channel_id, 'new_meg')
-    
-def test_send_invalid_not_a_menmber_of_channel():
-    '''
-        invalid test
-        1.create a channel
-        2.start standup
-        3.user2 send a message who is not a member of the known channel
-    '''
-    channel_id = channels_create(token1, 'newchannel', True)
-    standup_start(token1, channel_id, 100)
-    with pytest.raises(InputError):
-        standup_send(token2, channel_id, 'new_meg')
+        standup_start(users[0]['token'], channels[0]['channel_id'], 3)
