@@ -79,3 +79,54 @@ def test_start_error_invalid_req(initial_data):
     standup_start(users[0]['token'], channels[0]['channel_id'], 3)
     with pytest.raises(InputError):
         standup_start(users[0]['token'], channels[0]['channel_id'], 3)
+
+########################################
+############# active tests #############
+########################################
+# 1. standard test
+# 2. access error when given token is invalid
+# 3. input error when given channal_id is invalid
+
+def test_active_standard(initial_data):
+    '''
+    user1 calls start in channel_1
+    user1 calls active in channel_1
+    user3 calls active in channel_2
+    '''
+    standup_start(users[0]['token'], channels[0]['channel_id'], 2)
+    curr_time = int(time.time())
+    # chanenl 1
+    active_info = standup_active(users[0]['token'], channels[0]['channel_id'])
+    assert active_info['is_active'] is True
+    assert active_info['time_finish'] == curr_time + 2
+    # channel 2
+    active_info = standup_active(users[2]['token'], channels[1]['channel_id'])
+    assert active_info['is_active'] is False
+    assert active_info['time_finish'] is None
+
+def test_active_error_invalid_token(initial_data):
+    '''
+    error test when given token is invalid
+    1. non-existing
+    2. logout token
+    '''
+    # 1. non-existing token
+    with pytest.raises(AccessError):
+        standup_active('invalid-token', channels[0]['channel_id'])
+    # 2. user1 logout token
+    with pytest.raises(AccessError):
+        standup_active(token_generate(0, 'logout'), channels[0]['channel_id'])
+
+def test_active_error_invalid_channel(initial_data):
+    '''
+    error test when given channel_id is invalid
+    1. channel_id does not exist
+    2. user is not in this channel
+    '''
+    # 1. non-existing channel with id 0
+    with pytest.raises(InputError):
+        standup_active(users[0]['token'], 0)
+    # 2. user 1 calls standup_start in channel_2
+    with pytest.raises(InputError):
+        standup_active(users[0]['token'], channels[1]['channel_id'])
+
