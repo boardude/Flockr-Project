@@ -130,3 +130,86 @@ def test_active_error_invalid_channel(initial_data):
     with pytest.raises(InputError):
         standup_active(users[0]['token'], channels[1]['channel_id'])
 
+########################################
+############# send tests ###############
+########################################
+# 1. standard test
+# 2. access error when given token is invalid
+# 3. input error when given channel_id is invalid
+# 4. input error when msg is too long (more than 1000 characters)
+# 5. input error when standup_send in not-active channel
+# 6. access error when standup_send in a channel which is not a member of
+
+def test_send_standard(initial_data):
+    '''
+    user1 calls start in channel1
+    user1 calls standup send
+    user2 calls standup send
+    check msg is sent to database
+    check msg time_created is correct
+    check msg is sent by user1
+    '''
+    curr_time = int(time.time())
+    finish_time = standup_start(users[0]['token'], channels[0]['channdl_id'], 1)['time_finish']
+    standup_send(users[0]['token'], channels[0]['channel_id'], '123')
+    standup_send(users[1]['token'], channels[0]['channel_id'], '123')
+    while curr_time != finish_time + 1:
+        curr_time = int(time.time())
+    assert len(channels[0]['messages']) == 1
+    assert channels[0]['messages'][0]['time_created'] == finish_time
+    assert channels[0]['messages'][0]['u_id'] == users[0]['u_id']
+
+def test_send_error_invalid_token(initial_data):
+    '''
+    error test when given token is invalid
+    1. non-existing
+    2. logout token
+    '''
+    # 1. non-existing token
+    with pytest.raises(AccessError):
+        standup_send('invalid-token', channels[0]['channel_id'], '123')
+    # 2. user1 logout token
+    with pytest.raises(AccessError):
+        standup_send(token_generate(0, 'logout'), channels[0]['channel_id'], '123')
+
+def test_send_error_invalid_channel(initial_data):
+    '''
+    error test when given channel_id is invalid
+    1. channel_id does not exist
+    2. user is not in this channel
+    '''
+    # 1. non-existing channel with id 0
+    with pytest.raises(InputError):
+        standup_send(users[0]['token'], 0, 'msg')
+    # 2. user 1 calls standup_start in channel_2
+    with pytest.raises(InputError):
+        standup_send(users[0]['token'], channels[1]['channel_id'], 'msg')
+
+def test_send_error_invalid_msg(initial_data):
+    '''
+    error test when msg is too long (1000 characters)
+    user1 calls start in channel1 and send a too long msg
+    '''
+    standup_start(users[0]['token'], channels[0]['channel_id'], 1)
+    with pytest.raises(InputError):
+        standup_send(users[0]['token'], channels[0]['channel_id'], 'm' * 1001)
+
+def test_send_error_not_active(initial_data):
+    '''
+    error test when standup is not active in given channel
+    user 1 calls start in channel 1
+    user 3 calls send in chanenl 2
+    '''
+    standup_start(users[0]['token'], channels[0]['channel_id'], 1)
+    with pytest.raises(InputError):
+        standup_send(users[2]['token'], channels[1]['channel_id'], 'msg')
+
+def test_send_error_not_member(initial_data):
+    '''
+    error test when standup_send to wrong channel
+    user 1 calls start in channel1
+    user 3 calls standup_send to channel1
+    '''
+    standup_start(users[0]['token'], channels[0]['channel_id'], 1)
+    with pytest.raises(AccessError):
+        standup_send(users[2]['token'], channels[0]['channel_id'], 'msg')
