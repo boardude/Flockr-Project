@@ -1,6 +1,6 @@
 ### **Interviewer:** Yicheng (Mike) Zhu, z5317328, abbrev YMZ ###
 ### **Interviewee name:** Peter Zhu (brother of interviewer), abbrev PZ ###
-### **Interviewee email:** pzhu12@gmail.com
+### **Interviewee email:** peterzhu122@gmail.com
 
 *This is a full interview transcript*
 
