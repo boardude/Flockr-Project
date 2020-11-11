@@ -210,7 +210,7 @@ def message_send_later(token, channel_id, message, time_sent):
         raise AccessError(description='Invalid token')
     # input error when given channel_id is invalid
     if channel is None:
-        raise AccessError(description='Invalid channel.')
+        raise InputError(description='Invalid channel.')
     # access error when the authorised use hasn't joined the channel
     if auth_user['u_id'] not in channel['all_members']:
         raise AccessError(description='User is not a member of channel.')
@@ -230,6 +230,56 @@ def message_send_later(token, channel_id, message, time_sent):
     timer.start()
     return {
         'message_id': new_msg['message_id']
+    }
+
+def message_react(token, message_id, react_id):
+    '''given a message with a channel the authorised user is a part of, adds
+    a 'react' to that message'''
+    
+    auth_user = get_user_from_token(token)
+    channel = get_channel_from_id(get_message_info(message_id)['channel_id'])
+    message = get_message_info(message_id)
+    ### InputError: User is not part of channel with the message
+    if auth_user['u_id'] not in channel['all_members']:
+        raise InputError(description='User is not a member of channel.')
+    
+    ### InputError: React ID invalid (not 1)
+    if react_id != 1:
+        raise InputError(description='Invalid react_id')
+    
+    ### InputError: React ID already contained by user
+    if auth_user['u_id'] is in message['reactors']:
+        raise InputError(description='user has already reacted')
+        
+    ### react to message
+    message['reactors'].append(auth_user['u_id'])
+    
+    return {
+    }
+    
+def message_unreact(token, message_id, react_id):
+    '''given a message with a channel the authorised user is a part of, removes
+    a 'react' to that message'''
+    
+    auth_user = get_user_from_token(token)
+    channel = get_channel_from_id(get_message_info(message_id)['channel_id'])
+    message = get_message_info(message_id)
+    ### InputError: User is not part of channel with the message
+    if auth_user['u_id'] not in channel['all_members']:
+        raise InputError(description='User is not a member of channel.')
+    
+    ### InputError: React ID invalid (not 1)
+    if react_id != 1:
+        raise InputError(description='Invalid react_id')
+    
+    ### InputError: React ID already not containd by user
+    if auth_user['u_id'] not in message['reactors']:
+        raise InputError(description='user hasnt reacted')
+        
+    ### unreact to message
+    message['reactors'].remove(auth_user['u_id'])
+    
+    return {
     }
 
 def append_msg_to_channel(new_msg, channel):

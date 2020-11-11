@@ -192,5 +192,6 @@ def create_new_msg(message, channel, u_id):
         'u_id' : u_id,
         'message' : message,
         'time_created': timestamp,
+        'reactors': []
     }
     return new_msg
