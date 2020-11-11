@@ -1,4 +1,4 @@
-**For ideas & roadmap, not final planning.pdf**
+**For ideas & roadmap, NOT final planning.pdf**
 
 *Anyone with link can edit*
 
