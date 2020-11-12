@@ -4,10 +4,11 @@ import pytest
 import auth
 from other import clear
 from error import InputError, AccessError
-from message import message_send, message_edit, message_remove
+from message import message_send, message_edit, message_remove, message_send_later, message_react, message_unreact
 from data import channels, users
 from channels import channels_create
 from channel import channel_join
+import time
 
 @pytest.fixture
 def initial_data():
@@ -150,3 +151,108 @@ def test_msg_edit(initial_data, initial_msgs):
     #   or The authorised user is an owner of this channel or the flockr
     with pytest.raises(AccessError):
         message_edit(users[1]['token'], 10001, 'msg')
+    clear()
+        
+def test_msg_send_later(initial_data, initial_msgs):
+    '''test for message_send_later'''
+    
+    # 1. Basic message success
+    message_send_later(users[1]['token'], channels[0]['channel_id'], 'msg', time.time()+10)
+    all_messages = channels[0]['messages']
+    assert all_messages[0]['message_id'] == 10001
+    
+    # 2. InputError when message more than 1000 characters
+    with pytest.raises(InputError):
+        message_send_later(users[1]['token'], channels[0]['channel_id'], 'a' * 1001, time.time()+10)
+    
+    # 3. InputError when Channel ID is not a a valid channel 
+    with pytest.raises(InputError):
+        message_send_later(users[1]['token'], 0, 'msg', time.time()+10)
+        
+    # 4. InputError when time is in past
+    with pytest.raises(InputError):
+        message_send_later(users[1]['token'], channels[0]['channel_id'], 'msg', time.time()-10)
+    
+    # 5. AccessError when user hasn't joined channel
+    with pytest.raises(AccessError):
+        message_send_later(users[1]['token'], channels[1]['channel_id'], 'msg', time.time()+10)
+        
+def test_msg_react_unreact(initial_data, initial_msgs):
+    '''test for message react and message unreact functions'''
+    
+    # 1. Basic react/unreact
+    message_react(users[1]['token'], 10002, 1)
+    assert all_messages[0]['reactors'] == [10002]
+    
+    message_unreact(users[1]['token'], 10002, 1)
+    assert all_messages[0]['reactors'] == []
+    
+    # 2. Not a valid message
+    
+    with pytest.raises(InputError):
+        message_react(user[1]['token'], 10004, 1)
+        
+    with pytest.raises(InputError):
+        message_unreact(user[1]['token'], 10004, 1)
+    
+    # 3. React id invalid
+    
+    with pytest.raises(InputError):
+        message_react(users[1]['token'], 10002, 0)
+    
+    with pytest.raises(InputError):
+        message_unreact(users[1]['token'], 10002, 0)
+        
+    # 4. Message already reacted/unreacted by user 
+    
+    message_react(users[1]['token'], 10002, 1)
+    with pytest.raises(InputError):
+        message_react(users[1]['token'], 10002, 1)
+    
+    message_unreact(users[1]['token'], 10002, 1)
+    with pytest.raises(InputError):
+        message_unreact(users[1]['token'], 10002, 1)
+        
+def test_msg_pin_unpin(initial_data, initial_msgs):
+    
+    # 1. Basic pin/unpin
+    message_pin(users[0], 10001)
+    assert all_messages[0]['pinned'] == True
+    
+    message_unpin(users[0], 10001)
+    assert all_messages[0]['pinned'] == False
+    
+    # 2. message_id is invalid  
+    
+    with pytest.raises(InputError)
+        message_pin(users[0], 10005)
+    
+    with pytest.raises(InputError)
+        message_unpin(users[0], 10005)
+        
+    # 2. message_id is already pinned/unpinned
+    message_pin(users[0], 10001)
+    with pytest.raises(InputError)
+        message_pin(users[0], 10001)
+    
+    message_unpin(users[0], 10001)
+    with pytest.raises(InputError)
+        message_unpin(users[0], 10001)
+        
+    # 3. user is not a member of the channel
+    
+    with pytest.raises(AccessError):
+        message_pin(users[2], 10001)
+        
+    message_pin(users[0], 10001)
+    with pytest.raises(AccessError):
+        message_unpin(users[2], 10001)
+        
+    # 4. user is not an owner
+    
+    with pytest.raises(AccessError):
+        message_unpin(users[1], 10001)
+        
+    message_unpin(users[0], 10001)
+    with pytest.raises(AccessError):
+        message_pin(users[1], 10001)

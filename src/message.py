@@ -248,7 +248,7 @@ def message_react(token, message_id, react_id):
         raise InputError(description='Invalid react_id')
     
     ### InputError: React ID already contained by user
-    if auth_user['u_id'] is in message['reactors']:
+    if auth_user['u_id'] in message['reactors']:
         raise InputError(description='user has already reacted')
         
     ### react to message
@@ -282,6 +282,14 @@ def message_unreact(token, message_id, react_id):
     return {
     }
 
+def message_pin(token, message_id):
+    '''
+    This function marks a message as 'pinned' to be given special viewership 
+    on the frontend
+    '''
+    auth_user = get_user_from_token(token)
+    channel = get_channel_from_id(get_message_info(message_id)['channel_id'])
+    
 def append_msg_to_channel(new_msg, channel):
     '''
     This is a simple helper function to append msg to channel
