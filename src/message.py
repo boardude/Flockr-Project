@@ -175,6 +175,8 @@ def get_message_info(message_id):
                 'u_id' : msg['u_id'],
                 'channel_id' : channel_id,
                 'msg_list' : channel['messages'],
+                'reactors' : msg['reactors'],
+                'pinned' : msg['pinned']
             }
     return None
 
@@ -289,6 +291,49 @@ def message_pin(token, message_id):
     '''
     auth_user = get_user_from_token(token)
     channel = get_channel_from_id(get_message_info(message_id)['channel_id'])
+    ### InputError if message_id is invalid
+    if get_message_info(message_id) == None:
+        raise InputError(description='Not a valid message')
+    
+    message = get_message_info(message_id)
+    ### InputError if message_id is already pinned
+    if message['pinned'] == True:
+        raise InputError (description='Message already pinned')
+    
+    ### AccessError if user is not a member of the channel
+    if auth_user['u_id'] not in channel['all_members']:
+        raise AccessError(description='User isnt a member of the channel')
+    
+    ### AccessError if user is not an owner of the channel
+    if auth_user['u_id'] not in channel['owner_members']:
+        raise AccessError(description='User isnt an owner of the channel')
+    
+    ### Pin message
+    message['pinned'] = True
+
+def message_unpin(token, message_id):
+    
+    auth_user = get_user_from_token(token)
+    channel = get_channel_from_id(get_message_info(message_id)['channel_id'])
+    ### InputError if message_id is invalid
+    if get_message_info(message_id) == None:
+        raise InputError(description='Not a valid message')
+    
+    message = get_message_info(message_id)
+    ### InputError if message_id is already unpinned
+    if message['pinned'] == False:
+        raise InputError (description='Message already pinned')
+    
+    ### AccessError if user is not a member of the channel
+    if auth_user['u_id'] not in channel['all_members']:
+        raise AccessError(description='User isnt a member of the channel')
+    
+    ### AccessError if user is not an owner of the channel
+    if auth_user['u_id'] not in channel['owner_members']:
+        raise AccessError(description='User isnt an owner of the channel')
+    
+    ### Pin message
+    message['pinned'] = False
     
 def append_msg_to_channel(new_msg, channel):
     '''

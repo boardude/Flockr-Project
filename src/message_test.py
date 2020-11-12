@@ -4,7 +4,7 @@ import pytest
 import auth
 from other import clear
 from error import InputError, AccessError
-from message import message_send, message_edit, message_remove, message_send_later, message_react, message_unreact
+from message import message_send, message_edit, message_remove, message_send_later, message_react, message_unreact, message_pin, message_unpin
 from data import channels, users
 from channels import channels_create
 from channel import channel_join
@@ -180,20 +180,21 @@ def test_msg_send_later(initial_data, initial_msgs):
 def test_msg_react_unreact(initial_data, initial_msgs):
     '''test for message react and message unreact functions'''
     
+    all_messages = channels[0]['messages']
     # 1. Basic react/unreact
     message_react(users[1]['token'], 10002, 1)
-    assert all_messages[0]['reactors'] == [10002]
+    assert all_messages[1]['reactors'] == [users[1]['u_id']]
     
     message_unreact(users[1]['token'], 10002, 1)
-    assert all_messages[0]['reactors'] == []
+    assert all_messages[1]['reactors'] == []
     
     # 2. Not a valid message
     
     with pytest.raises(InputError):
-        message_react(user[1]['token'], 10004, 1)
+        message_react(users[1]['token'], 10004, 1)
         
     with pytest.raises(InputError):
-        message_unreact(user[1]['token'], 10004, 1)
+        message_unreact(users[1]['token'], 10004, 1)
     
     # 3. React id invalid
     
@@ -224,19 +225,19 @@ def test_msg_pin_unpin(initial_data, initial_msgs):
     
     # 2. message_id is invalid  
     
-    with pytest.raises(InputError)
+    with pytest.raises(InputError):
         message_pin(users[0], 10005)
     
-    with pytest.raises(InputError)
+    with pytest.raises(InputError):
         message_unpin(users[0], 10005)
         
     # 2. message_id is already pinned/unpinned
     message_pin(users[0], 10001)
-    with pytest.raises(InputError)
+    with pytest.raises(InputError):
         message_pin(users[0], 10001)
     
     message_unpin(users[0], 10001)
-    with pytest.raises(InputError)
+    with pytest.raises(InputError):
         message_unpin(users[0], 10001)
         
     # 3. user is not a member of the channel
