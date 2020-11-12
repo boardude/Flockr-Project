@@ -28,6 +28,18 @@ As a user of Flockr, I want to be able to see the status of a message after it h
 ### *Task 2.2* ###
 Add the ability to see the status of a message after it has been sent. Three statuses specifically: sent, delivered/received, seen.
 
+### **User story 2.3 ###
+As a user of Flockr, I want to be able to remove a message after it has been sent into a channel or direct message in the case when I sent something to the wrong person, the message contained a mistake, or when I simply have changed my mind.
+
+### *Task 2.3* ###
+Add the option for sent messages in channels and direct messages to be removed for all participants in the channel or direct message.
+
+### **User story 2.4** ###
+As a user of Flockr, I want to be able to edit a message after it has been sent into a channel or direct message so that I can correct a message instead or removing it and sending a new one.
+
+### *Task 2.4* ###
+Add the option for sent messages in channels and direct messages to be edited by the user who sent it.
+
 </br>
 
 ## **Epic 3:** File sharing in channels and direct messages ##
@@ -56,7 +68,7 @@ Add ability to have real-time video calls/conferences between multiple users in 
 As a user of Flockr, I want to be able to have audio-only calls for quick and informal meetings where there is no need to appear in front of a camera.
 
 ### *Task 4.2* ###
-Add ability to turn off the camera in video calls/conferences.
+Add option to turn off the camera in video calls/conferences.
 
 ### **User story 4.3** ###
 As a user of Flockr, I want to be able to mute my mic and turn off my camera before joining a meeting to avoid causing any disruption.
