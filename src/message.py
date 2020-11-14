@@ -175,8 +175,9 @@ def get_message_info(message_id):
                 'u_id' : msg['u_id'],
                 'channel_id' : channel_id,
                 'msg_list' : channel['messages'],
-                'reactors' : msg['reactors'],
-                'pinned' : msg['pinned']
+                'channel' : channel,
+                'reacts' : msg['reacts'],
+                'is_pinned' : msg['is_pinned'],
             }
     return None
 
@@ -235,106 +236,193 @@ def message_send_later(token, channel_id, message, time_sent):
     }
 
 def message_react(token, message_id, react_id):
-    '''given a message with a channel the authorised user is a part of, adds
-    a 'react' to that message'''
-    
+    '''
+    This function will add a 'react' to a given channel
+    of which the authorised user is a part (react would only be 1 for now)
+
+    Args:
+        param1(str): authorised user's token
+        param2(int): id of target message
+        param3(int): react_id (The only valid react ID the frontend has is 1)
+
+    Returns:
+        It will return an empty dict
+
+    Raises:
+        InputError:
+            1. message_id is not a valid message within a channel
+                that the authorised user has joined
+            2. react_id is not a valid React ID. The only valid react ID the frontend has is 1
+            3. Message with ID message_id already contains
+                an active React with ID react_id from the authorised user
+        AccessError:
+            given token is invalid
+    '''
     auth_user = get_user_from_token(token)
-    channel = get_channel_from_id(get_message_info(message_id)['channel_id'])
-    message = get_message_info(message_id)
+    msg_info = get_message_info(message_id)
+    # access error when given token is invalid
+    if auth_user is None:
+        raise AccessError(description='Invalid token')
+    # input error when given message_id is invalid
+    if msg_info is None:
+        raise InputError(description='Invalid message_id')
+
+    channel = msg_info['channel']
     ### InputError: User is not part of channel with the message
     if auth_user['u_id'] not in channel['all_members']:
         raise InputError(description='User is not a member of channel.')
-    
+
     ### InputError: React ID invalid (not 1)
     if react_id != 1:
         raise InputError(description='Invalid react_id')
-    
+
     ### InputError: React ID already contained by user
-    if auth_user['u_id'] in message['reactors']:
+    if auth_user['u_id'] in msg_info['reacts']['u_ids']:
         raise InputError(description='user has already reacted')
-        
+
     ### react to message
-    message['reactors'].append(auth_user['u_id'])
-    
+    msg_info['reacts']['u_ids'].append(auth_user['u_id'])
     return {
     }
-    
+
 def message_unreact(token, message_id, react_id):
-    '''given a message with a channel the authorised user is a part of, removes
-    a 'react' to that message'''
-    
+    '''
+    Given a message within a channel the authorised user
+    is part of, remove a "react" to that particular message
+
+    Args:
+        param1(str): authorised user's token
+        param2(int): id of target message
+        param3(int): react_id (The only valid react ID the frontend has is 0)
+
+    Returns:
+        It will return an empty dict
+
+    Raises:
+        InputError:
+            1. message_id is not a valid message within a channel
+                that the authorised user has joined
+            2. react_id is not a valid React ID
+            3. Message with ID message_id does not contain an active React with ID react_id
+        AccessError:
+            given token is invalid
+    '''
     auth_user = get_user_from_token(token)
-    channel = get_channel_from_id(get_message_info(message_id)['channel_id'])
-    message = get_message_info(message_id)
+    msg_info = get_message_info(message_id)
+    # access error when given token is invalid
+    if auth_user is None:
+        raise AccessError(description='Invalid token')
+    # input error when given message_id is invalid
+    if msg_info is None:
+        raise InputError(description='Invalid message_id')
+
+    channel = msg_info['channel']
     ### InputError: User is not part of channel with the message
     if auth_user['u_id'] not in channel['all_members']:
         raise InputError(description='User is not a member of channel.')
-    
+
     ### InputError: React ID invalid (not 1)
     if react_id != 1:
         raise InputError(description='Invalid react_id')
-    
-    ### InputError: React ID already not containd by user
-    if auth_user['u_id'] not in message['reactors']:
+
+    ### InputError: React ID not containd by user
+    if auth_user['u_id'] not in msg_info['reacts']['u_ids']:
         raise InputError(description='user hasnt reacted')
-        
+
     ### unreact to message
-    message['reactors'].remove(auth_user['u_id'])
-    
+    msg_info['reacts']['u_ids'].remove(auth_user['u_id'])
     return {
     }
 
 def message_pin(token, message_id):
     '''
-    This function marks a message as 'pinned' to be given special viewership 
+    This function marks a message as 'pinned' to be given special viewership
     on the frontend
+
+    Args:
+        param1(str): authorised user's token
+        param2(int): id of target msg
+
+    Returns:
+        it will return an empty dict
+
+    Raises:
+        InputError:
+            1. message_id is not a valid message
+            2. Message with ID message_id is already pinned
+        AccessError:
+            1. The authorised user is not a member of the channel that the message is within
+            2. The authorised user is not an owner
     '''
     auth_user = get_user_from_token(token)
-    channel = get_channel_from_id(get_message_info(message_id)['channel_id'])
-    ### InputError if message_id is invalid
-    if get_message_info(message_id) == None:
-        raise InputError(description='Not a valid message')
-    
-    message = get_message_info(message_id)
-    ### InputError if message_id is already pinned
-    if message['pinned'] == True:
-        raise InputError (description='Message already pinned')
-    
-    ### AccessError if user is not a member of the channel
-    if auth_user['u_id'] not in channel['all_members']:
-        raise AccessError(description='User isnt a member of the channel')
-    
+    msg_info = get_message_info(message_id)
+    # access error when given token is invalid
+    if auth_user is None:
+        raise AccessError(description='Invalid token')
+    # input error when given message_id is invalid
+    if msg_info is None:
+        raise InputError(description='Invalid message_id')
+
+    ### AccessError if user is not a member of the channel that the message is within
+    if auth_user['u_id'] not in msg_info['channel']['all_members']:
+        raise AccessError(description='Not a member of the channel that the message is within')
+
     ### AccessError if user is not an owner of the channel
-    if auth_user['u_id'] not in channel['owner_members']:
+    if is_user_an_owner(token, msg_info['channel_id']) is False:
         raise AccessError(description='User isnt an owner of the channel')
-    
+
+    ### InputError if message_id is already pinned
+    if msg_info['is_pinned'] is True:
+        raise InputError(description='Message already pinned')
+
     ### Pin message
-    message['pinned'] = True
+    msg_info['message']['is_pinned'] = True
+    return {}
 
 def message_unpin(token, message_id):
-    
+    '''
+    Given a message within a channel, remove it's mark as unpinned
+
+    Args:
+        param1(str): authorised user's token
+        param2(int): id of target msg
+
+    Returns:
+        it will return an empty dict
+
+    Raises:
+        InputError:
+            1. message_id is not a valid message
+            2. Message with ID message_id is already unpinned
+        AccessError:
+            1. The authorised user is not a member of the channel that the message is within
+            2. The authorised user is not an owner
+    '''
     auth_user = get_user_from_token(token)
-    channel = get_channel_from_id(get_message_info(message_id)['channel_id'])
-    ### InputError if message_id is invalid
-    if get_message_info(message_id) == None:
-        raise InputError(description='Not a valid message')
-    
-    message = get_message_info(message_id)
-    ### InputError if message_id is already unpinned
-    if message['pinned'] == False:
-        raise InputError (description='Message already pinned')
-    
-    ### AccessError if user is not a member of the channel
-    if auth_user['u_id'] not in channel['all_members']:
-        raise AccessError(description='User isnt a member of the channel')
-    
+    msg_info = get_message_info(message_id)
+    # access error when given token is invalid
+    if auth_user is None:
+        raise AccessError(description='Invalid token')
+    # input error when given message_id is invalid
+    if msg_info is None:
+        raise InputError(description='Invalid message_id')
+
+    ### AccessError if user is not a member of the channel that the message is within
+    if auth_user['u_id'] not in msg_info['channel']['all_members']:
+        raise AccessError(description='Not a member of the channel that the message is within')
+
     ### AccessError if user is not an owner of the channel
-    if auth_user['u_id'] not in channel['owner_members']:
+    if is_user_an_owner(token, msg_info['channel_id']) is False:
         raise AccessError(description='User isnt an owner of the channel')
-    
+
+    ### InputError if message_id is already pinned
+    if msg_info['message']['is_pinned'] is False:
+        raise InputError(description='Message not pinned')
+
     ### Pin message
-    message['pinned'] = False
-    
+    msg_info['message']['is_pinned'] = False
+    return {}
+
 def append_msg_to_channel(new_msg, channel):
     '''
     This is a simple helper function to append msg to channel
