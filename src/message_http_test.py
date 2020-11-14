@@ -43,7 +43,7 @@ def initial_conditions(url):
         email = str(idx + 1) + 'test@test.com'
         user_data['email'] = email
         requests.post(url + 'auth/register', json=user_data)
-        resp = requests.post(url + 'auth/login', json={'email': email, 'password': 'password'})
+        requests.post(url + 'auth/login', json={'email': email, 'password': 'password'})
     channel_data = {
         'token' : token_generate(1, 'login'),
         'name' : 'channel' + str(idx),
