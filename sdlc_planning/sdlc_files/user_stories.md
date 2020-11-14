@@ -38,32 +38,37 @@ As a user of Flockr, I want to be able to see the status of a message after it h
 ### *Task 2.2* ##
 Add the ability to see the status of a message after it has been sent. Four statuses specifically: failed to send, sent, delivered/received, seen.
 ### *UAC 2.2 - scenario-based* ###
-**Scenario:** Showing status of a message after it has been sent
-**Given:** The user is in a channel or direct message
-**When:** User sends a message channel or direct messages
-**Then:** Flockr detects and displays the current status of the message (failed to send, sent, delivered, seen).
+* **Scenario:** Showing status of a message after it has been sent  
+* **Given:** The user is in a channel or direct message  
+* **When:** User sends a message channel or direct messages  
+* **Then:** Flockr detects and displays the current status of the message (failed to send, sent, delivered, seen).
 
-### **User story 2.3 ###
+### **User story 2.3** ###
 As a user of Flockr, I want to be able to remove a message after it has been sent into a channel or direct message in the case when I sent something to the wrong person, the message contained a mistake, or when I simply have changed my mind.
 ### *Task 2.3* ###
-Add the option for sent messages in channels and direct messages to be removed for all participants in the channel or direct message.
+Add the option for sent messages in channels and direct messages to be removed by the original sender.
 ### *UAC 2.3 - scenario-based* ###
-**Scenario:** Remove a sent message
-**Given:** The user sends a message in a channel or direct message
-**When:** The user decides to remove the sent message
-**And:** The users selects the "remove" option for the message
-**Then:** Flockr backend removes the message from the database, and the frontend no longer displays the removed message.
+* **Scenario:** Remove a sent message  
+* **Given:** The user sends a message in a channel or direct message  
+* **When:** The users selects the "remove" option for the message  
+* **Then:** Flockr backend removes the message from the database  
+* **And:** Flockr frontend removes the messages from the channel and stops it from being displayed to other users.
 
 ### **User story 2.4** ###
 As a user of Flockr, I want to be able to edit a message after it has been sent into a channel or direct message so that I can correct a message instead or removing it and sending a new one.
 ### *Task 2.4* ###
-Add the option for sent messages in channels and direct messages to be edited by the user who sent it.
+Add the option for sent messages in channels and direct messages to be edited by the original sender.
 ### *UAC 2.4 - scenario-based* ###
-**Scenario:** Remove a sent message
-**Given:** The user sends a message in a channel or direct message
-**When:** The user decides to remove the sent message
-**And:** The users selects the "remove" option for the message
-**Then:** Flockr backend removes the message from the database, and the frontend no longer displays the removed message.
+* **Scenario:** Edit a sent message  
+* **Given:** The user sends a message in a channel or direct message  
+* **When:** The users selects the "edit" option for the message  
+* **Then:** Flockr displays a text box where the user can edit the original message  
+* **When:** User selects "Finish"  
+* **Then:** Flockr modifies the message in the backend to reflect the user's edits   
+* **And:** Flockr frontend displays the user's modified message in the original message's place  
+* **Or when:** User selects "Cancel"  
+* **Then:** Flockr backend discards all of the user's edits  
+* **And:** Flockr frontend continues to display the original message.
 
 </br>
 
@@ -120,39 +125,39 @@ As a user of Flockr, I want to be able to mute my mic and turn off my camera bef
 ### *Task 4.4* ###
 Add panel to check and set audio and video settings after clicking on 'join call' button, but prior to actually joining the call.
 ### *UAC 4.4 - scenario based* ###
-**Scenario:** Set up video call settings before joining a video call
-**Given:** The user is in a channel or direct message
-**When:** The user has selected to start or join a video call
-**Then:** Flockr displays a screen where users can set video and audio settings for the voice call, including the option to join with the camera off and mic muted
-**When:** The user selects and confirms settings
-**Then:** Flockr connects the user to the video call
+* **Scenario:** Set up video call settings before joining a video call
+* **Given:** The user is in a channel or direct message
+* **When:** The user has selected to start or join a video call
+* **Then:** Flockr displays a screen where users can set video and audio settings for the voice call, including the option to join with the camera off and mic muted
+* **When:** The user selects and confirms settings
+* **Then:** Flockr connects the user to the video call
 
 ### **User story 4.5** ###
 As the host of a video call in Flockr, I want to have the option to record the calls as video or audio files so that any non-participants have access to information shared during the meeting.
 ### *Task 4.5* ###
 Add the option to record video calls as video or audio files, but only to the host of each meeting or a Flockr owner.
 ### UAC 4.5 - scenario-based ###
-**Scenario:** Host records a video call as a video or audio file
-**Given:** A video call has been started and the user is the host of the call (started the call or has been given host status)
-**When:** The user (host) selects the option to record the call
-**And:** Chooses whether to record as a video file or voice-only as an audio file
-**Then:** Flockr begins to record the video call
-**When:** The host ends the recording or the video call itself
-**Then:** Flockr saves the recording as a file on the user's local machine
+* **Scenario:** Host records a video call as a video or audio file
+* **Given:** A video call has been started and the user is the host of the call (started the call or has been given host status)
+* **When:** The user (host) selects the option to record the call
+* **And:** Chooses whether to record as a video file or voice-only as an audio file
+* **Then:** Flockr begins to record the video call
+* **When:** The host ends the recording or the video call itself
+* **Then:** Flockr saves the recording as a file on the user's local machine
 
 ### **User story 4.6** ###
 As a participant of a video call, I want the option to share my screen to other participants so that they can all see the same thing I am referring to, just like in a face-to-face meeting.
 ### *Task 4.6* ###
 Add the option for screen-sharing by any participant during a video call.
 ### *UAC 4.6 - scenario-based* ###
-**Scenario:** Screen-sharing during video calls
-**Given:** The user is a participant of the video call and no other participant is sharing their screen
-**When:** The user selects the option to screen-share
-**Then:** Flockr asks whether to share the entire screen or an application window only.
-**When:** The user makes a selection
-**Then:** Flockr displays the user's screen or an application window (depending on selection) as the main video object of the call.
-**When:** The user selects the option to stop sharing his/her screen
-**Then:** Flockr stops displaying the user's screen as the main video object
+* **Scenario:** Screen-sharing during video calls
+* **Given:** The user is a participant of the video call and no other participant is sharing their screen
+* **When:** The user selects the option to screen-share
+* **Then:** Flockr asks whether to share the entire screen or an application window only.
+* **When:** The user makes a selection
+* **Then:** Flockr displays the user's screen or an application window (depending on selection) as the main video object of the call.
+* **When:** The user selects the option to stop sharing his/her screen
+* **Then:** Flockr stops displaying the user's screen as the main video object
 
 ### **User story 4.7** ###
 As the host of a video call, I want to be able to manage participants so that I can mute or remove any participant, to combat any trolling behaviour that often plagues the world of online conferencing.
