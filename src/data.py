@@ -211,7 +211,7 @@ def create_new_msg(message, channel, u_id):
         'u_id' : u_id,
         'message' : message,
         'time_created': timestamp,
-        'reacts': react_info,
+        'reacts': [react_info],
         'is_pinned': False,
     }
     return new_msg

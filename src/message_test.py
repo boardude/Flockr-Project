@@ -233,10 +233,10 @@ def test_react_unreact_standard(initial_data, initial_msgs):
     # 1. Basic react/unreact
     # user 1 reacts to the msg with msg_id 10001
     message_react(users[0]['token'], 10001, 1)
-    assert msg_info['reacts']['u_ids'] == [users[0]['u_id']]
+    assert msg_info['reacts'][0]['u_ids'] == [users[0]['u_id']]
     # user 1 unreacts to the msg with msg_id 10001
     message_unreact(users[0]['token'], 10001, 1)
-    assert msg_info['reacts']['u_ids'] == []
+    assert msg_info['reacts'][0]['u_ids'] == []
 
 def test_react_unreact_invalid_msg(initial_data, initial_msgs):
     '''
