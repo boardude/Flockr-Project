@@ -201,10 +201,17 @@ def create_new_msg(message, channel, u_id):
     '''
     timestamp = int(time.time())
     msg_id = channel['channel_id'] * 10000 + channel['latest_msg_id'] + 1
+    react_info = {
+        'react_id' : 1,
+        'u_ids' : [],
+        'is_this_user_reacted' : False,
+    }
     new_msg = {
         'message_id' : msg_id,
         'u_id' : u_id,
         'message' : message,
         'time_created': timestamp,
+        'reacts': react_info,
+        'is_pinned': False,
     }
     return new_msg

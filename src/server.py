@@ -3,7 +3,8 @@ from auth import auth_login, auth_logout, auth_register, auth_pwreset_req, auth_
 from channel import channel_invite, channel_details, channel_messages, channel_leave
 from channel import channel_join, channel_addowner, channel_removeowner
 from channels import channels_create, channels_list, channels_listall
-from message import message_send, message_remove, message_edit
+from message import message_send, message_remove, message_edit, message_send_later
+from message import message_pin, message_unpin, message_react, message_unreact
 from user import user_profile, user_profile_setemail, user_profile_sethandle, user_profile_setname, user_profile_uploadphoto
 from other import clear, users_all, search, admin_userpermission_change
 from standup import standup_start, standup_active, standup_send
@@ -192,6 +193,45 @@ def edit_message():
     message_id = int(data['message_id'])
     message = data['message']
     return dumps(message_edit(token, message_id, message))
+
+@APP.route('/message/sendlater', methods=['POST'])
+def send_message_late():
+    data = request.get_json()
+    token = data['token']
+    channel_id = int(data['channel_id'])
+    message = data['message']
+    time_sent = int(data['time_sent'])
+    return dumps(message_send_later(token, channel_id, message, time_sent))
+
+@APP.route('/message/react', methods=['POST'])
+def react_to_msg():
+    data = request.get_json()
+    token = data['token']
+    msg_id = int(data['message_id'])
+    react_id = int(data['react_id'])
+    return dumps(message_react(token, msg_id, react_id))
+
+@APP.route('/message/unreact', methods=['POST'])
+def unreact_to_msg():
+    data = request.get_json()
+    token = data['token']
+    msg_id = int(data['message_id'])
+    react_id = int(data['react_id'])
+    return dumps(message_unreact(token, msg_id, react_id))
+
+@APP.route('/message/pin', methods=['POST'])
+def pin_msg():
+    data = request.get_json()
+    token = data['token']
+    msg_id = int(data['message_id'])
+    return dumps(message_pin(token, msg_id))
+
+@APP.route('/message/unpin', methods=['POST'])
+def unpin_msg():
+    data = request.get_json()
+    token = data['token']
+    msg_id = int(data['message_id'])
+    return dumps(message_unpin(token, msg_id))
 
 ########################################
 ############### user.py ################
