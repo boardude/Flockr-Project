@@ -105,7 +105,7 @@ Add ability to have real-time video calls between multiple users in channels or 
 * If the host leaves the video call the video call is ended
 
 ### **User story 4.2** ###
-As a user of Flockr, I want to be able to have audio-only calls for quick and informal meetings where there is no need to appear in front of a camera.
+As a user of Flockr, I want to be able to have audio-only calls for informal meetings or gaming sessions with friends where there is no need to appear in front of a camera.
 ### *Task 4.2* ###
 Add option to turn off/on the camera in video calls.
 ### *UAC 4.2 - rule-based* ###
