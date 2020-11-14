@@ -245,3 +245,17 @@ def test_edit_invalid_token(url, initial_conditions):
     
     resp = requests.put(url + 'message/edit', json = data)
     assert resp.status_code == 400
+
+### message sendlater tests
+def test_sendlater_standard(url, initial_conditions):
+    #standard send
+    data = {
+        'token' : token_generate(1, 'login'),
+        'channel_id' : 1,
+        'message' : 'This is the first message.',
+        'time_sent' : time.time() + 10,
+    }
+    resp = requests.post(url + 'message/sendlater', json = data)
+    assert resp.status_code == 200
+    
+    
