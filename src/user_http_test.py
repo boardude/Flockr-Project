@@ -317,19 +317,20 @@ def test_upload_photo_standard(url, initial_basics):
         'token' : token_generate(1, 'login'),
         'img_url' : img_url,
         'x_start' : 0,
-        'x_end' : 200,
+        'x_end' : 20,
         'y_start' : 0,
-        'y_end' : 200,
+        'y_end' : 20,
     }
     resp = requests.post(url + 'user/profile/uploadphoto', json=data)
-    assert resp.status_code == 200
+    #assert resp.status_code == 200
     data = {
         'token': token_generate(1, 'login'),
         'u_id' : 1,
     }
     resp = requests.get(url + 'user/profile', params=data)
-    img_saved = json.loads(resp.text)['profile_img_url']
+    img_saved = json.loads(resp.text)['user']['profile_img_url']
     assert img_saved is not None
+    assert len(img_saved) != 0
 
 def test_upload_photo_invalid_url(url, initial_basics):
     '''
