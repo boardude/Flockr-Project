@@ -368,4 +368,5 @@ def member_initial(u_id):
         'u_id' : user['u_id'],
         'name_first' : user['name_first'],
         'name_last' : user['name_last'],
+        'profile_img_url' : user['profile_img_url'],
     }

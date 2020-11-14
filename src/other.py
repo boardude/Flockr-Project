@@ -50,6 +50,7 @@ def users_all(token):
         user_details['name_first'] = user['name_first']
         user_details['name_last'] = user['name_last']
         user_details['handle_str'] = user['handle']
+        user_details['profile_img_url'] = user['profile_img_url']
         all_users.append(user_details)
 
     return {
