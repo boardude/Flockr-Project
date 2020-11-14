@@ -47,9 +47,14 @@ def test_valid_with_msg(initial_users, initial_msg):
     assert resp['messages'][0]['message'] == 'user2_msg'
     assert resp['messages'][0]['u_id'] == users[1]['u_id']
     assert resp['messages'][0]['message_id'] == 10051
+    assert resp['messages'][0]['reacts'][0]['u_ids'] == []
+    assert resp['messages'][0]['reacts'][0]['is_this_user_reacted'] is False
     assert resp['messages'][49]['message'] == '2'
     assert resp['messages'][49]['u_id'] == users[0]['u_id']
     assert resp['messages'][49]['message_id'] == 10002
+    assert resp['messages'][49]['reacts'][0]['u_ids'] == []
+    assert resp['messages'][49]['reacts'][0]['is_this_user_reacted'] is False
+
 
     # get 50 from 51 msgs from 1
     resp = channel.channel_messages(users[0]['token'], channels[0]['channel_id'], 1)
@@ -105,3 +110,24 @@ def test_access_error(initial_users, initial_msg):
     # access error when given token does not refer to a valid user
     with pytest.raises(AccessError):
         assert channel.channel_messages('invalid_token', channels[0]['channel_id'], 0)
+
+def test_message_standard_with_react(initial_users, initial_msg):
+    '''
+    standard test with react
+    user1 reacts msg 10002 and calls channel_messages
+    '''
+    message.message_react(users[0]['token'], 10002, 1)
+    resp = channel.channel_messages(users[0]['token'], channels[0]['channel_id'], 0)
+    assert len(resp['messages']) == 50
+    assert resp['end'] == 50
+    assert resp['messages'][49]['message'] == '2'
+    assert resp['messages'][49]['u_id'] == users[0]['u_id']
+    assert resp['messages'][49]['message_id'] == 10002
+    assert resp['messages'][49]['reacts'][0]['u_ids'] == [1]
+    assert resp['messages'][49]['reacts'][0]['is_this_user_reacted'] is True
+
+    resp = channel.channel_messages(users[0]['token'], channels[0]['channel_id'], 2)
+    assert len(resp['messages']) == 49
+    assert resp['messages'][47]['message_id'] == 10002
+    assert resp['messages'][47]['reacts'][0]['u_ids'] == [1]
+    assert resp['messages'][47]['reacts'][0]['is_this_user_reacted'] is True
