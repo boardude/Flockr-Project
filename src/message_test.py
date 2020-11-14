@@ -35,7 +35,7 @@ def initial_msgs():
     it is a fixture for tests.
     user 1 send 'msg_1' to channel_1 with msg_id 10001
     user 2 send 'msg_2' to channel_1 with msg_id 10002
-    user 3 send 'msg_3' to channel_1 with msg_id 20001
+    user 3 send 'msg_3' to channel_2 with msg_id 20001
     '''
     message_send(users[0]['token'], channels[0]['channel_id'], 'msg_1')
     message_send(users[1]['token'], channels[0]['channel_id'], 'msg_2')
@@ -151,109 +151,204 @@ def test_msg_edit(initial_data, initial_msgs):
     #   or The authorised user is an owner of this channel or the flockr
     with pytest.raises(AccessError):
         message_edit(users[1]['token'], 10001, 'msg')
-    clear()
-        
-def test_msg_send_later(initial_data, initial_msgs):
-    '''test for message_send_later'''
-    
-    # 1. Basic message success
-    message_send_later(users[1]['token'], channels[0]['channel_id'], 'msg', time.time()+10)
-    all_messages = channels[0]['messages']
-    assert all_messages[0]['message_id'] == 10001
-    
-    # 2. InputError when message more than 1000 characters
+
+def test_msg_send_later_standard_1(initial_data, initial_msgs):
+    '''
+    no error
+    user 1 calls msg_send_later in 1 second and send another msg immediately
+    '''
+    curr_time = int(time.time())
+    end_time = curr_time + 2
+    resp = message_send_later(users[0]['token'], 1, 'late msg', curr_time + 1)
+    message_send(users[0]['token'], 1, 'imme msg')
+    assert len(channels[0]['messages']) == 3
+    while curr_time != end_time:
+        curr_time = int(time.time())
+    assert len(channels[0]['messages']) == 4
+    assert resp['message_id'] == 10003
+
+def test_msg_send_later_standard_2(initial_data, initial_msgs):
+    '''
+    no error
+    user 1 calls msg_send_later in 0 second and send another msg immediately
+    '''
+    curr_time = int(time.time())
+    resp = message_send_later(users[0]['token'], 1, 'late msg', curr_time)
+    message_send(users[0]['token'], 1, 'imme msg')
+    assert len(channels[0]['messages']) == 4
+    assert resp['message_id'] == 10003
+
+def test_msg_send_later_invalid_channel(initial_data, initial_msgs):
+    '''
+    input error
+    user 1 calls msg_send_later to an non-existing channel (0)
+    '''
+    curr_time = int(time.time())
     with pytest.raises(InputError):
-        message_send_later(users[1]['token'], channels[0]['channel_id'], 'a' * 1001, time.time()+10)
-    
-    # 3. InputError when Channel ID is not a a valid channel 
+        message_send_later(users[0]['token'], 0, 'late msg', curr_time + 1)
+
+def test_msg_send_later_invalid_msglength(initial_data, initial_msgs):
+    '''
+    input error
+    user 1 calls msg_send_later to channel 1 with a too long msg
+    '''
+    curr_time = int(time.time())
     with pytest.raises(InputError):
-        message_send_later(users[1]['token'], 0, 'msg', time.time()+10)
-        
-    # 4. InputError when time is in past
+        message_send_later(users[0]['token'], 1, 'm' * 1001, curr_time + 1)
+
+def test_msg_send_later_invalid_time(initial_data, initial_msgs):
+    '''
+    input error
+    user 1 calls msg_send_later to channel 1 with a time in the past
+    '''
+    curr_time = int(time.time())
     with pytest.raises(InputError):
-        message_send_later(users[1]['token'], channels[0]['channel_id'], 'msg', time.time()-10)
-    
-    # 5. AccessError when user hasn't joined channel
+        message_send_later(users[0]['token'], 1, 'late msg', curr_time - 1)
+
+def test_msg_send_later_invalid_membership(initial_data, initial_msgs):
+    '''
+    access error
+    user1 calls msg_send_later to channel 2
+    '''
+    curr_time = int(time.time())
     with pytest.raises(AccessError):
-        message_send_later(users[1]['token'], channels[1]['channel_id'], 'msg', time.time()+10)
-        
-def test_msg_react_unreact(initial_data, initial_msgs):
-    '''test for message react and message unreact functions'''
-    
-    all_messages = channels[0]['messages']
+        message_send_later(users[0]['token'], 2, 'late msg', curr_time + 1)
+
+def test_msg_send_later_invalid_token(initial_msgs, initial_data):
+    '''
+    access error
+    pass an invalid token to msg_send_later
+    '''
+    curr_time = int(time.time())
+    with pytest.raises(AccessError):
+        message_send_later('invalid_token', 1, 'late msg', curr_time + 1)
+
+def test_react_unreact_standard(initial_data, initial_msgs):
+    '''
+    no error
+    user 1 reacts to the msg with msg_id 10001
+    user 1 unreacts to the msg with msg_id 10001
+    '''
+    msg_info = channels[0]['messages'][0]
     # 1. Basic react/unreact
-    message_react(users[1]['token'], 10002, 1)
-    assert all_messages[1]['reactors'] == [users[1]['u_id']]
-    
-    message_unreact(users[1]['token'], 10002, 1)
-    assert all_messages[1]['reactors'] == []
-    
-    # 2. Not a valid message
-    
+    # user 1 reacts to the msg with msg_id 10001
+    message_react(users[0]['token'], 10001, 1)
+    assert msg_info['reacts']['u_ids'] == [users[0]['u_id']]
+    # user 1 unreacts to the msg with msg_id 10001
+    message_unreact(users[0]['token'], 10001, 1)
+    assert msg_info['reacts']['u_ids'] == []
+
+def test_react_unreact_invalid_msg(initial_data, initial_msgs):
+    '''
+    input error
+    user1 reacts to the msg with msg_id 20001
+    user1 reacts to a msg with non-existing msg_id
+    '''
+    # user1 reacts to the msg with msg_id 20001
     with pytest.raises(InputError):
-        message_react(users[1]['token'], 10004, 1)
-        
+        message_react(users[0]['token'], 20001, 1)
+    with pytest.raises(InputError):
+        message_unreact(users[0]['token'], 20001, 1)
+    # user1 reacts to a msg with non-existing msg_id
     with pytest.raises(InputError):
         message_unreact(users[1]['token'], 10004, 1)
-    
-    # 3. React id invalid
-    
     with pytest.raises(InputError):
-        message_react(users[1]['token'], 10002, 0)
-    
+        message_react(users[1]['token'], 10004, 1)
+
+def test_react_unreact_invalid_reactid(initial_data, initial_msgs):
+    '''
+    input error
+    user1 reacts and unreacts to the msg 10001 with wrong react_id
+    '''
     with pytest.raises(InputError):
-        message_unreact(users[1]['token'], 10002, 0)
-        
-    # 4. Message already reacted/unreacted by user 
+        message_react(users[0]['token'], 10001, 0)
+    with pytest.raises(InputError):
+        message_unreact(users[0]['token'], 10001, 0)
     
+def test_react_unreact_already_done(initial_data, initial_msgs):
+    '''
+    input error
+    user 2 reacts to msg 10002 and does it again
+    user 2 unreacts to msg 10002 and does it again
+    '''
     message_react(users[1]['token'], 10002, 1)
     with pytest.raises(InputError):
         message_react(users[1]['token'], 10002, 1)
-    
     message_unreact(users[1]['token'], 10002, 1)
     with pytest.raises(InputError):
         message_unreact(users[1]['token'], 10002, 1)
-        
-def test_msg_pin_unpin(initial_data, initial_msgs):
-    
-    # 1. Basic pin/unpin
-    message_pin(users[0], 10001)
-    assert all_messages[0]['pinned'] == True
-    
-    message_unpin(users[0], 10001)
-    assert all_messages[0]['pinned'] == False
-    
-    # 2. message_id is invalid  
-    
-    with pytest.raises(InputError):
-        message_pin(users[0], 10005)
-    
-    with pytest.raises(InputError):
-        message_unpin(users[0], 10005)
-        
-    # 2. message_id is already pinned/unpinned
-    message_pin(users[0], 10001)
-    with pytest.raises(InputError):
-        message_pin(users[0], 10001)
-    
-    message_unpin(users[0], 10001)
-    with pytest.raises(InputError):
-        message_unpin(users[0], 10001)
-        
-    # 3. user is not a member of the channel
-    
+
+def test_react_unreact_invalid_token(initial_msgs, initial_data):
+    '''
+    given token does not refer to a valid user
+    '''
     with pytest.raises(AccessError):
-        message_pin(users[2], 10001)
-        
-    message_pin(users[0], 10001)
+        message_react('invalid_token', 10002, 1)
     with pytest.raises(AccessError):
-        message_unpin(users[2], 10001)
-        
-    # 4. user is not an owner
-    
+        message_unreact('invalid_token', 10002, 1)
+
+def test_pin_unpin_standard(initial_data, initial_msgs):
+    '''
+    no error
+    user 1 pin 10002 msg and unpin it
+    '''
+    msg_info = channels[0]['messages'][1]
+    message_pin(users[0]['token'], 10002)
+    assert msg_info['is_pinned'] is True
+
+    message_unpin(users[0]['token'], 10002)
+    assert msg_info['is_pinned'] is False
+
+def test_pin_unpin_invalid_msg(initial_data, initial_msgs):
+    '''
+    input error
+    user 1 pin and unpin a non-existing msg
+    '''
+    with pytest.raises(InputError):
+        message_pin(users[0]['token'], 10003)
+    with pytest.raises(InputError):
+        message_unpin(users[0]['token'], 10003)
+
+def test_pin_unpin_already_done(initial_data, initial_msgs):
+    '''
+    input error
+    user1 pin msg 10001 and pin it again
+    user1 unpin msg 10001 and unpin it again
+    '''
+    message_pin(users[0]['token'], 10001)
+    with pytest.raises(InputError):
+        message_pin(users[0]['token'], 10001)
+    # user 1 unpin msg 10001 and pin it again
+    message_unpin(users[0]['token'], 10001)
+    with pytest.raises(InputError):
+        message_unpin(users[0]['token'], 10001)
+
+def test_pin_unpin_not_member(initial_data, initial_msgs):
+    '''
+    access error
+    user1 pin msg 20001 and unpin it
+    '''
     with pytest.raises(AccessError):
-        message_unpin(users[1], 10001)
-        
-    message_unpin(users[0], 10001)
+        message_pin(users[0]['token'], 20001)
     with pytest.raises(AccessError):
-        message_pin(users[1], 10001)
+        message_unpin(users[0]['token'], 20001)
+
+def test_pin_unpin_not_owner(initial_data, initial_msgs):
+    '''
+    access error
+    user 2 pin msg 10001 and unpin it
+    '''
+    with pytest.raises(AccessError):
+        message_pin(users[1]['token'], 10002)
+    with pytest.raises(AccessError):
+        message_unpin(users[1]['token'], 10002)
+
+def test_pin_unpin_invalid_token(initial_data, initial_msgs):
+    '''
+    access error
+    given token is invalid
+    '''
+    with pytest.raises(AccessError):
+        message_pin('invalid_token', 10001)
+    with pytest.raises(AccessError):
+        message_unpin('invalid_token', 10001)
