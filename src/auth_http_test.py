@@ -232,15 +232,6 @@ def test_pwreset_req_invalid_email(url, initial_users):
     resp = requests.post(url + 'auth/passwordreset/request', json=data)
     assert resp.status_code == 400
 
-def test_pwreset_set_standard(url, initial_users):
-    '''
-    !!! connot test since we cannot get access to database
-    test pwreset_set works well
-    no error
-    user1 calls pwreset_req to get reset code and passes it to set
-    logout and login with new password
-    '''
-
 def test_pwreset_set_invalid_code(url, initial_users):
     '''
     test error raising when entered code is invalid
@@ -266,14 +257,3 @@ def test_pwreset_set_invalid_code(url, initial_users):
     data['reset_code'] = ''
     resp = requests.post(url + 'auth/passwordreset/reset', json=data)
     assert resp.status_code == 400
-
-    # 3. used code (cannot test)
-    # reset successfully first
-
-def test_pwreset_set_invalid_newpw(url, initial_users):
-    '''
-    !!! cannot test since we cannot get access to database
-    test error raising when new password is invalid
-    1. new password is empty
-    2. len(new_password) < 6
-    '''
