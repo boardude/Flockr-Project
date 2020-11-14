@@ -153,10 +153,18 @@ def channel_messages(token, channel_id, start):
     end = start + 50
     if end >= len(all_msgs):
         end = -1
-        for message in all_msgs[start:]:
-            return_messages.append(message)
+        for msg in all_msgs[start:]:
+            if auth_user['u_id'] in msg['reacts'][0]['u_ids']:
+                msg['reacts'][0]['is_this_user_reacted'] = True
+            else:
+                msg['reacts'][0]['is_this_user_reacted'] = False
+            return_messages.append(msg)
     else:
         for msg in all_msgs[start:end]:
+            if auth_user['u_id'] in msg['reacts'][0]['u_ids']:
+                msg['reacts'][0]['is_this_user_reacted'] = True
+            else:
+                msg['reacts'][0]['is_this_user_reacted'] = False
             return_messages.append(msg)
     return {
         'messages' : return_messages,

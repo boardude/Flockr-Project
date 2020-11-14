@@ -6,7 +6,7 @@ from other import users_all, clear, search, admin_userpermission_change
 from auth import auth_login, auth_register
 from error import AccessError, InputError
 from channel import channel_join
-from message import message_send
+from message import message_send, message_react
 
 @pytest.fixture
 def create_users():
@@ -236,12 +236,16 @@ def test_search_cross_join_channel(create_users):
     msg4 = message_send(users[0]['token'], channel['channel_id'], 'What? Yeah I am')
     msg5 = message_send(users[1]['token'], channel['channel_id'], 'What?')
 
+    # react msg1
+    message_react(users[0]['token'], 10001, 1)
+
     # search from first user
     messages = search(users[0]['token'], 'What')
 
     # make sure messages from both users are returned
     assert len(messages['messages']) == 5
     assert messages['messages'][0]['message_id'] == msg1['message_id']
+    assert messages['messages'][0]['reacts'][0]['is_this_user_reacted'] is True
     assert messages['messages'][0]['u_id'] == users[0]['u_id']
     assert messages['messages'][0]['message'] == 'What\'s up user two'
     assert messages['messages'][1]['message_id'] == msg2['message_id']

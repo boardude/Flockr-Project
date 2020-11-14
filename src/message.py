@@ -277,11 +277,11 @@ def message_react(token, message_id, react_id):
         raise InputError(description='Invalid react_id')
 
     ### InputError: React ID already contained by user
-    if auth_user['u_id'] in msg_info['reacts']['u_ids']:
+    if auth_user['u_id'] in msg_info['reacts'][0]['u_ids']:
         raise InputError(description='user has already reacted')
 
     ### react to message
-    msg_info['reacts']['u_ids'].append(auth_user['u_id'])
+    msg_info['reacts'][0]['u_ids'].append(auth_user['u_id'])
     return {
     }
 
@@ -326,11 +326,11 @@ def message_unreact(token, message_id, react_id):
         raise InputError(description='Invalid react_id')
 
     ### InputError: React ID not containd by user
-    if auth_user['u_id'] not in msg_info['reacts']['u_ids']:
+    if auth_user['u_id'] not in msg_info['reacts'][0]['u_ids']:
         raise InputError(description='user hasnt reacted')
 
     ### unreact to message
-    msg_info['reacts']['u_ids'].remove(auth_user['u_id'])
+    msg_info['reacts'][0]['u_ids'].remove(auth_user['u_id'])
     return {
     }
 

@@ -15,6 +15,10 @@
 6. We assume that entered password would be encoded by hashlib.sha256 which cannot be reverted.
 7. We assume that it will return false if given token refers to a user with logout status.
 8. We assume that it will login automatically after a user registers.
+9. In iter3, we assume that every time user calls password_reset_req, it will replace reset_code stored in database with a new generated reset_code which means user cannot reset his password with old reset_code.
+10. In iter3, we assume that the reset_code stored in database will be cleared after user reset his password successfully.
+11. In iter3, we assume that the reset_code for password reset is a random string containing uppercase characters and numbers with length of 50. It can be considered as definitely impossible if there are two same reset_codes in database which means that we can treat reset code as a unique code.
+12. In iter3, we assume that reset code will be sent by a gmail account, cs1531wed17grape6bot@gmail.com.  
 
 ## channel
 1. We assume that an owner of flockr will not be set as an owner of channel after he enters a channel. But the user still has permission of channel owner.
@@ -24,6 +28,7 @@
 5. We assume that if authorised user invites a uses who is already a member of channel, program will ignore the request and return directly.
 6. We assume that if a user tries to join a channel he is already in, program will ignore the request and return directly.
 7. We assume that only after the owner of flockr enters a channel, he will have owner permission of that channel.
+8. In iter3, we assume that when user calls channel_messages, it will change the value of 'is_this_user_reacted' for every message. It is true if this user reacts this msg, otherwise, it will be false.
 
 ## channels
 **Validity of tokens as parameters for channels_\* functions**  
@@ -42,12 +47,24 @@ Assume a new channel with the same details (token, name, is_public) as an existi
 4. We assume that all messages will keep its unique message_id after any message is removed.
 5. We assume that the length of message can be greater than 1000 in message_edit.
 6. We assume that message_id would be always valid in message_edit except when new message is an empty string.
+7. In iter3, we assume that message_send_later will send massage immediately if time_sent is curr_time.
+8. In iter3, we assume that reacts and pin will not going to be recalled after user leave the channel.
 
 ## user
 1. We assume that name cannot be empty in user_setname.
 2. We assume that it will raise an error when a user tries to set his email with his current email.
 3. We assume that it will raise an error when a user tries to set his handle with his current handle.
+4. In iter3, we assume that all users' images will be downloaded and stored locally in the path ./src/static/
+5. In iter3, we assume that the name of image is the u_id of user.
+6. In iter3, we assume that user can only upload a jpg photo.
+7. In iter3, we assume that the bounds of photo cannot be negative values.
 
 ## other
 1. We assume that search will return all messages containing given query_str.
 2. We assume that an owner of flockr can modify other owner's permission no matter he is the first registerd user or not. 
+
+## standup
+1. It is a brand new feature in iteration3.
+2. In iter3, we assume that there is not massage after standup ends if no one calls standup_send
+3. In iter3, we assume that we use an attributes named 'time_standupend' to represent the time when standup ends. It means no standup if its value is 0, otherwise, it has a unix timestamp value.
+4. In iter3, we assume that we treat the massage sent after standup is finished as a normal message except the length. Sender will be the user who calls standup and timestamp would be the time when standup ends. The length of the message can be greater than 1000.

@@ -62,7 +62,7 @@ def admin_userpermission_change(token, u_id, permission_id):
         Given a user by their user ID, set their permissions to new permissions
         described by permission_id.
 
-        :param token: The token of any Flockr owner 
+        :param token: The token of any Flockr owner
         :type token: str
 
         :param u_id: The user ID of the user whose permissions we want to change
@@ -124,8 +124,12 @@ def search(token, query_str):
         channel = get_channel_from_id(channel_id)
         for message in channel['messages']:
             if query_str in message['message']:
+                if user['u_id'] in message['reacts'][0]['u_ids']:
+                    message['reacts'][0]['is_this_user_reacted'] = True
+                else:
+                    message['reacts'][0]['is_this_user_reacted'] = False
                 result.append(message)
-    
+
     return {
         'messages': result
     }
