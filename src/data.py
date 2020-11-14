@@ -140,6 +140,7 @@ def create_user(email, password, name_first, name_last, handle, token):
         'token' : token,
         'handle' : handle,
         'reset_code' : '',
+        'profile_img_url' : '',
     }
     if new_user['u_id'] == 1:
         new_user['permission_id'] = 1
