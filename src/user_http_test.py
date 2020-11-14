@@ -45,9 +45,9 @@ def initial_basics(url):
         requests.post(url + 'auth/register', json=user_data)
         requests.post(url + 'auth/login', json={'email': email, 'password': 'password'})
 
-###########################
-###HTTP TEST of PROFILE ###
-###########################
+########################################
+########## user_profile tests ##########
+########################################
 def test_user_profile(url, initial_basics):
     '''
         vlaid test
@@ -91,9 +91,9 @@ def test_profile_invalid_token(url, initial_basics):
     data['token'] = token_generate(1, 'logout')
     assert profile_resp.status_code == 400
 
-###########################
-###HTTP TEST of SETNAME ###
-###########################
+########################################
+############ set name tests ############
+########################################
 
 def test_valid_setname(url, initial_basics):
     '''
@@ -190,9 +190,9 @@ def test_setname_invalid_token(url, initial_basics):
     resp = requests.put(url + 'user/profile/setname', json=data)
     assert resp.status_code == 400
 
-###########################
-###HTTP TEST of SETEMAIL###
-###########################
+########################################
+########### set email tests ############
+########################################
 
 def test_profile_setemail_valid(url, initial_basics):
     '''
@@ -238,9 +238,9 @@ def test_setemail_invalid_token(url, initial_basics):
     resp = requests.put(url + 'user/profile/setemail', json=data)
     assert resp.status_code == 400
 
-#############################
-###HTTP TEST OF SETHANDLE ###
-#############################
+########################################
+########## set handle tests ############
+########################################
 
 def test_sethandle_valid(url, initial_basics):
     '''
@@ -301,4 +301,121 @@ def test_sethandle_invalid_token(url, initial_basics):
     assert resp.status_code == 400
     data['token'] = 'invalid_token'
     resp = requests.put(url + 'user/profile/sethandle', json=data)
+    assert resp.status_code == 400
+
+########################################
+########## upload photo tests ##########
+########################################
+
+def test_upload_photo_standard(url, initial_basics):
+    '''
+    standard test no error
+    user1 upload a photo and check it is stored correctly
+    '''
+    img_url = 'https://kinsta.com/wp-content/uploads/2019/08/jpg-vs-jpeg.jpg'
+    data = {
+        'token' : token_generate(1, 'login'),
+        'img_url' : img_url,
+        'x_start' : 0,
+        'x_end' : 200,
+        'y_start' : 0,
+        'y_end' : 200,
+    }
+    resp = requests.post(url + 'user/profile/uploadphoto', json=data)
+    assert resp.status_code == 200
+    data = {
+        'token': token_generate(1, 'login'),
+        'u_id' : 1,
+    }
+    resp = requests.get(url + 'user/profile', params=data)
+    img_saved = json.loads(resp.text)['profile_img_url']
+    assert img_saved is not None
+
+def test_upload_photo_invalid_url(url, initial_basics):
+    '''
+    inputerror when given img_url is invalid
+    user1 upload an invalid url and check its status_code
+    '''
+    img_url = 'https://img1.looper.com.jpg'
+    data = {
+        'token' : token_generate(1, 'login'),
+        'img_url' : img_url,
+        'x_start' : 0,
+        'x_end' : 200,
+        'y_start' : 0,
+        'y_end' : 200,
+    }
+    resp = requests.post(url + 'user/profile/uploadphoto', json=data)
+    assert resp.status_code == 400
+
+def test_upload_photo_invalid_bounds(url, initial_basics):
+    '''
+    input error when given bounds are invalid
+    user1 upload a img with invalid bounds
+    and check its status_code
+    1. negative value
+    2. out of ranges
+    '''
+    img_url = 'https://kinsta.com/wp-content/uploads/2019/08/jpg-vs-jpeg.jpg'
+    # 1. negative value
+    data = {
+        'token' : token_generate(1, 'login'),
+        'img_url' : img_url,
+        'x_start' : -1,
+        'x_end' : 200,
+        'y_start' : -1,
+        'y_end' : 200,
+    }
+    resp = requests.post(url + 'user/profile/uploadphoto', json=data)
+    assert resp.status_code == 400
+    # 2. out of ranges
+    data['x_start'] = 1000000
+    data['y_start'] = 0
+    resp = requests.post(url + 'user/profile/uploadphoto', json=data)
+    assert resp.status_code == 400
+    data['x_start'] = 0
+    data['y_start'] = 0
+    data['x_end'] = 100000
+    resp = requests.post(url + 'user/profile/uploadphoto', json=data)
+    assert resp.status_code == 400
+
+def test_upload_photo_invalid_form(url, initial_basics):
+    '''
+    input error when given url are invalid
+    user1 upload a img but it is not a jpg file
+    check its status_code
+    '''
+    img_url = 'https://www.shorturl.at/img/shorturl-square.png'
+    data = {
+        'token' : token_generate(1, 'login'),
+        'img_url' : img_url,
+        'x_start' : -1,
+        'x_end' : 200,
+        'y_start' : -1,
+        'y_end' : 200,
+    }
+    resp = requests.post(url + 'user/profile/uploadphoto', json=data)
+    assert resp.status_code == 400
+
+def test_upload_photo_invalid_token(url, initial_basics):
+    '''
+    access error when given token is invalid
+    1. non-existing
+    2. logout token
+    '''
+    # 1. non-existing token
+    img_url = 'https://img1.looper.com.jpg'
+    data = {
+        'token' : 'invalid_token',
+        'img_url' : img_url,
+        'x_start' : 0,
+        'x_end' : 200,
+        'y_start' : 0,
+        'y_end' : 200,
+    }
+    resp = requests.post(url + 'user/profile/uploadphoto', json=data)
+    assert resp.status_code == 400
+    # logout token
+    data['token'] = token_generate(1, 'logout')
+    resp = requests.post(url + 'user/profile/uploadphoto', json=data)
     assert resp.status_code == 400
