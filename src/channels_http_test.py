@@ -7,10 +7,11 @@ import requests
 import pytest
 from auth import token_generate
 
-# Use this fixture to get the URL of the server. It starts the server for you,
-# so you don't need to.
 @pytest.fixture
 def url():
+    """
+        Pytest fixture to start the server and get its URL.
+    """
     url_re = re.compile(r' \* Running on ([^ ]*)')
     server = Popen(["python3", "src/server.py"], stderr=PIPE, stdout=PIPE)
     line = server.stderr.readline()
@@ -31,6 +32,10 @@ def url():
 
 @pytest.fixture
 def create_users(url):
+    """
+        Pytest fixture that registers and logs in two users via HTTP routing.
+    """
+
     # clear data
     requests.delete(url + 'clear')
 
@@ -51,8 +56,8 @@ def create_users(url):
 @pytest.fixture
 def create_channels(url):
     """
-        Creates 6 test channels with tokens from two users
-        returned channel_id's are stored in global variables
+        Pytest fixture that creates 6 test channels with tokens from two users
+        via HTTP routing.
     """
     channel_data = {
         'token': token_generate(1, 'login'),
@@ -85,7 +90,13 @@ def create_channels(url):
 def test_http_create_invalid_name(url, create_users):
     """
         Test for InputError exception thrown by channels_create() when name
-        is longer than 20 characters
+        is longer than 20 characters.
+
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
     """
     query = {
         'token': token_generate(1, 'login'),
@@ -97,7 +108,13 @@ def test_http_create_invalid_name(url, create_users):
 
 def test_http_create_standard(url, create_users):
     """
-        Test for standard functionality of channels_create() according to spec
+        Test for standard functionality of channels_create() according to spec.
+
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
     """
     query = {
         'token': token_generate(1, 'login'),
@@ -112,8 +129,14 @@ def test_http_create_standard(url, create_users):
 
 def test_http_create_invalid_token(url, create_users):
     """
-        When two channels with duplicate details are created
-        Ensure both are created as they differ by channel_id
+        When two channels with duplicate details are created.
+        Ensure both are created as they differ by channel_id.
+
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
     """    
     query = {
         'token': token_generate(1, 'logout'),
@@ -129,7 +152,16 @@ def test_http_create_invalid_token(url, create_users):
 def test_http_list_invalid_token(url, create_users, create_channels):
     """
         Test for AccessError exception thrown by channels_create() when token
-        passed in is not a valid token
+        passed in is not a valid token.
+
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
+
+        :param create_channels: pytest fixture to create six test channels 
+        :type create_channels: pytest fixture
     """
     # empty
     resp = requests.get(url + 'channels/list', params={'token': ''})
@@ -150,7 +182,16 @@ def test_http_list_invalid_token(url, create_users, create_channels):
 
 def test_http_list_standard(url, create_users, create_channels):
     """
-        Test for standard functionality of channels_list() according to spec
+        Test for standard functionality of channels_list() according to spec.
+
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
+
+        :param create_channels: pytest fixture to create six test channels 
+        :type create_channels: pytest fixture
     """
     resp = requests.get(url + 'channels/list', params={'token': token_generate(1, 'login')})
     payload = resp.json()
@@ -168,7 +209,13 @@ def test_http_list_standard(url, create_users, create_channels):
 
 def test_http_list_standard_no_channel(url, create_users):
     """
-        Test for standard functionality of channels_list() according to spec
+        Test for standard functionality of channels_list() according to spec.
+
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
     """
     resp = requests.get(url + 'channels/list', params={'token': token_generate(1, 'login')})
     payload = resp.json()
@@ -178,7 +225,16 @@ def test_http_list_standard_no_channel(url, create_users):
 def test_http_listall_invalid_token(url, create_users, create_channels):
     """
         Test for AccessError exception thrown by channels_create() when token
-        passed in is not a valid token
+        passed in is not a valid token.
+
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
+
+        :param create_channels: pytest fixture to create six test channels 
+        :type create_channels: pytest fixture
     """
     # empty
     resp = requests.get(url + 'channels/listall', params={'token': ''})
@@ -198,7 +254,16 @@ def test_http_listall_invalid_token(url, create_users, create_channels):
 
 def test_http_listall_standard(url, create_users, create_channels):
     """
-        Test for standard functionality of channels_list() according to spec
+        Test for standard functionality of channels_list() according to spec.
+
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
+
+        :param create_channels: pytest fixture to create six test channels 
+        :type create_channels: pytest fixture
     """
     resp = requests.get(url + 'channels/listall', params={'token': token_generate(1, 'login')})
     payload = resp.json()
@@ -221,7 +286,13 @@ def test_http_listall_standard(url, create_users, create_channels):
 
 def test_http_listall_standard_no_channel(url, create_users):
     """
-        Test for standard functionality of channels_listall() according to spec
+        Test for standard functionality of channels_listall() according to spec.
+
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param create_users: pytest fixture to create two test users 
+        :type create_users: pytest fixture
     """
     resp = requests.get(url + 'channels/list', params={'token': token_generate(1, 'login')})
     payload = resp.json()

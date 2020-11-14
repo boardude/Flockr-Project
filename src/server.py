@@ -4,10 +4,11 @@ from channel import channel_invite, channel_details, channel_messages, channel_l
 from channel import channel_join, channel_addowner, channel_removeowner
 from channels import channels_create, channels_list, channels_listall
 from message import message_send, message_remove, message_edit
-from user import user_profile, user_profile_setemail, user_profile_sethandle, user_profile_setname
+from user import user_profile, user_profile_setemail, user_profile_sethandle, user_profile_setname, user_profile_uploadphoto
 from other import clear, users_all, search, admin_userpermission_change
+from standup import standup_start, standup_active, standup_send
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, send_from_directory
 from flask_cors import CORS
 from error import InputError
 from flask_mail import Mail, Message
@@ -216,6 +217,22 @@ def set_handle():
     data = request.get_json()
     return dumps(user_profile_sethandle(data['token'], data['handle_str']))
 
+@APP.route('/user/profile/uploadphoto', methods=['POST'])
+def set_photo():
+    data = request.get_json()
+    token = data['token']
+    img_url = data['img_url']
+    x_start = int(data['x_start'])
+    y_start = int(data['y_start'])
+    x_end = int(data['x_end'])
+    y_end = int(data['y_end'])
+    server_url = request.host
+    return dumps(user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end, server_url))
+
+@APP.route('/static/<path:path>')
+def send_img(path):
+    return send_from_directory('/static/', path)
+
 ########################################
 ############## other.py ################
 ########################################
@@ -223,7 +240,7 @@ def set_handle():
 def clear_data():
     return dumps(clear())
 
-@APP.route('/users/all' , methods=['GET'])
+@APP.route('/users/all', methods=['GET'])
 def get_all_users():
     return dumps(users_all(request.args.get('token')))
 
@@ -238,6 +255,25 @@ def search_msg():
     token = request.args.get('token')
     query_str = request.args.get('query_str')
     return dumps(search(token, query_str))
+
+########################################
+############# standup.py ###############
+########################################
+@APP.route('/standup/start', methods=['POST'])
+def start_standup():
+    data = request.get_json()
+    return dumps(standup_start(data['token'], int(data['channel_id']), int(data['length'])))
+
+@APP.route('/standup/active', methods=['GET'])
+def standup_active_check():
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
+    return dumps(standup_active(token, channel_id))
+
+@APP.route('/standup/send', methods=['POST'])
+def send_standup_msg():
+    data = request.get_json()
+    return dumps(standup_send(data['token'], int(data['channel_id']), data['message']))
 
 if __name__ == "__main__":
     APP.run(port=0) # Do not edit this port

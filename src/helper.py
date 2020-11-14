@@ -1,4 +1,6 @@
 import jwt
+import string
+from random import randint
 from data import users, channels
 
 SECRET = 'grape6'
@@ -99,3 +101,22 @@ def is_user_an_owner(token, channel_id):
     if user['u_id'] in channel['owner_members']:
         return True
     return False
+
+def random_str_generate(length):
+    '''
+    a helper function for generation a unique code
+    the unique code is a combination of uppercase and number with given length
+    see assumption for more details
+
+    Args:
+        It does not have arguments
+
+    Returns:
+        It would return a unique code(str)
+    '''
+    chars = string.ascii_uppercase + '0123456789'
+    code = ''
+    while len(code) < length:
+        selection = randint(0, len(chars) - 1)
+        code += chars[selection]
+    return code

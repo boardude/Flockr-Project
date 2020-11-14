@@ -7,10 +7,11 @@ import requests
 import json
 from auth import token_generate
 
-# Use this fixture to get the URL of the server. It starts the server for you,
-# so you don't need to.
 @pytest.fixture
 def url():
+    """
+        Pytest fixture to start the server and get its URL.
+    """
     url_re = re.compile(r' \* Running on ([^ ]*)')
     server = Popen(["python3", "src/server.py"], stderr=PIPE, stdout=PIPE)
     line = server.stderr.readline()
@@ -31,10 +32,10 @@ def url():
 
 @pytest.fixture
 def initial_data(url):
-    '''
-    create user1 and user2
-    and user1 create channel1
-    '''
+    """
+        Pytest fixture that registers and logs in two users and creates
+        a channel via HTTP routing.
+    """
     requests.delete(url + 'clear')
     data = {
         'email' : 'test1@test.com',
@@ -59,9 +60,12 @@ def initial_data(url):
 ########################################
 
 def test_clear(url):
-    '''
-    create 2users and user2 create a channel
-    '''
+    """
+        Test for standard functionality of clear() according to spec.
+
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+    """
     data = {
         'email' : 'test1@test.com',
         'password' : 'password',
@@ -99,9 +103,17 @@ def test_clear(url):
 # 3. error when given permission is invalid
 # 4. error when given token is invalid
 def test_pemission_standard(url, initial_data):
-    '''
-    test permission change standard
-    '''
+    """
+        Test for InputError exception thrown by admin_userpermission_change()
+        when u_id does not refer to a valid user or whenpermission_id does not
+        refer to a valid permission id.
+
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param initial_data: pytest fixture to create two users and a channel
+        :type initial_data: pytest fixture
+    """
     # user2 try to join a private channel
     channel_data = {
         'token' : token_generate(2, 'login'),
@@ -129,9 +141,16 @@ def test_pemission_standard(url, initial_data):
     assert resp.status_code == 400
 
 def test_permission_invalid_uid(url, initial_data):
-    '''
-    test error when given u_id is invalid (u_id 0 not exist)
-    '''
+    """
+        Test for InputError (code=400) thrown by admin_userpermission_change() when
+        invalid u_id is given.
+    
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param initial_data: pytest fixture to create two users and a channel
+        :type initial_data: pytest fixture
+    """
     data = {
         'token' : token_generate(1, 'login'),
         'u_id' : 0,
@@ -141,9 +160,16 @@ def test_permission_invalid_uid(url, initial_data):
     assert resp.status_code == 400
 
 def test_permission_invalid_permission_id(url, initial_data):
-    '''
-    test error when given permission_id is invalid
-    '''
+    """
+        Test for InputError (code=400) thrown by admin_userpermission_change() when
+        invalid permission_id is given.
+    
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param initial_data: pytest fixture to create two users and a channel
+        :type initial_data: pytest fixture
+    """
     data = {
         'token' : token_generate(1, 'login'),
         'u_id' : 2,
@@ -152,10 +178,17 @@ def test_permission_invalid_permission_id(url, initial_data):
     resp = requests.post(url + 'admin/userpermission/change', json=data)
     assert resp.status_code == 400
 
-def test_pemission_invalid_token(url, initial_data):
-    '''
-    test error when given token is invalid (logout or invalid)
-    '''
+def test_permission_invalid_token(url, initial_data):
+    """
+        Test for AccessError (code=400) thrown by admin_userpermission_change() when
+        invalid token is given.
+    
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param initial_data: pytest fixture to create two users and a channel
+        :type initial_data: pytest fixture
+    """
     data = {
         'token' : token_generate(1, 'logout'),
         'u_id' : 2,
@@ -172,9 +205,15 @@ def test_pemission_invalid_token(url, initial_data):
 ########################################
 # 1. standard
 def test_search_standard(url, initial_data):
-    '''
-    test search standard
-    '''
+    """
+        Test for standard functionality of search() according to spec.
+    
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param initial_data: pytest fixture to create two users and a channel
+        :type initial_data: pytest fixture
+    """
     # do send msgs
     msg_data = {
         'token' : token_generate(1, 'login'),
@@ -202,9 +241,16 @@ def test_search_standard(url, initial_data):
     assert len(json.loads(resp.text)['messages']) == 0
 
 def test_search_invalid_token(url, initial_data):
-    '''
-    test when given token is invalid
-    '''
+    """
+        Test for AccessError (code=400) thrown by search() when
+        invalid token is given.
+    
+        :param url: pytest fixture that starts the server and gets its URL 
+        :type url: pytest fixture
+
+        :param initial_data: pytest fixture to create two users and a channel
+        :type initial_data: pytest fixture
+    """
     data = {
         'token' : token_generate(1, 'logout'),
         'query_str' : '3',

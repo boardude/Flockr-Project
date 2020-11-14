@@ -15,7 +15,7 @@ from random import randint
 import jwt
 from data import users, create_user
 from error import InputError, AccessError
-from helper import get_user_from_email, get_user_from_token
+from helper import get_user_from_email, get_user_from_token, random_str_generate
 SECRET = 'grape6'
 
 def auth_login(email, password):
@@ -172,7 +172,7 @@ def auth_pwreset_req(email):
     if user is None:
         raise InputError(description='User does not exist')
     # get unique code and store it
-    code = reset_code_generate()
+    code = random_str_generate(50)
     user['reset_code'] = code
     return {}
 
@@ -296,25 +296,6 @@ def is_email_valid(email):
     if re.search(regex, email):
         return True
     return False
-
-def reset_code_generate():
-    '''
-    a helper function for generation a unique code for reset_pw
-    the unique code is a combination of uppercase and number with length of 50
-    see assumption for more details
-
-    Args:
-        It does not have arguments
-
-    Returns:
-        It would return a unique code(str)
-    '''
-    chars = string.ascii_uppercase + '0123456789'
-    code = ''
-    while len(code) < 50:
-        selection = randint(0, len(chars) - 1)
-        code += chars[selection]
-    return code
 
 def get_reset_code(email):
     '''
