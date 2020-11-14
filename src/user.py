@@ -12,6 +12,7 @@ from auth import is_email_valid
 import urllib
 from PIL import Image
 import requests
+import ssl
 
 def user_profile(token, u_id):
     '''
@@ -186,11 +187,12 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end, ser
         AccessError:
             given token does not refer to a valid user
     '''
+    ssl._create_default_https_context = ssl._create_unverified_context
     auth_user = get_user_from_token(token)
     # access error when given token is invalid
     if auth_user is None:
         raise AccessError(description='Invalid token')
-    file_path = './static/'
+    file_path = './src/static/'
     file_name = str(auth_user['u_id']) + '.jpg'
     # input error when given img is not in jpg form
     if img_url[-4:] != '.jpg':
