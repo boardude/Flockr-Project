@@ -102,16 +102,24 @@ Add ability to have real-time video calls between multiple users in channels or 
 ### **User story 4.2** ###
 As a user of Flockr, I want to be able to have audio-only calls for quick and informal meetings where there is no need to appear in front of a camera.
 ### *Task 4.2* ###
-Add option to turn off the camera in video calls.
+Add option to turn off/on the camera in video calls.
 ### *UAC 4.2 - rule-based* ###
-* Users can turn off and on their camera stream during a video call at any time
+* Users can turn off and on their camera stream at any time during a video call 
 * Users can continue to participate in the call voice-only after turning off their camera
 
 ### **User story 4.3** ###
-As a user of Flockr, I want to be able to mute my mic and turn off my camera before joining a meeting to avoid causing any disruption.
+As a participant of a video call, I want to be able to mute my mic at any time during the call in case if a family member is talking to me and I don't want other participants of the call to hear my conversation.
 ### *Task 4.3* ###
+Add the option to turn off/on the microphone in video calls
+### *UAC 4.3* ###
+* Users can turn off and on their microphone input at any time during a video call
+* Users can hold a dedicated key to temporarily unmute their microphone when it is in a muted (off) state
+
+### **User story 4.4** ###
+As a user of Flockr, I want to be able to mute my mic and turn off my camera before joining a meeting to avoid causing any disruption.
+### *Task 4.4* ###
 Add panel to check and set audio and video settings after clicking on 'join call' button, but prior to actually joining the call.
-### *UAC 4.3 - scenario based* ###
+### *UAC 4.4 - scenario based* ###
 **Scenario:** Set up video call settings before joining a video call
 **Given:** The user is in a channel or direct message
 **When:** The user has selected to start or join a video call
@@ -119,46 +127,47 @@ Add panel to check and set audio and video settings after clicking on 'join call
 **When:** The user selects and confirms settings
 **Then:** Flockr connects the user to the video call
 
-### **User story 4.4** ###
+### **User story 4.5** ###
 As the host of a video call in Flockr, I want to have the option to record the calls as video or audio files so that any non-participants have access to information shared during the meeting.
-### *Task 4.4* ###
+### *Task 4.5* ###
 Add the option to record video calls as video or audio files, but only to the host of each meeting or a Flockr owner.
-### UAC 4.4 - scenario-based ###
+### UAC 4.5 - scenario-based ###
 **Scenario:** Host records a video call as a video or audio file
 **Given:** A video call has been started and the user is the host of the call (started the call or has been given host status)
 **When:** The user (host) selects the option to record the call
 **And:** Chooses whether to record as a video file or voice-only as an audio file
 **Then:** Flockr begins to record the video call
-**When:** The host ends the video call
+**When:** The host ends the recording or the video call itself
 **Then:** Flockr saves the recording as a file on the user's local machine
 
-
-### **User story 4.5** ###
+### **User story 4.6** ###
 As a participant of a video call, I want the option to share my screen to other participants so that they can all see the same thing I am referring to, just like in a face-to-face meeting.
-### *Task 4.5* ###
+### *Task 4.6* ###
 Add the option for screen-sharing by any participant during a video call.
-### *UAC 4.5 - scenario-based* ###
+### *UAC 4.6 - scenario-based* ###
 **Scenario:** Screen-sharing during video calls
 **Given:** The user is a participant of the video call and no other participant is sharing their screen
 **When:** The user selects the option to screen-share
-**Then:** Flockr displays the user's screen as the main video object of the call
+**Then:** Flockr asks whether to share the entire screen or an application window only.
+**When:** The user makes a selection
+**Then:** Flockr displays the user's screen or an application window (depending on selection) as the main video object of the call.
 **When:** The user selects the option to stop sharing his/her screen
 **Then:** Flockr stops displaying the user's screen as the main video object
 
-### **User story 4.6** ###
+### **User story 4.7** ###
 As the host of a video call, I want to be able to manage participants so that I can mute or remove any participant, to combat any trolling behaviour that often plagues the world of online conferencing.
-### *Task 4.6* ###
+### *Task 4.7* ###
 Give the host of video calls the ability to mute or remove any participant.
-### *UAC 4.6 - rule-based* ###
+### *UAC 4.7 - rule-based* ###
 * The host of a video call can remove any participant at any time during the video call
 * The host can mute the audio input of any participant
 * The host can unmute the audio input of any participant
 
-### **User story 4.7** ###
+### **User story 4.8** ###
 As the host of a video call, I want to be able to transfer host privileges to any participant, in the case where I have started the video call but is not supposed to act as the host of the meeting.
-### *Task 4.7* ###
+### *Task 4.8* ###
 Add the ability for the host of video calls to transfer host status to any other participant. 
-### *UAC 4.7 - rule-based* ###
+### *UAC 4.8 - rule-based* ###
 * The host of a video call can transfer host status to any other participant in the video call
 * After host status is transferred to the other user, host status is removed from the current user
 * There is only one host in each video call
