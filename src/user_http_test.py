@@ -312,7 +312,7 @@ def test_upload_photo_standard(url, initial_basics):
     standard test no error
     user1 upload a photo and check it is stored correctly
     '''
-    img_url = 'https://kinsta.com/wp-content/uploads/2019/08/jpg-vs-jpeg.jpg'
+    img_url = 'https://sm.pcmag.com/t/pcmag_ap/review/a/adobe-phot/adobe-photoshop-for-ipad_tqxk.3840.jpg'
     data = {
         'token' : token_generate(1, 'login'),
         'img_url' : img_url,
@@ -322,7 +322,7 @@ def test_upload_photo_standard(url, initial_basics):
         'y_end' : 20,
     }
     resp = requests.post(url + 'user/profile/uploadphoto', json=data)
-    #assert resp.status_code == 200
+    assert resp.status_code == 200
     data = {
         'token': token_generate(1, 'login'),
         'u_id' : 1,
@@ -357,7 +357,7 @@ def test_upload_photo_invalid_bounds(url, initial_basics):
     1. negative value
     2. out of ranges
     '''
-    img_url = 'https://kinsta.com/wp-content/uploads/2019/08/jpg-vs-jpeg.jpg'
+    img_url = 'https://img1.looper.com/img/gallery/things-only-adults-notice-in-shrek/intro-1573597941.jpg'
     # 1. negative value
     data = {
         'token' : token_generate(1, 'login'),
