@@ -11,6 +11,7 @@ from helper import get_user_from_token, get_user_from_id, random_str_generate
 from auth import is_email_valid
 import urllib
 from PIL import Image
+import requests
 
 def user_profile(token, u_id):
     '''
@@ -186,18 +187,29 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end, ser
             given token does not refer to a valid user
     '''
     auth_user = get_user_from_token(token)
+    # access error when given token is invalid
     if auth_user is None:
         raise AccessError(description='Invalid token')
-    file_path = 'static/' + random_str_generate(10) + str(auth_user['u_id']) + '.jpg'
+    file_path = './static/'
+    file_name = str(auth_user['u_id']) + '.jpg'
+    # input error when given img is not in jpg form
+    if img_url[-4:] != '.jpg':
+        raise InputError(description='Invalid form')
+    # input error when given url is invalid
     try:
-        urllib.request.urlretrieve(img_url, file_path)
+        urllib.request.urlretrieve(img_url, file_path + file_name)
     except:
         raise InputError(description='Invalid url')
-    try:
-        img_object = Image.open(file_path)
-        cropped = img_object.crop((x_start, y_start, x_end, y_end))
-        cropped.save(file_path)
-    except:
+    img_object = Image.open(file_path + file_name)
+    # input error when given bounds are invalid
+    width, height = img_object.size
+    if x_start > width or x_end > width or y_start > height or y_end > height:
         raise InputError(description='Invalid bounds')
-    auth_user['profile_img_url'] = server_url + '/' + file_path
+    if x_start < 0 or x_end < 0 or y_start < 0 or y_end < 0:
+        raise InputError(description='Invalid bounds')
+    # do crop
+    cropped = img_object.crop((x_start, y_start, x_end, y_end))
+    cropped.save(file_path + file_name)
+    # do store url
+    auth_user['profile_img_url'] = server_url + '/static/' + file_name
     return {}
