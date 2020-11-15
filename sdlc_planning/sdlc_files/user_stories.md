@@ -45,6 +45,33 @@ Add the ability to see the status of a message after it has been sent. Four stat
 * **When:** User sends a message channel or direct messages  
 * **Then:** Flockr detects and displays the current status of the message (failed to send, sent, delivered, seen).
 
+### **User story 2.3** ###
+As a user of Flockr, I want to be able to remove a message after I have sent it into a channel or direct message in the case when I sent something to the wrong person, the message contained a mistake, or when I simply have changed my mind.
+### *Task 2.3* ###
+Add the option for sent messages in channels and direct messages to be removed by the original sender.
+### *UAC 2.3 - scenario-based* ###
+* **Scenario:** Remove a sent message  
+* **Given:** The user sends a message in a channel or direct message  
+* **When:** The users selects the "remove" option for the message  
+* **Then:** Flockr backend removes the message from the database  
+* **And:** Flockr frontend removes the messages from the channel and stops it from being displayed to other users.
+
+### **User story 2.4** ###
+As a user of Flockr, I want to be able to edit a message after I have sent it into a channel or direct message so that I can correct a message instead or removing it and sending a new one.
+### *Task 2.4* ###
+Add the option for sent messages in channels and direct messages to be edited by the original sender.
+### *UAC 2.4 - scenario-based* ###
+* **Scenario:** Edit a sent message  
+* **Given:** The user sends a message in a channel or direct message  
+* **When:** The users selects the "edit" option for the message  
+* **Then:** Flockr displays a text box where the user can edit the original message  
+* **When:** User selects "Finish"  
+* **Then:** Flockr modifies the message in the backend to reflect the user's edits   
+* **And:** Flockr frontend displays the user's modified message in the original message's place  
+* **Or when:** User selects "Cancel"  
+* **Then:** Flockr backend discards all of the user's edits  
+* **And:** Flockr frontend continues to display the original message.
+
 </br>
 
 ## **Epic 3:** File sharing in channels and direct messages ##
