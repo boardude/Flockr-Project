@@ -171,6 +171,8 @@ Add the option for screen-sharing by any participant during a video call.
 * **When:** The user selects the option to stop sharing his/her screen
 * **Then:** Flockr stops displaying the user's screen as the main video object
 
+<div style="page-break-after: always"></div>
+
 #### **User story 4.7** ###
 As the host of a video call, I want to be able to manage participants so that I can mute or remove any participant, to combat any trolling behaviour that often plagues the world of online conferencing.
 #### *Task 4.7* ###
@@ -238,6 +240,8 @@ For this report, we decided to generate a steps-based use case for video calling
 * **Step 16.** Flockr ends the video call for every participant (given user is host), and returns to the channel interface.
 * **Step 17.** Flockr saves a video recording of the call as a file on the user's local machine (as per user's request in steps 6-8).
 
+<div style="page-break-after: always"></div>
+
 ### **Use case 2 - file sharing** ###
 For file sharing, we decided to generate a use case diagram.
 ![Use case diagram for file sharing in Flockr](sdlc_files/file_sharing_use_case.png)
@@ -297,7 +301,7 @@ Here, the above user stories and use cases are expressed as HTTP endpoint specif
 
 <div style="page-break-after: always"></div>
 
-## [Design] Conceptual Modelling (State)
+## **[Design] Conceptual Modelling (State)**
 We decided to create state diagrams to model Flockr video calling as it is the most complex addition out of the planned features.
 Below represents the state transitions during a video call in a channel.
 ![State diagram for video calling in a Flockr channel](sdlc_files/video_call_state_diagram_channel.png)
