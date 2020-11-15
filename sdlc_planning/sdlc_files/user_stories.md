@@ -11,14 +11,15 @@ Create new grouping system for channels acting as folders to files.
 * Can move existing channels inside channel groups
 * Can move existing channels out of channel groups
 * Can create new channels inside channel groups
+* A group are only visible to the user who created it
 
 ### **User story 1.2** ###
 As a user of channel groups, I want to name the groups myself so that I can better organise channels by naming their categories (ex: Work, School, Friends, etc.).
 ### *Task 1.2* ###
 Add ability for channel group names to be user-defined.
 ### *UAC 1.2 - rule-based* ###
-* Channel groups have default names
-* Creator of the channel group can change its name from default to a custom string
+* Channel groups have names
+* Creator channel groups can set its name
 
 </br>
 
@@ -31,6 +32,7 @@ Add the ability to send other users direct messages independent of channels.
 * User can select the option to send a direct message
 * User can choose which user to start a direct message conversation with
 * User can send messages directly to the other user in the direct message chat without using channels
+* Direct message chats are only visible to its two participants
 * New participants cannot be invited to or join an existing direct message chat
 
 ### **User story 2.2** ###
@@ -42,33 +44,6 @@ Add the ability to see the status of a message after it has been sent. Four stat
 * **Given:** The user is in a channel or direct message  
 * **When:** User sends a message channel or direct messages  
 * **Then:** Flockr detects and displays the current status of the message (failed to send, sent, delivered, seen).
-
-### **User story 2.3** ###
-As a user of Flockr, I want to be able to remove a message after it has been sent into a channel or direct message in the case when I sent something to the wrong person, the message contained a mistake, or when I simply have changed my mind.
-### *Task 2.3* ###
-Add the option for sent messages in channels and direct messages to be removed by the original sender.
-### *UAC 2.3 - scenario-based* ###
-* **Scenario:** Remove a sent message  
-* **Given:** The user sends a message in a channel or direct message  
-* **When:** The users selects the "remove" option for the message  
-* **Then:** Flockr backend removes the message from the database  
-* **And:** Flockr frontend removes the messages from the channel and stops it from being displayed to other users.
-
-### **User story 2.4** ###
-As a user of Flockr, I want to be able to edit a message after it has been sent into a channel or direct message so that I can correct a message instead or removing it and sending a new one.
-### *Task 2.4* ###
-Add the option for sent messages in channels and direct messages to be edited by the original sender.
-### *UAC 2.4 - scenario-based* ###
-* **Scenario:** Edit a sent message  
-* **Given:** The user sends a message in a channel or direct message  
-* **When:** The users selects the "edit" option for the message  
-* **Then:** Flockr displays a text box where the user can edit the original message  
-* **When:** User selects "Finish"  
-* **Then:** Flockr modifies the message in the backend to reflect the user's edits   
-* **And:** Flockr frontend displays the user's modified message in the original message's place  
-* **Or when:** User selects "Cancel"  
-* **Then:** Flockr backend discards all of the user's edits  
-* **And:** Flockr frontend continues to display the original message.
 
 </br>
 
