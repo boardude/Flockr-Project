@@ -83,12 +83,20 @@ Add the ability for users to send and receive files in channels and direct messa
 * All file types are supported
 
 ### **User story 3.2** ###
-As a user of Flockr, I want to be able to see and download files I have shared in the past as part of the message history so I don't have to keep resending the same files.
+As a user of file sharing, I want to be able to see and download files I have shared in the past as part of the message history so I don't have to keep resending the same files.
 ### *Task 3.2* ###
-Add some form of *longer*-term file persistence/storage to Flockr.
+Add some form of indefinite file retention/storage to Flockr.
 ### *UAC 3.2 - rule-based* ###
-* Any file that are shared in a channel or direct message remains available for any user to retrieve/download for a period of longer than 30 days
+* Any file that are shared in a channel or direct message remains available for any user to retrieve/download indefinitely
 * Past shared files appear in reverse chronological order as part of the message history as if it were a message
+
+### **User story 3.3** ###
+As a user of file sharing, I sometimes want to be able to have files I've shared expire after a certain period of time so that I have more control over the files I've shared.
+### *Task 3.3* ###
+Add ability to for a user set a time after which a file shared by the user in a channel or direct message expires and is no longer available to retrieve by any participant.
+### *UAC 3.3 - rule-based* ###
+* Users can choose to have file shared expire and no longer available to download
+* Users can set the period of time after which the files expire
 
 </br>
 
