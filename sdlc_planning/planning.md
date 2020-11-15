@@ -6,6 +6,8 @@ The first user's primary use for Discord is to talk to friends during video gami
 
 The second user's primarily uses Microsoft Teams for collaboration in an academic environment, including having lectures and tutorials via real-time video conferencing, and communication via text- and audio-based media when working in team-based projects. After briefly trialling Flockr, he expressed concern over the lack of real-time video and audio conferencing and file sharing, both of which he deemed critical for his use of team-based communication apps like Flockr. In addition, he ranked addition of direct messaging 8/10 in priority, addition of a "friends list" and blocking users 3/10 in priority, being able to display the active statuses of other users 7/10, and being able to display the statuses of sent messages 6/10.
 
+<div style="page-break-after: always"></div>
+
 ## **[Requirements] Analysis - General**
 After analysing the elicited information and balancing out user needs, we generated the following roadmap in problem-solution pairs: 
 
@@ -23,6 +25,8 @@ After analysing the elicited information and balancing out user needs, we genera
 * ***Solution 4:*** Add audio and video conferencing abilities.
 
 These problem-solution pairs are expressed as user stories below, with each pair corresponding to an epic.
+
+<div style="page-break-after: always"></div>
 
 ## **[Requirements] Analysis - user stories**
 
@@ -47,7 +51,7 @@ Add ability for channel group names to be user-defined.
 * Channel groups have names
 * Creator channel groups can set its name
 
-</br>
+<div style="page-break-after: always"></div>
 
 ### **Epic 2:** Advanced messaging features 
 #### **User story 2.1** 
@@ -71,7 +75,7 @@ Add the ability to see the status of a message after it has been sent. Four stat
 * **When:** User sends a message channel or direct messages  
 * **Then:** Flockr detects and displays the current status of the message (failed to send, sent, delivered, seen).
 
-</br>
+<div style="page-break-after: always"></div>
 
 ### **Epic 3:** File sharing in channels and direct messages 
 #### **User story 3.1** 
@@ -99,7 +103,7 @@ Add ability to for a user set a time after which a file shared by the user in a 
 * Users can choose to have file shared expire and no longer available to download
 * Users can set the period of time after which the files expire
 
-</br>
+<div style="page-break-after: always"></div>
 
 ### **Epic 4:** Real-time audiovisual communication
 #### **User story 4.1**
@@ -186,6 +190,8 @@ Add the ability for the host of video calls to transfer host status to any other
 * There is only one host in each video call
 * Any participant can request host status from the host. The host can either accept or reject the request
 
+<div style="page-break-after: always"></div>
+
 ## **[Requirements] Analysis - use cases**
 ### **Use case 1 - Video calling**
 For this report, we decided to generate a steps-based use case for video calling in Flockr (Epic 4).
@@ -236,6 +242,8 @@ For this report, we decided to generate a steps-based use case for video calling
 For file sharing, we decided to generate a use case diagram.
 ![Use case diagram for file sharing in Flockr](sdlc_files/file_sharing_use_case.png)
 
+<div style="page-break-after: always"></div>
+
 ## **[Requirements] Validation**
 We presented our user stories and use cases to the two people we reached out, and received the following comments back:
 ### **Peter Zhu (Interviewee 1)** - verbal (transcribed)
@@ -252,6 +260,8 @@ Upon receiving validation from both users, we decided specifically to modify our
 ![Revised use case diagram for file sharing in Flockr](sdlc_files/file_sharing_use_case_post_validation.png)
 
 Afterwards we presented our modified file sharing use case and the added user stories 3.2 and 3.3 to Bailey Vash, who approved of these specification changes.
+
+<div style="page-break-after: always"></div>
 
 ## **[Design] Interface Design**
 Here, the above user stories and use cases are expressed as HTTP endpoint specifications. 
@@ -284,6 +294,8 @@ Here, the above user stories and use cases are expressed as HTTP endpoint specif
 |file/remove|DELETE|```{token, file_id}```|```{}```|**InputError** when any of: <br><ul><li> File given by ```file_id``` does not exist</ul> **AccessError** when NONE of the following is true: <br><ul><li> File was sent by the authorised user making this request <li> The authorised user is a Flockr or channel owner| Given a file by ```file_id```, the file is removed from the channel or direct message chat|
 |file/expire|DELETE|```{token, file_id, expiry_time}```|```{}```|**InputError** when any of: <br><ul><li> File given by ```file_id``` does not exist <li>```expiry_time``` is a time in the past</ul> **AccessError** when NONE of the following is true: <br><ul><li> File was sent by the authorised user making this request <li> The authorised user is a Flockr or channel owner|Given a file by ```file_id```, the file is removed from the channel or direct message chat automatically at a time specified by ```expiry_time```|
 |message/status|GET|```{token, message_id}```|```{is_sent, is_delivered, is_seen}```|**InputError** when any of: <br><ul><li> Message (based on ID) does not exist| Given a message by ```message_id```, check and return its status. Status is made up of three parts: <br><ul><li> whether it is sent by the current user to the channel/direct (```is_sent```),<li>whether it is received all logged-in users in the channel/direct (```is_delivered```), and <li>whether it is seen by all users in the channel/direct (```is_seen```).|
+
+<div style="page-break-after: always"></div>
 
 ## [Design] Conceptual Modelling (State)
 We decided to create state diagrams to model Flockr video calling as it is the most complex addition out of the planned features.
