@@ -86,6 +86,7 @@ Add ability to have real-time video calls between multiple users in channels or 
 * Hosts can end the video call at any time
 * Any participant can leave a video call at any time
 * If the host leaves the video call the video call is ended
+* There is no host in direct message video calls
 
 ### **User story 4.2** ###
 As a user of Flockr, I want to be able to have audio-only calls for informal meetings or gaming sessions with friends where there is no need to appear in front of a camera.
@@ -136,9 +137,7 @@ Add the option for screen-sharing by any participant during a video call.
 * **Scenario:** Screen-sharing during video calls
 * **Given:** The user is a participant of the video call and no other participant is sharing their screen
 * **When:** The user selects the option to screen-share
-* **Then:** Flockr asks whether to share the entire screen or an application window only.
-* **When:** The user makes a selection
-* **Then:** Flockr displays the user's screen or an application window (depending on selection) as the main video object of the call.
+* **Then:** Flockr displays the user's screen as the main video object of the call.
 * **When:** The user selects the option to stop sharing his/her screen
 * **Then:** Flockr stops displaying the user's screen as the main video object
 
